@@ -1,0 +1,27 @@
+image:
+ - Ubuntu
+
+version: '{build}'
+
+skip_tags: true
+skip_commits:
+  message: /[\[(^](do\s*n[o']?t\s*merge|wip|dnm)[\]):]/
+  files:
+    - '**/*.md'
+    - docs/*
+
+environment:
+  Appveyor: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+nuget:
+  disable_publish_on_pr: true
+
+test: off
+
+artifacts:
+- path: .\.nupkgs\*.nupkg
+
+build:
+  project: OpenEventSourcing.sln
+  verbosity: minimal
