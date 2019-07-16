@@ -1,7 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>In-Memory database provider for OpenEventSourcing (to be used for testing purposes).</Description>
+    <PackageTags>$(PackageTags), ef, entity framework, In-Memory</PackageTags>
+    <PackageLicenseExpression>$(PackageLicense)</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,13 @@
+<Project>
+	<Import Project="..\Directory.Build.props" Condition="Exists('..\Directory.Build.props')" />
+
+  <PropertyGroup Label="ProjectSettings">
+    <Authors>Dan Cirket</Authors>
+    <Copyright>Copyright Dan Cirket</Copyright>
+    <Product>OpenEventSourcing</Product>
+    <PackageProjectUrl>https://github.com/danielcirket/OpenEventSourcing</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/danielcirket/OpenEventSourcing</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>

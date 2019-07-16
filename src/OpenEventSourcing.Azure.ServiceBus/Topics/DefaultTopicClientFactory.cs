@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Extensions.Options;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Topics
 {
     internal sealed class DefaultTopicClientFactory : ITopicClientFactory
     {
-        private readonly IOptions<ServiceBusOptions> _options;
         private readonly ServiceBusConnectionStringBuilder _connectionStringBuilder;
         private ITopicClient _topicClient;
 

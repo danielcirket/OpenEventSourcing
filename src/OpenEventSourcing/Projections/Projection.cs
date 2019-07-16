@@ -9,6 +9,11 @@ namespace OpenEventSourcing.Projections
     {
         private readonly Dictionary<Type, Func<IEvent, Task>> _handlers;
 
+        protected Projection()
+        {
+            _handlers = new Dictionary<Type, Func<IEvent, Task>>();
+        }
+
         protected void Handles<TEvent>(Func<TEvent, Task> handler)
             where TEvent : IEvent
         {
