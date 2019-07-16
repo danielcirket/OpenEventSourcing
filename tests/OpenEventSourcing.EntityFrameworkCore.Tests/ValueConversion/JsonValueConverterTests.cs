@@ -10,7 +10,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.ValueConversion
 {
     public class JsonValueConverterTests
     {
-        private static readonly string _json = "{\"Id\":null,\"Name\":\"John Smith\",\"Address\":{\"AddressLine1\":\"1 Some Street\"}}";
+        private static readonly string _json = "{\"id\":null,\"name\":\"John Smith\",\"address\":{\"addressLine1\":\"1 Some Street\"}}";
 
         [Fact]
         public void WhenSerializedContainsExpectedValue()

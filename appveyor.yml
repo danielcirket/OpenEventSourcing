@@ -11,15 +11,12 @@ skip_commits:
     - docs/*
 
 environment:
-  Appveyor: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 configuration: Release
 
 nuget:
   disable_publish_on_pr: true
-
-test: off
 
 artifacts:
 - path: .\.nupkgs\*.nupkg
