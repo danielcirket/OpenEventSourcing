@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
 {
     public interface ITopicMessageReceiver
     {
-        Task RecieveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default);
+        Task ReceiveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default);
         Task OnErrorAsync(ExceptionReceivedEventArgs error);
     }
 }

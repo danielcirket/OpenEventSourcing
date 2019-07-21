@@ -70,7 +70,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
                 foreach (var rule in rulesToRemove)
                     await client.RemoveRuleAsync(rule.Name);
 
-                client.RegisterMessageHandler((message, cancelationToken) => _messageReceiver.RecieveAsync(client, message, cancelationToken), _messageReceiver.OnErrorAsync);
+                client.RegisterMessageHandler((message, cancelationToken) => _messageReceiver.ReceiveAsync(client, message, cancelationToken), _messageReceiver.OnErrorAsync);
 
                 clients.Add(client);
             }

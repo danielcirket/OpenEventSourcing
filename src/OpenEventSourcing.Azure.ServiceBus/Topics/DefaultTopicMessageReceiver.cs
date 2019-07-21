@@ -43,7 +43,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
 
             return Task.CompletedTask;
         }
-        public async Task RecieveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default)
+        public async Task ReceiveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default)
         {
             var eventName = message.Label;
             var eventData = Encoding.UTF8.GetString(message.Body);             
