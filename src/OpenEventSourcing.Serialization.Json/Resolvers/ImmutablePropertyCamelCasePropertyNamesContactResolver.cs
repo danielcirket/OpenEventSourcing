@@ -25,7 +25,7 @@ namespace OpenEventSourcing.Serialization.Json.Resolvers
                     return prop;
 
                 var declaringType = property.DeclaringType;
-                var compilerField = declaringType.GetField($"<{property.Name}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+                var compilerField = declaringType.GetField($"<{property.Name}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
                 if (compilerField != null)
                 {
