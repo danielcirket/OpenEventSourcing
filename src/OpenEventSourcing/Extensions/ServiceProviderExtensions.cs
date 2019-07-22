@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OpenEventSourcing.Extensions
@@ -11,7 +12,12 @@ namespace OpenEventSourcing.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            return source.GetRequiredService<IEnumerable<T>>();
+            var services = source.GetRequiredService<IEnumerable<T>>();
+
+            if (!services.Any())
+                throw new InvalidOperationException($"No services could be found for '{typeof(T).FriendlyName()}'");
+
+            return services;
         }
     }
 }

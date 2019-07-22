@@ -39,7 +39,7 @@ namespace OpenEventSourcing.Serialization.Json.ValueProviders
             var type = target.GetType();
 
             var memberName = _member.Name;
-            var compilerField = target.GetType().GetField($"<{memberName}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+            var compilerField = target.GetType().GetField($"<{memberName}>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
             if (compilerField == null)
                 throw new InvalidOperationException($"Cannot set value for '{memberName}' for '{type.Name}'. Compiler generated backing field '<{memberName}>k__BackingField' is missing.");

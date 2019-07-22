@@ -37,9 +37,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.EntityFra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Azure.ServiceBus", "src\OpenEventSourcing.Azure.ServiceBus\OpenEventSourcing.Azure.ServiceBus.csproj", "{ACDE1FC8-EA4E-41EF-B118-0DDC2DD0D0EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.EntityFrameworkCore.Tests", "tests\OpenEventSourcing.EntityFrameworkCore.Tests\OpenEventSourcing.EntityFrameworkCore.Tests.csproj", "{C1481D60-A9DF-4E26-B626-E290FAA9F076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.EntityFrameworkCore.Tests", "tests\OpenEventSourcing.EntityFrameworkCore.Tests\OpenEventSourcing.EntityFrameworkCore.Tests.csproj", "{C1481D60-A9DF-4E26-B626-E290FAA9F076}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.EntityFrameworkCore.InMemory", "src\OpenEventSourcing.EntityFrameworkCore.InMemory\OpenEventSourcing.EntityFrameworkCore.InMemory.csproj", "{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.EntityFrameworkCore.InMemory", "src\OpenEventSourcing.EntityFrameworkCore.InMemory\OpenEventSourcing.EntityFrameworkCore.InMemory.csproj", "{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Tests", "tests\OpenEventSourcing.Tests\OpenEventSourcing.Tests.csproj", "{3A83FF4B-6198-44F3-945B-E396D42CB639}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Serialization.Json.Tests", "tests\OpenEventSourcing.Serialization.Json.Tests\OpenEventSourcing.Serialization.Json.Tests.csproj", "{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +87,14 @@ Global
 		{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A83FF4B-6198-44F3-945B-E396D42CB639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A83FF4B-6198-44F3-945B-E396D42CB639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A83FF4B-6198-44F3-945B-E396D42CB639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A83FF4B-6198-44F3-945B-E396D42CB639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +109,8 @@ Global
 		{ACDE1FC8-EA4E-41EF-B118-0DDC2DD0D0EC} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
 		{C1481D60-A9DF-4E26-B626-E290FAA9F076} = {3218A606-9764-48A2-95DD-41BC489FF235}
 		{D9FAC35B-D0E2-443C-9BE7-28C01056DD22} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
+		{3A83FF4B-6198-44F3-945B-E396D42CB639} = {3218A606-9764-48A2-95DD-41BC489FF235}
+		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4} = {3218A606-9764-48A2-95DD-41BC489FF235}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F3B61AD-0A13-4D2D-BD99-E90606951CB2}
