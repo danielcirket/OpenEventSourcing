@@ -30,8 +30,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task SaveAsync<TQuery, TQueryResult>(TQuery query)
-            where TQuery : class, IQuery<TQueryResult>
+        public async Task SaveAsync<TQueryResult>(IQuery<TQueryResult> query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
