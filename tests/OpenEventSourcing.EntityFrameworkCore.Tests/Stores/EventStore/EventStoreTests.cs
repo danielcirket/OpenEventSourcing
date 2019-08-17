@@ -117,7 +117,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             FakeAggregate aggregate = null;
 
-            Func<Task> act = async () => await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            Func<Task> act = async () => await store.SaveAsync(aggregate, 0);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("aggregate");
@@ -132,7 +132,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
 
-            Func<Task> act = async () => await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            Func<Task> act = async () => await store.SaveAsync(aggregate, 0);
 
             var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
             count.Should().Be(0);
@@ -150,7 +150,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            Func<Task> act = async () => await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 1);
+            Func<Task> act = async () => await store.SaveAsync(aggregate, 1);
 
             act.Should().Throw<ConcurrencyException>();
         }
@@ -167,7 +167,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            await store.SaveAsync(aggregate, 0);
 
             var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
             count.Should().Be(1);
@@ -187,7 +187,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            await store.SaveAsync(aggregate, 0);
 
             var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
             count.Should().Be(3);
@@ -196,11 +196,8 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         [Fact]
         public async Task WhenAggregateHasEventsThenGetAsyncShouldReturnExpectedEvents()
         {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
             var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
             var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-            var id = Guid.NewGuid().ToSequentialGuid();
 
             var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
 
@@ -210,7 +207,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            await store.SaveAsync(aggregate, 0);
 
             var events = await store.GetEventsAsync(aggregate.Id.Value);
 
@@ -219,11 +216,8 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         [Fact]
         public async Task WhenAggregateHasEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents()
         {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
             var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
             var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-            var id = Guid.NewGuid().ToSequentialGuid();
 
             var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
 
@@ -233,7 +227,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            await store.SaveAsync(aggregate, 0);
 
             var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
 
@@ -253,7 +247,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate, 0);
+            await store.SaveAsync(aggregate, 0);
 
             var total = dbContext.Events.Count();
             var page = await store.GetEventsAsync(0);
