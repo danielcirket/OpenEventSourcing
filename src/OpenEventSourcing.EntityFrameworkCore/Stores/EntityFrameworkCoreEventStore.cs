@@ -121,8 +121,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return results;
             }
         }
-        public async Task SaveAsync<TAggregate, TState>(TAggregate aggregate, int expectedVersion)
-            where TAggregate : Aggregate<TState>
+        public async Task SaveAsync<TState>(Aggregate<TState> aggregate, int expectedVersion)
             where TState : IAggregateState, new()
         {
             if (aggregate == null)

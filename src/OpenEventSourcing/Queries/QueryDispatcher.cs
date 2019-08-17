@@ -27,24 +27,23 @@ namespace OpenEventSourcing.Queries
             _queryStore = queryStore;
         }
 
-        public async Task<TQueryResult> DispatchAsync<TQuery, TQueryResult>(TQuery query)
-            where TQuery : class, IQuery<TQueryResult>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            _logger.LogInformation($"Dispatching query '{typeof(TQuery).FriendlyName()}' returning '{typeof(TQueryResult).FriendlyName()}'.");
-
             var type = query.GetType();
+
+            _logger.LogInformation($"Dispatching query '{type.FriendlyName()}' returning '{typeof(TQueryResult).FriendlyName()}'.");
 
             var handler = _serviceProvider.GetService(typeof(IQueryHandler<,>).MakeGenericType(type, typeof(TQueryResult)));
 
             if (handler == null)
-                throw new InvalidOperationException($"No query handler for type '{typeof(TQuery).FriendlyName()}' has been registered.");
+                throw new InvalidOperationException($"No query handler for type '{type.FriendlyName()}' has been registered.");
 
             var result = await (Task<TQueryResult>)handler.GetType().GetMethod("RetrieveAsync").Invoke(handler, new[] { query });
 
-            await _queryStore.SaveAsync<TQuery, TQueryResult>(query);
+            await _queryStore.SaveAsync<TQueryResult>(query);
 
             return result;
         }

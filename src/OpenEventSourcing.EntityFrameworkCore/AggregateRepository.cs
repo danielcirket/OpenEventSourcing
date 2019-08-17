@@ -36,14 +36,13 @@ namespace OpenEventSourcing.EntityFrameworkCore
 
             return aggregate;
         }
-        public async Task SaveAsync<TAggregate, TState>(TAggregate aggregate, int? expectedVersion = null)
-            where TAggregate : Aggregate<TState>
+        public async Task SaveAsync<TState>(Aggregate<TState> aggregate, int? expectedVersion = null)
             where TState : IAggregateState, new()
         {
             if (aggregate == null)
                 throw new ArgumentNullException(nameof(aggregate));
 
-            await _eventStore.SaveAsync<TAggregate, TState>(aggregate, expectedVersion.GetValueOrDefault());
+            await _eventStore.SaveAsync<TState>(aggregate, expectedVersion.GetValueOrDefault());
         }
     }
 }

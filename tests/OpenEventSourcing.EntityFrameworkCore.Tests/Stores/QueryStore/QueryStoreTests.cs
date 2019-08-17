@@ -65,7 +65,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.QueryStore
             var store = new EntityFrameworkCoreQueryStore(dbContextFactory: dbContextFactory, querySerializer: querySerializer, logger: logger);
             FakeQuery query = null;
 
-            Func<Task> act = async () => await store.SaveAsync<FakeQuery, FakeQueryResult>(query);
+            Func<Task> act = async () => await store.SaveAsync(query);
 
             act.Should().Throw<ArgumentNullException>()
                .And.ParamName.Should().Be("query");
@@ -89,7 +89,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.QueryStore
             var serializer = serviceProvider.GetRequiredService<IQuerySerializer>();
             var query = new FakeQuery();
 
-            await store.SaveAsync<FakeQuery, FakeQueryResult>(query);
+            await store.SaveAsync(query);
 
             dbContext.Queries.Count(q => q.Id == query.Id).Should().Be(1);
 

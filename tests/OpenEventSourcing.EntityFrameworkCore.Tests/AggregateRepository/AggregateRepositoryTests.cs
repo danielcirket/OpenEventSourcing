@@ -72,7 +72,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
 
             var id = aggregate.Id.Value;
 
-            await repository.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate);
+            await repository.SaveAsync(aggregate);
 
             var result = await repository.GetAsync<FakeAggregate, FakeAggregateState>(id);
 
@@ -85,7 +85,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
         {
             var repository = _serviceProvider.GetRequiredService<IAggregateRepository>();
 
-            Func<Task> act = async () => await repository.SaveAsync<FakeAggregate, FakeAggregateState>(null);
+            Func<Task> act = async () => await repository.SaveAsync((FakeAggregate)null);
 
             act.Should().Throw<ArgumentNullException>();
         }
@@ -102,7 +102,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
 
             aggregate.FakeAction();
 
-            await repository.SaveAsync<FakeAggregate, FakeAggregateState>(aggregate);
+            await repository.SaveAsync(aggregate);
 
             var result = await repository.GetAsync<FakeAggregate, FakeAggregateState>(id);
 

@@ -10,8 +10,7 @@ namespace OpenEventSourcing.Events
         Task<Page> GetEventsAsync(long offset);
         Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId);
         Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset);
-        Task SaveAsync<TAggregate, TState>(TAggregate aggregate, int expectedVersion)
-            where TAggregate : Aggregate<TState>
+        Task SaveAsync<TState>(Aggregate<TState> aggregate, int expectedVersion)
             where TState : IAggregateState, new();
     }
 }

@@ -8,8 +8,7 @@ namespace OpenEventSourcing.Domain
         Task<TAggregate> GetAsync<TAggregate, TState>(Guid id)
             where TAggregate : Aggregate<TState>
             where TState : IAggregateState, new();
-        Task SaveAsync<TAggregate, TState>(TAggregate aggregate, int? expectedVersion = null)
-            where TAggregate : Aggregate<TState>
+        Task SaveAsync<TState>(Aggregate<TState> aggregate, int? expectedVersion = null)
             where TState : IAggregateState, new();
     }
 }
