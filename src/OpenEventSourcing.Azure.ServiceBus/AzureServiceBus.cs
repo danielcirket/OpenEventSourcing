@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ using OpenEventSourcing.Events;
 
 namespace OpenEventSourcing.Azure.ServiceBus
 {
-    internal sealed class AzureServiceBus : IEventBus
+    internal sealed class AzureServiceBus : IEventBusPublisher, IEventBusReceiver
     {
         private readonly ILogger<AzureServiceBus> _logger;
         private readonly ITopicMessageSender _messageSender;
@@ -62,7 +63,7 @@ namespace OpenEventSourcing.Azure.ServiceBus
 
             return await _messageSender.SendAsync(@event, publishOnUtc);
         }
-        public async Task StartAsync()
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             if (_running)
                 return;
@@ -75,7 +76,7 @@ namespace OpenEventSourcing.Azure.ServiceBus
 
             _logger.LogInformation($"Successfully started Azure Service bus");
         }
-        public async Task StopAsync()
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
             if (!_running)
                 return;

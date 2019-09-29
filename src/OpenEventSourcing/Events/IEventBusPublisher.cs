@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 
 namespace OpenEventSourcing.Events
 {
-    public interface IEventBus
+    public interface IEventBusPublisher
     {
-        Task StartAsync();
-        Task StopAsync();
         Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent;
         Task PublishAsync(IEnumerable<IEvent> events);
         Task<string> PublishAsync<TEvent>(TEvent @event, DateTimeOffset publishOnUtc) where TEvent : IEvent;
