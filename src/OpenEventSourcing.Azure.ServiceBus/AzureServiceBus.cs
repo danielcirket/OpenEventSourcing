@@ -11,7 +11,7 @@ using OpenEventSourcing.Events;
 
 namespace OpenEventSourcing.Azure.ServiceBus
 {
-    internal sealed class AzureServiceBus : IEventBusPublisher, IEventBusReceiver
+    internal sealed class AzureServiceBus : IEventBusPublisher, IEventBusConsumer
     {
         private readonly ILogger<AzureServiceBus> _logger;
         private readonly ITopicMessageSender _messageSender;
@@ -63,7 +63,7 @@ namespace OpenEventSourcing.Azure.ServiceBus
 
             return await _messageSender.SendAsync(@event, publishOnUtc);
         }
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken = default)
         {
             if (_running)
                 return;
@@ -76,7 +76,7 @@ namespace OpenEventSourcing.Azure.ServiceBus
 
             _logger.LogInformation($"Successfully started Azure Service bus");
         }
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken = default)
         {
             if (!_running)
                 return;
