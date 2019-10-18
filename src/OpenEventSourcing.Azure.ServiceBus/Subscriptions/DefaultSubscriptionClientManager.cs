@@ -48,7 +48,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
 
             var clients = new List<ISubscriptionClient>();
             var managementClient = new ManagementClient(_connectionStringBuilder);
-
+            
             foreach (var subscription in _options.Value.Subscriptions)
             {
                 var client = _subscriptionClientFactory.Create(subscription);

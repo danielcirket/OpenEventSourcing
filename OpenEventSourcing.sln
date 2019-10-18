@@ -41,9 +41,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.EntityFra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.EntityFrameworkCore.InMemory", "src\OpenEventSourcing.EntityFrameworkCore.InMemory\OpenEventSourcing.EntityFrameworkCore.InMemory.csproj", "{D9FAC35B-D0E2-443C-9BE7-28C01056DD22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Tests", "tests\OpenEventSourcing.Tests\OpenEventSourcing.Tests.csproj", "{3A83FF4B-6198-44F3-945B-E396D42CB639}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Tests", "tests\OpenEventSourcing.Tests\OpenEventSourcing.Tests.csproj", "{3A83FF4B-6198-44F3-945B-E396D42CB639}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Serialization.Json.Tests", "tests\OpenEventSourcing.Serialization.Json.Tests\OpenEventSourcing.Serialization.Json.Tests.csproj", "{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Serialization.Json.Tests", "tests\OpenEventSourcing.Serialization.Json.Tests\OpenEventSourcing.Serialization.Json.Tests.csproj", "{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.RabbitMQ", "src\OpenEventSourcing.RabbitMQ\OpenEventSourcing.RabbitMQ.csproj", "{B3616C10-301A-4274-A62A-FC3F66710776}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{12D75424-1715-46BB-9611-3DA2476689B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Samples.RabbitMq", "samples\OpenEventSourcing.Samples.RabbitMq\OpenEventSourcing.Samples.RabbitMq.csproj", "{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.RabbitMQ.Tests", "tests\OpenEventSourcing.RabbitMQ.Tests\OpenEventSourcing.RabbitMQ.Tests.csproj", "{965EC41C-3B4D-4C87-B778-5B797201F29B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Testing", "src\OpenEventSourcing.Testing\OpenEventSourcing.Testing.csproj", "{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +105,22 @@ Global
 		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3616C10-301A-4274-A62A-FC3F66710776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3616C10-301A-4274-A62A-FC3F66710776}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3616C10-301A-4274-A62A-FC3F66710776}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3616C10-301A-4274-A62A-FC3F66710776}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{965EC41C-3B4D-4C87-B778-5B797201F29B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{965EC41C-3B4D-4C87-B778-5B797201F29B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{965EC41C-3B4D-4C87-B778-5B797201F29B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{965EC41C-3B4D-4C87-B778-5B797201F29B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +137,10 @@ Global
 		{D9FAC35B-D0E2-443C-9BE7-28C01056DD22} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
 		{3A83FF4B-6198-44F3-945B-E396D42CB639} = {3218A606-9764-48A2-95DD-41BC489FF235}
 		{B977081F-CF7C-4C26-B52F-A1B98C46B8C4} = {3218A606-9764-48A2-95DD-41BC489FF235}
+		{B3616C10-301A-4274-A62A-FC3F66710776} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
+		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B} = {12D75424-1715-46BB-9611-3DA2476689B2}
+		{965EC41C-3B4D-4C87-B778-5B797201F29B} = {3218A606-9764-48A2-95DD-41BC489FF235}
+		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F3B61AD-0A13-4D2D-BD99-E90606951CB2}

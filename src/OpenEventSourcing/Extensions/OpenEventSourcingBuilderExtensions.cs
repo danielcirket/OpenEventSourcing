@@ -31,17 +31,40 @@ namespace OpenEventSourcing.Extensions
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
-
+            
+            //builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
+            
             builder.Services.Scan(scan =>
             {
                 scan.FromApplicationDependencies()
-                    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)))
-                    .AsImplementedInterfaces()
-                    .WithScopedLifetime()
-
-                    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>())
+                    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime();
+
+                //scan.FromCallingAssembly()
+                //    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)), publicOnly: false)
+                //    .AsImplementedInterfaces()
+                //    .WithScopedLifetime();
+
+                //scan.FromEntryAssembly()
+                //    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)), publicOnly: false)
+                //    .AsSelfWithInterfaces()
+                //    .WithScopedLifetime();
+
+                scan.FromApplicationDependencies()
+                    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>(), publicOnly: false)
+                    .AsSelfWithInterfaces()
+                    .WithScopedLifetime();
+
+                //scan.FromEntryAssembly()
+                //    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>(), publicOnly: false)
+                //    .AsSelfWithInterfaces()
+                //    .WithScopedLifetime();
+
+                //scan.FromCallingAssembly()
+                //    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>(), publicOnly: false)
+                //    .AsSelfWithInterfaces()
+                //    .WithScopedLifetime();
             });
 
             return builder;
