@@ -28,7 +28,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName("test-exchange");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             ServiceProvider = services.BuildServiceProvider();
@@ -82,7 +86,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:1324/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             var sp = services.BuildServiceProvider();

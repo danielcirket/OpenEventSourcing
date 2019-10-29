@@ -25,7 +25,11 @@ namespace OpenEventSourcing.Samples.RabbitMq
                             .AddRabbitMq(options =>
                             {
                                 options.UseConnection("amqp://guest:guest@localhost:5672/")
-                                       .UseExchange($"sample-exchange")
+                                       .UseExchange(e =>
+                                       {
+                                           e.WithName($"sample-exchange");
+                                           e.UseExchangeType("topic");
+                                       })
                                        .AddSubscription(s =>
                                        {
                                            s.UseName(queueName: "rabbit-mq-sample-queue");

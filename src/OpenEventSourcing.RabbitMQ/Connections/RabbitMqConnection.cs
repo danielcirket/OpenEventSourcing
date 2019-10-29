@@ -55,7 +55,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             properties.Persistent = true;
             properties.Type = message.Type;
 
-            channel.BasicPublish(exchange: _options.Value.Exchange, mandatory: true, routingKey: message.Type, basicProperties: properties, body: message.Body);
+            channel.BasicPublish(exchange: _options.Value.Exchange.Name, mandatory: true, routingKey: message.Type, basicProperties: properties, body: message.Body);
 
             ReturnChannel(channel);
         }
@@ -78,7 +78,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
                 properties.Persistent = true;
                 properties.Type = message.Type;
 
-                batch.Add(exchange: _options.Value.Exchange, mandatory: true, routingKey: message.Type, properties: properties, body: message.Body);
+                batch.Add(exchange: _options.Value.Exchange.Name, mandatory: true, routingKey: message.Type, properties: properties, body: message.Body);
             }
 
             batch.Publish();

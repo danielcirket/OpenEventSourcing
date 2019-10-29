@@ -30,7 +30,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange($"test-exchange-{Guid.NewGuid()}")
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-queue-{Guid.NewGuid()}");
@@ -81,7 +85,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange($"test-exchange-{Guid.NewGuid()}")
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-queue-{Guid.NewGuid()}");
@@ -133,7 +141,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange($"test-exchange-{Guid.NewGuid()}")
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-queue-{Guid.NewGuid()}");

@@ -32,7 +32,7 @@ namespace OpenEventSourcing.RabbitMQ.Management.Api
             if (string.IsNullOrEmpty(vhost))
                 vhost = Uri.EscapeDataString("/");
 
-            var exchange = Uri.EscapeDataString(_options.Value.Exchange);
+            var exchange = Uri.EscapeDataString(_options.Value.Exchange.Name);
             var queueName = Uri.EscapeDataString(queue);
 
             var response = await _client.GetAsync($"/api/queues/{vhost}/{queueName}/bindings");
@@ -41,7 +41,7 @@ namespace OpenEventSourcing.RabbitMQ.Management.Api
 
             var results = await response.Content.ReadAsAsync<IEnumerable<RabbitMqSubscriptionResponse>>();
 
-            return results.Where(r => r.source == _options.Value.Exchange && r.destination_type == "queue")
+            return results.Where(r => r.source == _options.Value.Exchange.Name && r.destination_type == "queue")
                           .Select(r => new RabbitMqBinding
                           {
                               Exchange = r.source,

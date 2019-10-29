@@ -29,7 +29,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName("test-exchange");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             var sp = services.BuildServiceProvider();
@@ -61,7 +65,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             var sp = services.BuildServiceProvider();
@@ -95,7 +103,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             var sp = services.BuildServiceProvider();
@@ -118,7 +130,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
                 connection.ConnectionId.Should().Be(connectionId);
 
-                await connection.ExchangeExistsAsync(name: options.Value.Exchange);
+                await connection.ExchangeExistsAsync(name: options.Value.Exchange.Name);
 
                 connection.Dispose();
             };

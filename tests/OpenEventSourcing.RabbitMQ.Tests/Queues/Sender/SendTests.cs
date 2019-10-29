@@ -26,7 +26,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         });
                     })
                     .AddJsonSerializers();
 

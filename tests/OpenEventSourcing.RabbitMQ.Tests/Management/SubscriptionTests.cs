@@ -27,7 +27,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                            .UseExchange("test-exchange");
+                         .UseExchange(e =>
+                         {
+                             e.WithName("test-exchange");
+                             e.UseExchangeType("topic");
+                         });
                     });
 
             ServiceProvider = services.BuildServiceProvider();
@@ -155,6 +159,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
         {
             var services = new ServiceCollection();
             var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var exchangeType = ExchangeType.Topic;
             var queueName = $"test-queue-{Guid.NewGuid()}";
             var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
@@ -163,9 +168,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange(exchangeName);
+                         .UseExchange(e =>
+                         {
+                             e.WithName(exchangeName);
+                             e.UseExchangeType(exchangeType);
+                         });
 
-                        o.UseManagementApi(m => {
+                        o.UseManagementApi(m => 
+                        {
                             m.WithEndpoint("http://localhost:15672/")
                              .WithCredentials("guest", "guest");
                         });
@@ -176,7 +186,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
             Func<Task> act = async () =>
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
                 await client.CreateQueueAsync(name: queueName, durable: false);
                 await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
 
@@ -203,7 +213,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange(exchangeName);
+                         .UseExchange(e =>
+                         {
+                             e.WithName("test-exchange");
+                             e.UseExchangeType("topic");
+                         });
 
                         o.UseManagementApi(m => {
                             m.WithEndpoint("http://localhost:12345/")
@@ -230,6 +244,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
         {
             var services = new ServiceCollection();
             var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var exchangeType = ExchangeType.Topic;
             var queueName = $"test-queue-{Guid.NewGuid()}";
             var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
@@ -238,7 +253,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange(exchangeName);
+                         .UseExchange(e =>
+                         {
+                             e.WithName(exchangeName);
+                             e.UseExchangeType(exchangeType);
+                         });
 
                         o.UseManagementApi(m => {
                             m.WithEndpoint("http://localhost:15672/");
@@ -250,7 +269,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
             Func<Task> act = async () =>
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
                 await client.CreateQueueAsync(name: queueName, durable: false);
                 await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
 

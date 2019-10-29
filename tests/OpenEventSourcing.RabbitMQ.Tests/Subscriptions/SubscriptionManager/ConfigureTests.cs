@@ -28,7 +28,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange($"test-exchange-{Guid.NewGuid()}")
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         })
                          .AddSubscription(s =>
                          {
                              s.UseName($"test-queue-{Guid.NewGuid()}");
@@ -45,10 +49,10 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
 
             act.Should().NotThrow();
 
-            Func<Task> verify = async () => await managementCient.CreateExchangeAsync(name: options.Value.Exchange, ExchangeType.Topic, durable: false);
+            Func<Task> verify = async () => await managementCient.CreateExchangeAsync(name: options.Value.Exchange.Name, ExchangeType.Topic, durable: false);
 
             verify.Should().Throw<ExchangeAlreadyExistsException>()
-                .And.ExchangeName.Should().Be(options.Value.Exchange);
+                .And.ExchangeName.Should().Be(options.Value.Exchange.Name);
         }
         [IntegrationTest]
         public void WhenConfigureAsyncCalledThenShouldConfigureSubscriptions()
@@ -60,7 +64,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     .AddRabbitMq(o =>
                     {
                         o.UseConnection("amqp://guest:guest@localhost:5672/")
-                         .UseExchange($"test-exchange-{Guid.NewGuid()}")
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                         })
                          .AddSubscription(s =>
                          {
                              s.UseName($"test-queue-{Guid.NewGuid()}");

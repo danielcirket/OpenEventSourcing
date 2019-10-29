@@ -32,8 +32,8 @@ namespace OpenEventSourcing.RabbitMQ.Subscriptions
 
         public async Task ConfigureAsync()
         {
-            if (!await _client.ExchangeExistsAsync(name: _options.Value.Exchange))
-                await _client.CreateExchangeAsync(name: _options.Value.Exchange, exchangeType: ExchangeType.Topic);
+            if (!await _client.ExchangeExistsAsync(name: _options.Value.Exchange.Name))
+                await _client.CreateExchangeAsync(name: _options.Value.Exchange.Name, exchangeType: _options.Value.Exchange.Type);
 
             var managementApiEnabled = _options.Value.ManagementApi != null;
 
@@ -49,16 +49,16 @@ namespace OpenEventSourcing.RabbitMQ.Subscriptions
                     var subscriptionsToRemove = currentSubscriptions.Where(s => !subscription.Events.Any(e => e.Name == s.RoutingKey) && s.Queue == subscription.Name);
 
                     foreach (var sub in subscriptionsToRemove)
-                        await _client.RemoveSubscriptionAsync(sub.RoutingKey, subscription.Name, _options.Value.Exchange);
+                        await _client.RemoveSubscriptionAsync(sub.RoutingKey, subscription.Name, _options.Value.Exchange.Name);
 
                     foreach (var sub in subscriptionsToCreate)
-                        await _client.CreateSubscriptionAsync(sub.Name, subscription.Name, _options.Value.Exchange);
+                        await _client.CreateSubscriptionAsync(sub.Name, subscription.Name, _options.Value.Exchange.Name);
                 }
                 else
                 {
                     foreach (var @event in subscription.Events)
                     {
-                        await _client.CreateSubscriptionAsync(routingKey: @event.Name, queue: subscription.Name, exchange: _options.Value.Exchange);
+                        await _client.CreateSubscriptionAsync(routingKey: @event.Name, queue: subscription.Name, exchange: _options.Value.Exchange.Name);
                     }
                 }
             }
