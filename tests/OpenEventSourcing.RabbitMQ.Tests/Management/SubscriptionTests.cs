@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -129,6 +131,134 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
             };
 
             act.Should().Throw<QueueNotFoundException>();
+        }
+        [IntegrationTest]
+        public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotConfiguredThenShouldThrowInvalidOperationException()
+        {
+            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var queueName = $"test-queue-{Guid.NewGuid()}";
+            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
+
+            Func<Task> act = async () =>
+            {
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateQueueAsync(name: queueName, durable: false);
+                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                await client.RetrieveSubscriptionsAsync(queueName);
+            };
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+        [IntegrationTest]
+        public void WhenRetrieveSubscriptionsCalledWhenManagementApiCorrectlyConfiguredThenShouldReturnExpectedSubscriptions()
+        {
+            var services = new ServiceCollection();
+            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var queueName = $"test-queue-{Guid.NewGuid()}";
+            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
+
+            services.AddLogging(o => o.AddDebug())
+                    .AddOpenEventSourcing()
+                    .AddRabbitMq(o =>
+                    {
+                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                         .UseExchange(exchangeName);
+
+                        o.UseManagementApi(m => {
+                            m.WithEndpoint("http://localhost:15672/")
+                             .WithCredentials("guest", "guest");
+                        });
+                    });
+
+            var sp = services.BuildServiceProvider();
+            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
+
+            Func<Task> act = async () =>
+            {
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateQueueAsync(name: queueName, durable: false);
+                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+
+                var results = await client.RetrieveSubscriptionsAsync(queueName);
+
+                results.Should().HaveCount(1);
+                results.Single().Exchange.Should().Be(exchangeName);
+                results.Single().Queue.Should().Be(queueName);
+                results.Single().RoutingKey.Should().Be(subscriptionName);
+            };
+
+            act.Should().NotThrow();
+        }
+        [IntegrationTest]
+        public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotAvailableThenShouldThrow()
+        {
+            var services = new ServiceCollection();
+            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var queueName = $"test-queue-{Guid.NewGuid()}";
+            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
+
+            services.AddLogging(o => o.AddDebug())
+                    .AddOpenEventSourcing()
+                    .AddRabbitMq(o =>
+                    {
+                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                         .UseExchange(exchangeName);
+
+                        o.UseManagementApi(m => {
+                            m.WithEndpoint("http://localhost:12345/")
+                             .WithCredentials("guest", "guest");
+                        });
+                    });
+
+            var sp = services.BuildServiceProvider();
+            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
+
+            Func<Task> act = async () =>
+            {
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateQueueAsync(name: queueName, durable: false);
+                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+
+                var results = await client.RetrieveSubscriptionsAsync(queueName);
+            };
+
+            act.Should().Throw<Exception>();
+        }
+        [IntegrationTest]
+        public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldReturnExpectedSubscriptions()
+        {
+            var services = new ServiceCollection();
+            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            var queueName = $"test-queue-{Guid.NewGuid()}";
+            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
+
+            services.AddLogging(o => o.AddDebug())
+                    .AddOpenEventSourcing()
+                    .AddRabbitMq(o =>
+                    {
+                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                         .UseExchange(exchangeName);
+
+                        o.UseManagementApi(m => {
+                            m.WithEndpoint("http://localhost:15672/");
+                        });
+                    });
+
+            var sp = services.BuildServiceProvider();
+            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
+
+            Func<Task> act = async () =>
+            {
+                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                await client.CreateQueueAsync(name: queueName, durable: false);
+                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+
+                var results = await client.RetrieveSubscriptionsAsync(queueName);
+            };
+
+            act.Should().Throw<HttpRequestException>()
+                .And.Message.Should().Contain("401");
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OpenEventSourcing.RabbitMQ
 {
@@ -8,6 +7,7 @@ namespace OpenEventSourcing.RabbitMQ
     {
         internal string ConnectionString { get; private set; }
         internal string Exchange { get; private set; }
+        internal RabbitMqManagementApiOptions ManagementApi { get; private set; }
         internal IList<RabbitMqSubscription> Subscriptions { get; }
 
         public RabbitMqOptions()
@@ -30,6 +30,16 @@ namespace OpenEventSourcing.RabbitMQ
                 throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or empty.", nameof(connectionString));
 
             ConnectionString = connectionString;
+
+            return this;
+        }
+        public RabbitMqOptions UseManagementApi(Action<RabbitMqManagementApiOptions> optionsAction)
+        {
+            var options = new RabbitMqManagementApiOptions();
+
+            optionsAction?.Invoke(options);
+
+            ManagementApi = options;
 
             return this;
         }

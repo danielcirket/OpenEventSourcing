@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Management;
+using OpenEventSourcing.RabbitMQ.Management.Api;
 using OpenEventSourcing.RabbitMQ.Messages;
 using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.RabbitMQ.Subscriptions;
@@ -28,6 +29,7 @@ namespace OpenEventSourcing.RabbitMQ.Extensions
             builder.Services.AddScoped<IQueueMessageReceiver, DefaultQueueMessageReceiver>();
             builder.Services.AddScoped<ISubscriptionManager, DefaultSubscriptionManager>();
             builder.Services.AddScoped<IRabbitMqManagementClient, RabbitMqManagementClient>();
+            builder.Services.AddHttpClient<IRabbitMqManagementApiClient, RabbitMqManagementApiClient>();
 
             return builder;
         }

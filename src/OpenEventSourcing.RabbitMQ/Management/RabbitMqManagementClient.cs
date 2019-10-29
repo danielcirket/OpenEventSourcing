@@ -1,25 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using OpenEventSourcing.RabbitMQ.Connections;
+using OpenEventSourcing.RabbitMQ.Management.Api;
 
 namespace OpenEventSourcing.RabbitMQ.Management
 {
     public class RabbitMqManagementClient : IRabbitMqManagementClient
     {
         private readonly IRabbitMqConnectionFactory _connectionFactory;
+        private readonly IRabbitMqManagementApiClient _client;
         private readonly IOptions<RabbitMqOptions> _options;
 
         public RabbitMqManagementClient(IRabbitMqConnectionFactory connectionFactory,
+                                        IRabbitMqManagementApiClient client,
                                         IOptions<RabbitMqOptions> options)
         {
             if (connectionFactory == null)
                 throw new ArgumentNullException(nameof(connectionFactory));
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
             _connectionFactory = connectionFactory;
+            _client = client;
             _options = options;
         }
 
@@ -78,6 +85,15 @@ namespace OpenEventSourcing.RabbitMQ.Management
             {
                 await connection.RemoveSubscriptionAsync(routingKey, queue, exchange);
             }
+        }
+        public async Task<IEnumerable<RabbitMqBinding>> RetrieveSubscriptionsAsync(string queue)
+        {
+            if (_options.Value.ManagementApi == null)
+                throw new InvalidOperationException("Management Api hasn't been configured. To enable the management Api features, call '.UseManagementApi(..)' when configuring RabbitMQ during startup.");
+
+            var subscriptions = await _client.RetrieveSubscriptionsAsync(queue);
+
+            return subscriptions;
         }
         public void Dispose()
         {

@@ -107,7 +107,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             if (await QueueExistsAsync(name))
                 throw new QueueAlreadyExistsException(name);
 
-            channel.QueueDeclare(name, durable, autoDelete);
+            channel.QueueDeclare(name, durable: durable, autoDelete: autoDelete, exclusive: false);
 
             ReturnChannel(channel);
         }

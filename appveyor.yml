@@ -31,6 +31,9 @@ for:
 artifacts:
 - path: .\.nupkgs\*.nupkg
 
+before_build:
+  - sudo rabbitmq-plugins enable rabbitmq_management
+
 build:
   project: OpenEventSourcing.sln
   verbosity: minimal

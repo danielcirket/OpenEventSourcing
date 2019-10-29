@@ -43,7 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
                 var factory = CreateConnectionFactory();
                 var connectionId = ConnectionId.New();
 
-                connection = new RabbitMqConnection(connectionId, factory.CreateConnection(), this, _options);
+                connection = new RabbitMqConnection(connectionId, factory.CreateConnection(connectionId), this, _options);
 
                 return connection;
             }

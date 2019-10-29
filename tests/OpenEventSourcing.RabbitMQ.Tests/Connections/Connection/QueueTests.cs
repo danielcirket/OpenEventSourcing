@@ -148,5 +148,29 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             verify.Should().NotThrow();
         }
+        [IntegrationTest]
+        public void WhenCreateQueueAsyncCalledWithNonExistentQueueThenShouldSucceedAndPersistAfterConnection()
+        {
+            var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
+            var queueName = $"test-queue-{Guid.NewGuid()}";
+
+            Func<Task> act = async () =>
+            {
+                var connection = await factory.CreateConnectionAsync(CancellationToken.None);
+                await connection.CreateQueueAsync(name: queueName, durable: false);
+                connection.UnderlyingConnection.Dispose();
+            };
+
+            act.Should().NotThrow();
+
+            Func<Task> verify = async () =>
+            {
+                var connection = await factory.CreateConnectionAsync(CancellationToken.None);
+                await connection.CreateQueueAsync(name: queueName, durable: false);
+            };
+
+            verify.Should().Throw<QueueAlreadyExistsException>()
+                .And.QueueName.Should().Be(queueName);
+        }
     }
 }

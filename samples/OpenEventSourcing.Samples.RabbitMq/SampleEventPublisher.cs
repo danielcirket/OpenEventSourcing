@@ -26,7 +26,7 @@ namespace OpenEventSourcing.Samples.RabbitMq
             {
                 await _eventBusPublisher.PublishAsync(new SampleEvent(aggregateId: Guid.NewGuid(), version: version++));
 
-                await Task.Delay(1500);
+                await Task.Delay(1000);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OpenEventSourcing.RabbitMQ.Management
@@ -7,7 +8,8 @@ namespace OpenEventSourcing.RabbitMQ.Management
     {
         Task CreateExchangeAsync(string name, string exchangeType, bool durable = true, bool autoDelete = false);
         Task CreateQueueAsync(string name, bool durable = true, bool autoDelete = false);
-        Task CreateSubscriptionAsync(string filter, string queue, string exchange);
+        Task CreateSubscriptionAsync(string routingKey, string queue, string exchange);
+        Task<IEnumerable<RabbitMqBinding>> RetrieveSubscriptionsAsync(string queue);
         Task<bool> ExchangeExistsAsync(string name);
         Task<bool> QueueExistsAsync(string name);
         Task RemoveExchangeAsync(string name);
