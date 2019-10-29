@@ -25,28 +25,5 @@ namespace OpenEventSourcing.Extensions
 
             return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(arg => arg.FriendlyName())) + ">";
         }
-        public static bool IsAssignableToOpenGeneric(this Type type, Type openGenericType)
-        {
-            if (type.Name == "SampleReceiverEventHandler")
-                Debugger.Break();
-
-            var interfaces = type.GetInterfaces();
-
-            foreach(var @interface in interfaces)
-            {
-                if (@interface.IsGenericType && @interface.GetGenericTypeDefinition() == openGenericType)
-                    return true;
-            }
-
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == openGenericType)
-                return true;
-
-            var baseType = type.BaseType;
-
-            if (baseType == null)
-                return false;
-
-            return baseType.IsAssignableToOpenGeneric(openGenericType);
-        }
     }
 }
