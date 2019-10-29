@@ -41,9 +41,7 @@ namespace OpenEventSourcing.Events
 
             foreach (var key in _lookup.Keys)
             {
-                var part = key.Split('.').Last();
-                
-                part = key.Split('+').Last();
+                var part = key.Split('.').Last().Split('+').Last();
 
                 if (part.Equals(name, StringComparison.OrdinalIgnoreCase))
                     potentialMatches.Add(_lookup[key]);

@@ -36,8 +36,8 @@ namespace OpenEventSourcing.Samples.RabbitMq
                             .AddEvents()
                             .AddJsonSerializers();
 
-                    services.AddHostedService<SampleEventPublisher>();
                     services.AddHostedService<SampleEventConsumer>();
+                    services.AddHostedService<SampleEventPublisher>();
 
                     services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Trace));
                 });
