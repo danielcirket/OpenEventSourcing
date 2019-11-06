@@ -1,6 +1,5 @@
 ﻿using System;
 using FluentAssertions;
-using OpenEventSourcing.Serialization.Json;
 using Xunit;
 
 namespace OpenEventSourcing.Serialization.Json.Tests.Queries

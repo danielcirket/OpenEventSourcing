@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenEventSourcing.RabbitMQ.Management.Api.Responses
+﻿namespace OpenEventSourcing.RabbitMQ.Management.Api.Responses
 {
     internal class RabbitMqSubscriptionResponse
     {

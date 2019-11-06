@@ -10,7 +10,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Messages;
-using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 

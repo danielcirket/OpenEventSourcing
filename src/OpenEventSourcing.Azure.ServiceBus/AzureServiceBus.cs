@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OpenEventSourcing.Azure.ServiceBus.Subscriptions;
 using OpenEventSourcing.Azure.ServiceBus.Topics;
 using OpenEventSourcing.Events;

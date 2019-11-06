@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,8 +6,6 @@ using Moq;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
-using OpenEventSourcing.Testing.Attributes;
-using RabbitMQ.Client.Exceptions;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool

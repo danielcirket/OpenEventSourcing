@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.EntityFrameworkCore.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
-using System.Data.SqlClient;
 
 namespace OpenEventSourcing.EntityFrameworkCore.SqlServer
 {

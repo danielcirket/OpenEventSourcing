@@ -8,7 +8,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
-using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 

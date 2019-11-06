@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Management;
-using RabbitMQ.Client;
 
 namespace OpenEventSourcing.RabbitMQ.Subscriptions
 {

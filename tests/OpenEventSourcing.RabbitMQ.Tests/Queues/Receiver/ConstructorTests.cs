@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using OpenEventSourcing.RabbitMQ.Connections;
-using OpenEventSourcing.RabbitMQ.Messages;
 using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.RabbitMQ.Subscriptions;
 using Xunit;
