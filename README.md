@@ -1,4 +1,6 @@
-# OpenEventSourcing
+# OpenEventSourcing 
+
+[![Build status](https://ci.appveyor.com/api/projects/status/0n4ggph6mueewrxh/branch/master?svg=true)](https://ci.appveyor.com/project/danielcirket/openeventsourcing/branch/master)
 
 OpenEventSourcing is a set of .NET Standard libraries that provides a minimal set of abstractions and implementations which help you to build event-driven and event-sourced applications.
 
@@ -76,17 +78,20 @@ In order to use the message/event bus functionality you will need to install a m
 The current supported providers are:
 
 - OpenEventSourcing.Azure.ServiceBus
+- OpenEventSourcing.RabbitMQ
 
 via package manager
 
 ```
 Install-Package OpenEventSourcing.Azure.ServiceBus
+Install-Package OpenEventSourcing.RabbitMQ
 ```
 
 or via .NET CLI
 
 ```
 dotnet add package OpenEventSourcing.Azure.ServiceBus
+dotnet add package OpenEventSourcing.RabbitMQ
 ```
 
 ## Configuration
@@ -105,11 +110,11 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-There are several configurations and combinations, for more information see the [wiki](wiki)
+There are several configurations and combinations, for more information see the [wiki](../../wiki)
 
 ## Docs
 
-The documentation can be found on the [wiki](wiki).
+The documentation can be found on the [wiki](../../wiki).
 
 
 
