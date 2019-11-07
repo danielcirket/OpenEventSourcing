@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Moq;
 using OpenEventSourcing.Domain;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;

@@ -31,16 +31,17 @@ namespace OpenEventSourcing.Extensions
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
-
+            
             builder.Services.Scan(scan =>
             {
                 scan.FromApplicationDependencies()
-                    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)))
+                    .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)), publicOnly: false)
                     .AsImplementedInterfaces()
-                    .WithScopedLifetime()
+                    .WithScopedLifetime();
 
-                    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>())
-                    .AsImplementedInterfaces()
+                scan.FromApplicationDependencies()
+                    .AddClasses(classes => classes.AssignableTo<IEventDispatcher>(), publicOnly: false)
+                    .AsSelfWithInterfaces()
                     .WithScopedLifetime();
             });
 

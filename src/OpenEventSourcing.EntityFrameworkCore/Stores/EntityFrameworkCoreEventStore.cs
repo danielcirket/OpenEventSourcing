@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Domain;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
-using OpenEventSourcing.EntityFrameworkCore.Entities;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Serialization;
 

@@ -1,0 +1,10 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
+    <FrameworkUtilisationTypeForGallio>UseDynamicAnalysis</FrameworkUtilisationTypeForGallio>
+    <FrameworkUtilisationTypeForMSTest>UseDynamicAnalysis</FrameworkUtilisationTypeForMSTest>
+    <HiddenComponentWarnings>
+      <Value>CopyReferencedAssembliesToWorkspaceIsOn</Value>
+    </HiddenComponentWarnings>
+  </Settings>
+</ProjectConfiguration>

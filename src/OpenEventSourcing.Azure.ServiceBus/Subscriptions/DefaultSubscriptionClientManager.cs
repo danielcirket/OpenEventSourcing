@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Options;
 using OpenEventSourcing.Azure.ServiceBus.Topics;
@@ -48,7 +46,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
 
             var clients = new List<ISubscriptionClient>();
             var managementClient = new ManagementClient(_connectionStringBuilder);
-
+            
             foreach (var subscription in _options.Value.Subscriptions)
             {
                 var client = _subscriptionClientFactory.Create(subscription);

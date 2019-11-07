@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenEventSourcing.Queries;
+﻿using OpenEventSourcing.Queries;
 
 namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
 {
