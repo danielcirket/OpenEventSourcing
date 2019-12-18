@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.RabbitMQ.Connections;

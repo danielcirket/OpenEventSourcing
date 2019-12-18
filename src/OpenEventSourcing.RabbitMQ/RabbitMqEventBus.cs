@@ -17,15 +17,14 @@ namespace OpenEventSourcing.RabbitMQ
 
         public RabbitMqEventBus(ILogger<RabbitMqEventBus> logger,
                                 IQueueMessageSender messageSender,
-                                IQueueMessageReceiver queueMessageReceiver,
-                                ISubscriptionManager subscriptionManager)
+                                IQueueMessageReceiver queueMessageReceiver)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (messageSender == null)
                 throw new ArgumentNullException(nameof(messageSender));
-            if (subscriptionManager == null)
-                throw new ArgumentNullException(nameof(subscriptionManager));
+            if (queueMessageReceiver == null)
+                throw new ArgumentNullException(nameof(queueMessageReceiver));
 
             _logger = logger;
             _messageSender = messageSender;
