@@ -8,6 +8,7 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 
@@ -31,9 +32,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                               e.WithName("test-exchange");
                               e.UseExchangeType("topic");
                           });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [IntegrationTest]

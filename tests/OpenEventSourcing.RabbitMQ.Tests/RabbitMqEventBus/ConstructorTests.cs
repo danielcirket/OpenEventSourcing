@@ -32,36 +32,38 @@ namespace OpenEventSourcing.RabbitMQ.Tests.RabbitMqEventBus
                          });
                     })
                     .AddJsonSerializers();
-
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [Fact]
         public void WhenConstructedWithNullLoggerThenShouldThrowArgumentNullException()
         {
-            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: null, messageSender: null, queueMessageReceiver: null);
+            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: null, serviceScopeFactory: null, queueMessageReceiver: null);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("logger");
         }
         [Fact]
-        public void WhenConstructedWithNullMessageSenderThenShouldThrowArgumentNullException()
+        public void WhenConstructedWithNullServiceScopeFactoryThenShouldThrowArgumentNullException()
         {
             var logger = ServiceProvider.GetRequiredService<ILogger<RabbitMQ.RabbitMqEventBus>>();
 
-            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: logger, messageSender: null, queueMessageReceiver: null);
+            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: logger, serviceScopeFactory: null, queueMessageReceiver: null);
 
             act.Should().Throw<ArgumentNullException>()
-                .And.ParamName.Should().Be("messageSender");
+                .And.ParamName.Should().Be("serviceScopeFactory");
         }
         [Fact]
         public void WhenConstructedWithNullOptionsThenShouldThrowArgumentNullException()
         {
             var logger = ServiceProvider.GetRequiredService<ILogger<RabbitMQ.RabbitMqEventBus>>();
-            var messageSender = Mock.Of<IQueueMessageSender
-                >();
+            var scopeFactory = Mock.Of<IServiceScopeFactory>();
 
-            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: logger, messageSender: messageSender, queueMessageReceiver: null);
+            Action act = () => new RabbitMQ.RabbitMqEventBus(logger: logger, serviceScopeFactory: scopeFactory, queueMessageReceiver: null);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("queueMessageReceiver");
@@ -69,22 +71,28 @@ namespace OpenEventSourcing.RabbitMQ.Tests.RabbitMqEventBus
         [Fact]
         public void WhenResolvedAsEventBusPublisherThenShouldResolveInstance()
         {
-            Action act = () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                var bus = ServiceProvider.GetRequiredService<IEventBusPublisher>();
-            };
+                Action act = () =>
+                {
+                    var bus = scope.ServiceProvider.GetRequiredService<IEventBusPublisher>();
+                };
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
+            }
         }
         [Fact]
         public void WhenResolvedAsEventBusConsumerThenShouldResolveInstance()
         {
-            Action act = () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                var bus = ServiceProvider.GetRequiredService<IEventBusConsumer>();
-            };
+                Action act = () =>
+                {
+                    var bus = scope.ServiceProvider.GetRequiredService<IEventBusConsumer>();
+                };
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
+            }
         }
     }
 }

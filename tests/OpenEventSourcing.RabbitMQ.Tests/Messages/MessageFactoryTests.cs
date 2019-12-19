@@ -33,59 +33,78 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
                     })
                     .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true }).CreateScope().ServiceProvider;
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [Fact]
         public void WhenCreateMessageCalledWithNullEventThenShouldThrowArgumentNullException()
         {
-            var factory = ServiceProvider.GetRequiredService<IMessageFactory>();
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
 
-            Action act = () => factory.CreateMessage(null);
+                Action act = () => factory.CreateMessage(null);
 
-            act.Should().Throw<ArgumentNullException>()
-                .And.ParamName.Should().Be("event");
+                act.Should().Throw<ArgumentNullException>()
+                    .And.ParamName.Should().Be("event");
+            }
         }
         [Fact]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateMessageIdFromEventId()
         {
-            var factory = ServiceProvider.GetRequiredService<IMessageFactory>();
-            var @event = new FakeEvent();
-            var result = factory.CreateMessage(@event);
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
+                var @event = new FakeEvent();
+                var result = factory.CreateMessage(@event);
 
-            result.MessageId.Should().Be(@event.Id);
+                result.MessageId.Should().Be(@event.Id);
+            }
         }
         [Fact]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateTypeFromEventTypeName()
         {
-            var factory = ServiceProvider.GetRequiredService<IMessageFactory>();
-            var @event = new FakeEvent();
-            var result = factory.CreateMessage(@event);
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
+                var @event = new FakeEvent();
+                var result = factory.CreateMessage(@event);
 
-            result.Type.Should().Be(nameof(FakeEvent));
+                result.Type.Should().Be(nameof(FakeEvent));
+            }
         }
         [Fact]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateCorrelationIdFromEvent()
         {
-            var factory = ServiceProvider.GetRequiredService<IMessageFactory>();
-            var @event = new FakeEvent(correlationId: Guid.NewGuid());
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
+                var @event = new FakeEvent(correlationId: Guid.NewGuid());
 
-            var result = factory.CreateMessage(@event);
+                var result = factory.CreateMessage(@event);
 
-            result.CorrelationId.Should().Be(@event.CorrelationId);
+                result.CorrelationId.Should().Be(@event.CorrelationId);
+            }
         }
         [Fact]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateBodyFromEvent()
         {
-            var factory = ServiceProvider.GetRequiredService<IMessageFactory>();
-            var serializer = ServiceProvider.GetRequiredService<IEventSerializer>();
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
+                var serializer = scope.ServiceProvider.GetRequiredService<IEventSerializer>();
 
-            var @event = new FakeEvent();
-            var body = serializer.Serialize(@event);
-            var result = factory.CreateMessage(@event);
+                var @event = new FakeEvent();
+                var body = serializer.Serialize(@event);
+                var result = factory.CreateMessage(@event);
 
-            result.Body.Should().Equal(body);
-            result.Size.Should().Be(body.Length);
+                result.Body.Should().Equal(body);
+                result.Size.Should().Be(body.Length);
+            }
         }
 
         private class FakeEvent : Event

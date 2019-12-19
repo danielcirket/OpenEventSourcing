@@ -15,7 +15,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client
         [Fact]
         public void WhenConstructedWithNullOptionsThenShouldThrowArgumentNullException()
         {
-            Action act = () => new DefaultQueueMessageReceiver(options: null, connectionFactory: null, subscriptionManager: null, logger: null, serviceProvider: null);
+            Action act = () => new DefaultQueueMessageReceiver(options: null, connectionFactory: null, logger: null, serviceScopeFactory: null);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("options");
@@ -25,46 +25,33 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client
         {
             var options = Mock.Of<IOptions<RabbitMqOptions>>();
 
-            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: null, subscriptionManager: null, logger: null, serviceProvider: null);
+            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: null, logger: null, serviceScopeFactory: null);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("connectionFactory");
-        }
-        [Fact]
-        public void WhenConstructedWithNullSubscriptionManagerThenShouldThrowArgumentNullException()
-        {
-            var options = Mock.Of<IOptions<RabbitMqOptions>>();
-            var connectionFactory = Mock.Of<IRabbitMqConnectionFactory>();
-
-            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: connectionFactory, subscriptionManager: null, logger: null, serviceProvider: null);
-
-            act.Should().Throw<ArgumentNullException>()
-                .And.ParamName.Should().Be("subscriptionManager");
         }
         [Fact]
         public void WhenConstructedWithNullLoggerThenShouldThrowArgumentNullException()
         {
             var options = Mock.Of<IOptions<RabbitMqOptions>>();
             var connectionFactory = Mock.Of<IRabbitMqConnectionFactory>();
-            var subscriptionManager = Mock.Of<ISubscriptionManager>();
 
-            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: connectionFactory, subscriptionManager: subscriptionManager, logger: null, serviceProvider: null);
+            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: connectionFactory, logger: null, serviceScopeFactory: null);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("logger");
         }
         [Fact]
-        public void WhenConstructedWithNullServiceProviderThenShouldThrowArgumentNullException()
+        public void WhenConstructedWithNullServiceScopeFactoryThenShouldThrowArgumentNullException()
         {
             var options = Mock.Of<IOptions<RabbitMqOptions>>();
             var connectionFactory = Mock.Of<IRabbitMqConnectionFactory>();
-            var subscriptionManager = Mock.Of<ISubscriptionManager>();
             var logger = Mock.Of<ILogger<DefaultQueueMessageReceiver>>();
 
-            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: connectionFactory, subscriptionManager: subscriptionManager, logger: logger, serviceProvider: null);
+            Action act = () => new DefaultQueueMessageReceiver(options: options, connectionFactory: connectionFactory, logger: logger, serviceScopeFactory: null);
 
             act.Should().Throw<ArgumentNullException>()
-                .And.ParamName.Should().Be("serviceProvider");
+                .And.ParamName.Should().Be("serviceScopeFactory");
         }
     }
 }

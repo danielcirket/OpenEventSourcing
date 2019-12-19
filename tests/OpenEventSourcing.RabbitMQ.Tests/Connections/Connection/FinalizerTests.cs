@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
@@ -33,9 +34,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
 
             var pool = sp.GetRequiredService<RabbitMqConnectionPool>();
             
@@ -69,9 +75,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
 
             var pool = sp.GetRequiredService<RabbitMqConnectionPool>();
 
@@ -107,9 +118,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
 
             var pool = sp.GetRequiredService<RabbitMqConnectionPool>();
             var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>();

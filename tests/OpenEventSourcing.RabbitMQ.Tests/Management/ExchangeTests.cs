@@ -7,6 +7,7 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 
@@ -30,97 +31,120 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [IntegrationTest]
         public void WhenCreateExchangeAsyncCalledWithNonExistentExchangeThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-            Func<Task> act = async () => await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                Func<Task> act = async () => await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenCreateExchangeAsyncCalledWithExistingExchangeThenShouldThrowExchangeAlreadyExistsException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-            act.Should().Throw<ExchangeAlreadyExistsException>()
-                .And.ExchangeName.Should().Be(exchangeName);
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                };
+
+                act.Should().Throw<ExchangeAlreadyExistsException>()
+                    .And.ExchangeName.Should().Be(exchangeName);
+            }
         }
         [IntegrationTest]
         public void WhenExchangeExistsAsyncCalledWithNonExistentExchangeThenShouldReturnFalse()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-
-            Func<Task> verify = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                var result = await client.ExchangeExistsAsync(name: exchangeName);
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-                result.Should().BeFalse();
-            };
+                Func<Task> verify = async () =>
+                {
+                    var result = await client.ExchangeExistsAsync(name: exchangeName);
 
-            verify.Should().NotThrow();
+                    result.Should().BeFalse();
+                };
+
+                verify.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenExchangeExistsAsyncCalledWithExistingExchangeThenShouldReturnTrue()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                };
 
-            Func<Task> verify = async () =>
-            {
-                var result = await client.ExchangeExistsAsync(name: exchangeName);
+                act.Should().NotThrow();
 
-                result.Should().BeTrue();
-            };
+                Func<Task> verify = async () =>
+                {
+                    var result = await client.ExchangeExistsAsync(name: exchangeName);
 
-            verify.Should().NotThrow();
+                    result.Should().BeTrue();
+                };
+
+                verify.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenRemoveExchangeAsyncCalledWithNonExistentExchangeThenShouldThrowExhangeNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-            Func<Task> act = async () => await client.RemoveExchangeAsync(name: exchangeName);
+                Func<Task> act = async () => await client.RemoveExchangeAsync(name: exchangeName);
 
-            act.Should().Throw<ExchangeNotFoundException>()
-                .And.ExchangeName.Should().Be(exchangeName);
+                act.Should().Throw<ExchangeNotFoundException>()
+                    .And.ExchangeName.Should().Be(exchangeName);
+            }
         }
         [IntegrationTest]
         public void WhenRemoveExchangeAsyncCalledWithExistingExchangeThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.RemoveExchangeAsync(name: exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.RemoveExchangeAsync(name: exchangeName);
+                };
+
+                act.Should().NotThrow();
+            }
         }
     }
 }

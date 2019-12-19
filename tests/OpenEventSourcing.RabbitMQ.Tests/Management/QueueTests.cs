@@ -7,6 +7,7 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Management
@@ -29,95 +30,118 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                               e.WithName("test-exchange");
                               e.UseExchangeType("topic");
                           });
-                     });
+                     })
+                     .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [IntegrationTest]
         public void WhenCreateQueueAsyncCalledWithNonExistentQueueThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-            Func<Task> act = async () => await client.CreateQueueAsync(name: queueName, durable: false);
+                Func<Task> act = async () => await client.CreateQueueAsync(name: queueName, durable: false);
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenCreateQueueAsyncCalledWithExistingQueueThenShouldThrowQueueAlreadyExistsException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-            act.Should().Throw<QueueAlreadyExistsException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                };
+
+                act.Should().Throw<QueueAlreadyExistsException>();
+            }
         }
         [IntegrationTest]
         public void WhenQueueExistsAsyncCalledWithNonExistentQueueThenShouldReturnFalse()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-
-            Func<Task> verify = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                var result = await client.QueueExistsAsync(name: queueName);
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-                result.Should().BeFalse();
-            };
+                Func<Task> verify = async () =>
+                {
+                    var result = await client.QueueExistsAsync(name: queueName);
 
-            verify.Should().NotThrow();
+                    result.Should().BeFalse();
+                };
+
+                verify.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenQueueExistsAsyncCalledWithExistingQueueThenShouldReturnTrue()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateQueueAsync(name: queueName, durable: false);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                };
 
-            Func<Task> verify = async () =>
-            {
-                var result = await client.QueueExistsAsync(name: queueName);
+                act.Should().NotThrow();
 
-                result.Should().BeTrue();
-            };
+                Func<Task> verify = async () =>
+                {
+                    var result = await client.QueueExistsAsync(name: queueName);
 
-            verify.Should().NotThrow();
+                    result.Should().BeTrue();
+                };
+
+                verify.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenRemoveQueueAsyncCalledWithExistingQueueThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.RemoveQueueAsync(name: queueName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.RemoveQueueAsync(name: queueName);
+                };
+
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenRemoveQueueAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var queueName = $"test-queue-{Guid.NewGuid()}";
+            using (var scope = ServiceProvider.CreateScope())
+            {
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var queueName = $"test-queue-{Guid.NewGuid()}";
 
-            Func<Task> act = async () => await client.RemoveQueueAsync(name: queueName);
+                Func<Task> act = async () => await client.RemoveQueueAsync(name: queueName);
 
-            act.Should().Throw<QueueNotFoundException>();
+                act.Should().Throw<QueueNotFoundException>();
+            }
         }
     }
 }

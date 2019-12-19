@@ -9,6 +9,7 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 
@@ -32,127 +33,152 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    }).AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [IntegrationTest]
         public void WhenCreateSubscriptionAsyncCalledWithNewSubscriptionThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenCreateSubscriptionAsyncCalledWithExistingSubscriptionThenShouldSucceed()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().NotThrow();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentExhangeThenShouldThrowExchangeNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().Throw<ExchangeNotFoundException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().Throw<ExchangeNotFoundException>();
+            }
         }
         [IntegrationTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().Throw<QueueNotFoundException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().Throw<QueueNotFoundException>();
+            }
         }
         [IntegrationTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentExchangeThenShouldThrowExchangeNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.RemoveSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().Throw<ExchangeNotFoundException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.RemoveSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().Throw<ExchangeNotFoundException>();
+            }
         }
         [IntegrationTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().Throw<QueueNotFoundException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                };
+
+                act.Should().Throw<QueueNotFoundException>();
+            }
         }
         [IntegrationTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotConfiguredThenShouldThrowInvalidOperationException()
         {
-            var client = ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
-            var exchangeName = $"test-exchange-{Guid.NewGuid()}";
-            var queueName = $"test-queue-{Guid.NewGuid()}";
-            var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
-
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
-                await client.RetrieveSubscriptionsAsync(queueName);
-            };
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var exchangeName = $"test-exchange-{Guid.NewGuid()}";
+                var queueName = $"test-queue-{Guid.NewGuid()}";
+                var subscriptionName = $"test-subscription-{Guid.NewGuid()}";
 
-            act.Should().Throw<InvalidOperationException>();
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                    await client.RetrieveSubscriptionsAsync(queueName);
+                };
+
+                act.Should().Throw<InvalidOperationException>();
+            }
         }
         [IntegrationTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiCorrectlyConfiguredThenShouldReturnExpectedSubscriptions()
@@ -179,26 +205,31 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                             m.WithEndpoint("http://localhost:15672/")
                              .WithCredentials("guest", "guest");
                         });
-                    });
+                    })
+                    .AddJsonSerializers();
 
             var sp = services.BuildServiceProvider();
-            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
 
-            Func<Task> act = async () =>
+            using (var scope = sp.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
 
-                var results = await client.RetrieveSubscriptionsAsync(queueName);
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
 
-                results.Should().HaveCount(1);
-                results.Single().Exchange.Should().Be(exchangeName);
-                results.Single().Queue.Should().Be(queueName);
-                results.Single().RoutingKey.Should().Be(subscriptionName);
-            };
+                    var results = await client.RetrieveSubscriptionsAsync(queueName);
 
-            act.Should().NotThrow();
+                    results.Should().HaveCount(1);
+                    results.Single().Exchange.Should().Be(exchangeName);
+                    results.Single().Queue.Should().Be(queueName);
+                    results.Single().RoutingKey.Should().Be(subscriptionName);
+                };
+
+                act.Should().NotThrow();
+            }
         }
         [IntegrationTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotAvailableThenShouldThrow()
@@ -223,21 +254,26 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                             m.WithEndpoint("http://localhost:12345/")
                              .WithCredentials("guest", "guest");
                         });
-                    });
+                    })
+                    .AddJsonSerializers();
 
             var sp = services.BuildServiceProvider();
-            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
 
-            Func<Task> act = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
 
-                var results = await client.RetrieveSubscriptionsAsync(queueName);
-            };
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: ExchangeType.Topic, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
 
-            act.Should().Throw<Exception>();
+                    var results = await client.RetrieveSubscriptionsAsync(queueName);
+                };
+
+                act.Should().Throw<Exception>();
+            }
         }
         [IntegrationTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldReturnExpectedSubscriptions()
@@ -259,25 +295,31 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                              e.UseExchangeType(exchangeType);
                          });
 
-                        o.UseManagementApi(m => {
+                        o.UseManagementApi(m => 
+                        {
                             m.WithEndpoint("http://localhost:15672/");
                         });
-                    });
+                    })
+                    .AddJsonSerializers();
 
             var sp = services.BuildServiceProvider();
-            var client = sp.GetRequiredService<IRabbitMqManagementClient>();
 
-            Func<Task> act = async () =>
+            using (var scope = sp.CreateScope())
             {
-                await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
-                await client.CreateQueueAsync(name: queueName, durable: false);
-                await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
+                var client = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
 
-                var results = await client.RetrieveSubscriptionsAsync(queueName);
-            };
+                Func<Task> act = async () =>
+                {
+                    await client.CreateExchangeAsync(name: exchangeName, exchangeType: exchangeType, durable: false);
+                    await client.CreateQueueAsync(name: queueName, durable: false);
+                    await client.CreateSubscriptionAsync(subscriptionName, queueName, exchangeName);
 
-            act.Should().Throw<HttpRequestException>()
-                .And.Message.Should().Contain("401");
+                    var results = await client.RetrieveSubscriptionsAsync(queueName);
+                };
+
+                act.Should().Throw<HttpRequestException>()
+                    .And.Message.Should().Contain("401");
+            }
         }
     }
 }
