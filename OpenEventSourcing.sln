@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Samples.R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.RabbitMQ.Tests", "tests\OpenEventSourcing.RabbitMQ.Tests\OpenEventSourcing.RabbitMQ.Tests.csproj", "{965EC41C-3B4D-4C87-B778-5B797201F29B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Testing", "src\OpenEventSourcing.Testing\OpenEventSourcing.Testing.csproj", "{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Testing", "src\OpenEventSourcing.Testing\OpenEventSourcing.Testing.csproj", "{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

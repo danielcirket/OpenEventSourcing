@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Management;
 
 namespace OpenEventSourcing.RabbitMQ.Subscriptions
@@ -11,22 +10,17 @@ namespace OpenEventSourcing.RabbitMQ.Subscriptions
     {
         private readonly IOptions<RabbitMqOptions> _options;
         private readonly IRabbitMqManagementClient _client;
-        private readonly IRabbitMqConnectionFactory _connectionFactory;
 
         public DefaultSubscriptionManager(IOptions<RabbitMqOptions> options,
-                                          IRabbitMqManagementClient client,
-                                          IRabbitMqConnectionFactory connectionFactory)
+                                          IRabbitMqManagementClient client)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
-            if (connectionFactory == null)
-                throw new ArgumentNullException(nameof(connectionFactory));
-
+            
             _options = options;
             _client = client;
-            _connectionFactory = connectionFactory;
         }
 
         public async Task ConfigureAsync()

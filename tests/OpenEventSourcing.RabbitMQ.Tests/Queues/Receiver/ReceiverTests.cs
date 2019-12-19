@@ -40,36 +40,43 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     })
                     .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [IntegrationTest]
         public void WhenStartCalledThenShouldConsumePublishedEventWithSingleSubscription()
         {
-            var @event = new SampleReceiverEvent();
-            var sender = ServiceProvider.GetRequiredService<IQueueMessageSender>();
-            var receiver = ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
-            var sentTime = DateTimeOffset.MinValue;
-
-            Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
-
-            act.Should().NotThrow();
-
-            Func<Task> verify = async () =>
+            using (var scope = ServiceProvider.CreateScope())
             {
-                // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
-                await Task.Delay(500);
+                var @event = new SampleReceiverEvent();
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
+                var sentTime = DateTimeOffset.MinValue;
 
-                await sender.SendAsync(@event);
-                sentTime = DateTimeOffset.UtcNow;
+                Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
 
-                // Delay to ensure that we pick up the message.
-                await Task.Delay(250);
-            };
+                act.Should().NotThrow();
 
-            verify.Should().NotThrow();
+                Func<Task> verify = async () =>
+                {
+                    // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
+                    await Task.Delay(500);
 
-            SampleReceiverEventHandler.Received.Should().Be(1);
+                    await sender.SendAsync(@event);
+                    sentTime = DateTimeOffset.UtcNow;
+
+                    // Delay to ensure that we pick up the message.
+                    await Task.Delay(250);
+                };
+
+                verify.Should().NotThrow();
+
+                SampleReceiverEventHandler.Received.Should().Be(1);
+            }
         }
         [IntegrationTest]
         public void WhenStartCalledThenShouldConsumePublishedEventWithMultipleSubscriptions()
@@ -100,32 +107,39 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     })
                     .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
 
-            var event1 = new MultipleSampleReceiverEventOne();
-            var event2 = new MultipleSampleReceiverEventTwo();
-            var sender = sp.GetRequiredService<IQueueMessageSender>();
-            var receiver = sp.GetRequiredService<IQueueMessageReceiver>();
-
-            Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
-
-            act.Should().NotThrow();
-
-            Func<Task> verify = async () =>
+            using (var scope = sp.CreateScope())
             {
+                var event1 = new MultipleSampleReceiverEventOne();
+                var event2 = new MultipleSampleReceiverEventTwo();
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
+
+                Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
+
+                act.Should().NotThrow();
+
+                Func<Task> verify = async () =>
+                {
                 // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                 await Task.Delay(500);
 
-                await sender.SendAsync(new IEvent[] { event1, event2 });
+                    await sender.SendAsync(new IEvent[] { event1, event2 });
 
                 // Delay to ensure that we pick up the message.
                 await Task.Delay(250);
-            };
+                };
 
-            verify.Should().NotThrow();
+                verify.Should().NotThrow();
 
-            MultipleSampleReceiverEventHandlerOne.Received.Should().Be(1);
-            MultipleSampleReceiverEventHandlerTwo.Received.Should().Be(1);
+                MultipleSampleReceiverEventHandlerOne.Received.Should().Be(1);
+                MultipleSampleReceiverEventHandlerTwo.Received.Should().Be(1);
+            }
         }
         [IntegrationTest]
         public void WhenStartCalledThenShouldNotConsumePublishedEventWithoutSubscription()
@@ -150,30 +164,36 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     })
                     .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
-
-            var @event = new SampleNonSubscriptionReceiverEvent();
-            var sender = sp.GetRequiredService<IQueueMessageSender>();
-            var receiver = sp.GetRequiredService<IQueueMessageReceiver>();
-
-            Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
-
-            act.Should().NotThrow();
-
-            Func<Task> verify = async () =>
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
+            using (var scope = sp.CreateScope())
             {
+                var @event = new SampleNonSubscriptionReceiverEvent();
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
+
+                Func<Task> act = async () => await receiver.StartAsync(CancellationToken.None);
+
+                act.Should().NotThrow();
+
+                Func<Task> verify = async () =>
+                {
                 // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                 await Task.Delay(500);
 
-                await sender.SendAsync(@event);
+                    await sender.SendAsync(@event);
 
                 // Delay to ensure that we pick up the message.
                 await Task.Delay(250);
-            };
+                };
 
-            verify.Should().NotThrow();
+                verify.Should().NotThrow();
 
-            SampleNonSubscriptionReceiverEventHandler.Received.Should().Be(0);
+                SampleNonSubscriptionReceiverEventHandler.Received.Should().Be(0);
+            }
         }
 
         private class SampleReceiverEvent : Event

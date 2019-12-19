@@ -20,34 +20,29 @@ namespace OpenEventSourcing.RabbitMQ.Queues
     {
         private readonly IOptions<RabbitMqOptions> _options;
         private readonly ILogger<DefaultQueueMessageReceiver> _logger;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
-        private readonly ISubscriptionManager _subscriptionManager;
         private CancellationTokenSource _stoppingCts;
         private List<Task> _executingTasks;
 
         public DefaultQueueMessageReceiver(IOptions<RabbitMqOptions> options,
                                            IRabbitMqConnectionFactory connectionFactory,
-                                           ISubscriptionManager subscriptionManager,
                                            ILogger<DefaultQueueMessageReceiver> logger,
-                                           IServiceProvider serviceProvider)
+                                           IServiceScopeFactory serviceScopeFactory)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
             if (connectionFactory == null)
                 throw new ArgumentNullException(nameof(connectionFactory));
-            if (subscriptionManager == null)
-                throw new ArgumentNullException(nameof(subscriptionManager));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            if (serviceScopeFactory == null)
+                throw new ArgumentNullException(nameof(serviceScopeFactory));
 
             _options = options;
             _connectionFactory = connectionFactory;
-            _subscriptionManager = subscriptionManager;
             _logger = logger;
-            _serviceProvider = serviceProvider;
+            _serviceScopeFactory = serviceScopeFactory;
             _stoppingCts = new CancellationTokenSource();
         }
 
@@ -56,7 +51,7 @@ namespace OpenEventSourcing.RabbitMQ.Queues
             var eventName = message.RoutingKey;
             var eventData = Encoding.UTF8.GetString(message.Body);
 
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var eventTypeCache = scope.ServiceProvider.GetRequiredService<IEventTypeCache>();
                 var eventDispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
@@ -90,7 +85,11 @@ namespace OpenEventSourcing.RabbitMQ.Queues
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _subscriptionManager.ConfigureAsync();
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var manager = scope.ServiceProvider.GetRequiredService<ISubscriptionManager>();
+                await manager.ConfigureAsync();
+            }
 
             var tasks = new List<Task>();
 

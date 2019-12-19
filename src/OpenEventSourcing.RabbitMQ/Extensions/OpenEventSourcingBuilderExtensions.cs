@@ -21,12 +21,12 @@ namespace OpenEventSourcing.RabbitMQ.Extensions
             builder.Services.Configure(optionsAction);
 
             builder.Services.AddScoped<IMessageFactory, DefaultMessageFactory>();
-            builder.Services.AddSingleton<IEventBusPublisher, RabbitMqEventBus>();
-            builder.Services.AddSingleton<IEventBusConsumer, RabbitMqEventBus>();
+            builder.Services.AddScoped<IEventBusPublisher, RabbitMqEventBus>();
+            builder.Services.AddScoped<IEventBusConsumer, RabbitMqEventBus>();
             builder.Services.AddSingleton<RabbitMqConnectionPool>();
             builder.Services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
             builder.Services.AddScoped<IQueueMessageSender, DefaultQueueMessageSender>();
-            builder.Services.AddScoped<IQueueMessageReceiver, DefaultQueueMessageReceiver>();
+            builder.Services.AddSingleton<IQueueMessageReceiver, DefaultQueueMessageReceiver>();
             builder.Services.AddScoped<ISubscriptionManager, DefaultSubscriptionManager>();
             builder.Services.AddScoped<IRabbitMqManagementClient, RabbitMqManagementClient>();
             builder.Services.AddHttpClient<IRabbitMqManagementApiClient, RabbitMqManagementApiClient>();

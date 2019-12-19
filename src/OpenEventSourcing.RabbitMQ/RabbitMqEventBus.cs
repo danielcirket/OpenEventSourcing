@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.RabbitMQ.Queues;
-using OpenEventSourcing.RabbitMQ.Subscriptions;
 
 namespace OpenEventSourcing.RabbitMQ
 {
     internal sealed class RabbitMqEventBus : IEventBusPublisher, IEventBusConsumer
     {
         private readonly ILogger<RabbitMqEventBus> _logger;
-        private readonly IQueueMessageSender _messageSender;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IQueueMessageReceiver _queueMessageReceiver;
 
         public RabbitMqEventBus(ILogger<RabbitMqEventBus> logger,
-                                IQueueMessageSender messageSender,
-                                IQueueMessageReceiver queueMessageReceiver,
-                                ISubscriptionManager subscriptionManager)
+                                IServiceScopeFactory serviceScopeFactory,
+                                IQueueMessageReceiver queueMessageReceiver)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (messageSender == null)
-                throw new ArgumentNullException(nameof(messageSender));
-            if (subscriptionManager == null)
-                throw new ArgumentNullException(nameof(subscriptionManager));
+            if (serviceScopeFactory == null)
+                throw new ArgumentNullException(nameof(serviceScopeFactory));
+            if (queueMessageReceiver == null)
+                throw new ArgumentNullException(nameof(queueMessageReceiver));
 
             _logger = logger;
-            _messageSender = messageSender;
+            _serviceScopeFactory = serviceScopeFactory;
             _queueMessageReceiver = queueMessageReceiver;
         }
 
@@ -37,7 +36,11 @@ namespace OpenEventSourcing.RabbitMQ
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            await _messageSender.SendAsync(@event);
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(@event);
+            }
         }
 
         public async Task PublishAsync(IEnumerable<IEvent> events)
@@ -45,7 +48,11 @@ namespace OpenEventSourcing.RabbitMQ
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
 
-            await _messageSender.SendAsync(events);
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(events);
+            }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)

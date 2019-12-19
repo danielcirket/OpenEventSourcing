@@ -40,19 +40,26 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     })
                     .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
-            var manager = sp.GetRequiredService<ISubscriptionManager>();
-            var managementCient = sp.GetRequiredService<IRabbitMqManagementClient>();
-            var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
+            using (var scope = sp.CreateScope())
+            {
+                var manager = scope.ServiceProvider.GetRequiredService<ISubscriptionManager>();
+                var managementCient = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var options = scope.ServiceProvider.GetRequiredService<IOptions<RabbitMqOptions>>();
 
-            Func<Task> act = async () => await manager.ConfigureAsync();
+                Func<Task> act = async () => await manager.ConfigureAsync();
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
 
-            Func<Task> verify = async () => await managementCient.CreateExchangeAsync(name: options.Value.Exchange.Name, ExchangeType.Topic, durable: false);
+                Func<Task> verify = async () => await managementCient.CreateExchangeAsync(name: options.Value.Exchange.Name, ExchangeType.Topic, durable: false);
 
-            verify.Should().Throw<ExchangeAlreadyExistsException>()
-                .And.ExchangeName.Should().Be(options.Value.Exchange.Name);
+                verify.Should().Throw<ExchangeAlreadyExistsException>()
+                    .And.ExchangeName.Should().Be(options.Value.Exchange.Name);
+            }
         }
         [IntegrationTest]
         public void WhenConfigureAsyncCalledThenShouldConfigureSubscriptions()
@@ -76,21 +83,28 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     })
                     .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
-            var manager = sp.GetRequiredService<ISubscriptionManager>();
-            var managementCient = sp.GetRequiredService<IRabbitMqManagementClient>();
-            var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
+            using (var scope = sp.CreateScope())
+            {
+                var manager = scope.ServiceProvider.GetRequiredService<ISubscriptionManager>();
+                var managementCient = scope.ServiceProvider.GetRequiredService<IRabbitMqManagementClient>();
+                var options = scope.ServiceProvider.GetRequiredService<IOptions<RabbitMqOptions>>();
 
-            Func<Task> act = async () => await manager.ConfigureAsync();
+                Func<Task> act = async () => await manager.ConfigureAsync();
 
-            act.Should().NotThrow();
+                act.Should().NotThrow();
 
-            var queue = options.Value.Subscriptions.First().Name;
+                var queue = options.Value.Subscriptions.First().Name;
 
-            Func<Task> verify = async () => await managementCient.CreateQueueAsync(name: queue, durable: false);
+                Func<Task> verify = async () => await managementCient.CreateQueueAsync(name: queue, durable: false);
 
-            verify.Should().Throw<QueueAlreadyExistsException>()
-                .And.QueueName.Should().Be(queue);
+                verify.Should().Throw<QueueAlreadyExistsException>()
+                    .And.QueueName.Should().Be(queue);
+            }
         }
 
         // TODO(Dan): Subscriptions, we can't get that information from the internal IModel currently.

@@ -9,6 +9,7 @@ using Moq;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
+using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client.Exceptions;
 using Xunit;
@@ -34,9 +35,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            ServiceProvider = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+#endif
         }
 
         [Fact]
@@ -84,9 +90,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
                          });
-                    });
+                    })
+                    .AddJsonSerializers();
 
-            var sp = services.BuildServiceProvider();
+#if NETCOREAPP3_0
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
 
             var factory = sp.GetRequiredService<IRabbitMqConnectionFactory>();
 
