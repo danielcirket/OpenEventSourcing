@@ -12,7 +12,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.DbContexts
     {
         public DbSet<ProjectionState> ProjectionStates { get; set; }
 
-        internal OpenEventSourcingProjectionDbContext(DbContextOptions<OpenEventSourcingProjectionDbContext> options)
+        public OpenEventSourcingProjectionDbContext(DbContextOptions<OpenEventSourcingProjectionDbContext> options)
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)
