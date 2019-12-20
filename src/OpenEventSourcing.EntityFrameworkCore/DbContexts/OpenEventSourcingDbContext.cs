@@ -10,7 +10,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.DbContexts
         public DbSet<Event> Events { get; set; }
         public DbSet<Query> Queries { get; set; }
 
-        internal OpenEventSourcingDbContext(DbContextOptions<OpenEventSourcingDbContext> options)
+        public OpenEventSourcingDbContext(DbContextOptions<OpenEventSourcingDbContext> options)
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)
