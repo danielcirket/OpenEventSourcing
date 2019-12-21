@@ -13,18 +13,18 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
     internal sealed class DefaultTopicMessageReceiver : ITopicMessageReceiver
     {
         private readonly ILogger<DefaultTopicMessageReceiver> _logger;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public DefaultTopicMessageReceiver(ILogger<DefaultTopicMessageReceiver> logger,
-                                           IServiceProvider serviceProvider)
+                                           IServiceScopeFactory serviceScopeFactory)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            if (serviceScopeFactory == null)
+                throw new ArgumentNullException(nameof(serviceScopeFactory));
 
             _logger = logger;
-            _serviceProvider = serviceProvider;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public Task OnErrorAsync(ExceptionReceivedEventArgs error)
@@ -48,7 +48,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
             var eventName = message.Label;
             var eventData = Encoding.UTF8.GetString(message.Body);             
 
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var eventTypeCache = scope.ServiceProvider.GetRequiredService<IEventTypeCache>();
                 var eventDispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
