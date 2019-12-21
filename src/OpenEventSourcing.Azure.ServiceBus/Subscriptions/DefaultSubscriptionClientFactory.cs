@@ -6,16 +6,14 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
 {
     internal sealed class DefaultSubscriptionClientFactory : ISubscriptionClientFactory
     {
-        private readonly IOptions<ServiceBusOptions> _options;
         private readonly ServiceBusConnectionStringBuilder _connectionStringBuilder;
 
-        public DefaultSubscriptionClientFactory(IOptions<ServiceBusOptions> options)
+        public DefaultSubscriptionClientFactory(ServiceBusConnectionStringBuilder connectionStringBuilder)
         {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
+            if (connectionStringBuilder == null)
+                throw new ArgumentNullException(nameof(connectionStringBuilder));
 
-            _options = options;
-            _connectionStringBuilder = new ServiceBusConnectionStringBuilder(_options.Value.ConnectionString);
+            _connectionStringBuilder = connectionStringBuilder;
         }
 
         public ISubscriptionClient Create(ServiceBusSubscription subscription)

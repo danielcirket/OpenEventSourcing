@@ -46,11 +46,14 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
 
             var clients = new List<ISubscriptionClient>();
             var managementClient = new ManagementClient(_connectionStringBuilder);
+            var topicExists = await managementClient.TopicExistsAsync(_connectionStringBuilder.EntityPath);
+
+            if (!topicExists)
+                await managementClient.CreateTopicAsync(_connectionStringBuilder.EntityPath);
             
             foreach (var subscription in _options.Value.Subscriptions)
             {
                 var client = _subscriptionClientFactory.Create(subscription);
-
                 var subscriptionExists = await managementClient.SubscriptionExistsAsync(client.TopicPath, client.SubscriptionName);
 
                 if (!subscriptionExists)
@@ -61,8 +64,8 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
                 if (subscription.Events.Any() && rules.Any(rule => rule.Name == RuleDescription.DefaultRuleName))
                     await client.RemoveRuleAsync(RuleDescription.DefaultRuleName);
 
-                var rulesToAdd = subscription.Events.Where(@event => !rules.Any(rule => rule.Name != @event.Name));
-                var rulesToRemove = rules.Where(rule => !subscription.Events.Any(@event => @event.Name != rule.Name));
+                var rulesToAdd = subscription.Events.Where(@event => !rules.Any(rule => rule.Name == @event.Name));
+                var rulesToRemove = rules.Where(rule => !subscription.Events.Any(@event => @event.Name == rule.Name));
 
                 foreach (var type in rulesToAdd)
                     await client.AddRuleAsync(new RuleDescription(filter: new CorrelationFilter { Label = type.Name }, name: type.Name));
@@ -70,7 +73,8 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
                 foreach (var rule in rulesToRemove)
                     await client.RemoveRuleAsync(rule.Name);
 
-                client.RegisterMessageHandler((message, cancelationToken) => _messageReceiver.ReceiveAsync(client, message, cancelationToken), _messageReceiver.OnErrorAsync);
+                client.RegisterMessageHandler((message, cancelationToken) => _messageReceiver.ReceiveAsync(client, message, cancelationToken),
+                                               new MessageHandlerOptions(_messageReceiver.OnErrorAsync) { AutoComplete = false });
 
                 clients.Add(client);
             }
