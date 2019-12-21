@@ -6,6 +6,7 @@ namespace OpenEventSourcing.Azure.ServiceBus
     public class ServiceBusOptions
     {
         internal string ConnectionString { get; private set; }
+        internal ServiceBusTopicOptions Topic { get; private set; }
         internal IList<ServiceBusSubscription> Subscriptions { get; }
 
         public ServiceBusOptions()
@@ -22,7 +23,16 @@ namespace OpenEventSourcing.Azure.ServiceBus
 
             return this;
         }
+        public ServiceBusOptions UseTopic(Action<ServiceBusTopicOptions> optionsAction)
+        {
+            var options = new ServiceBusTopicOptions();
 
+            optionsAction.Invoke(options);
+
+            Topic = options;
+
+            return this;
+        }
         public ServiceBusOptions AddSubscription(Action<ServiceBusSubscription> optionsAction)
         {
             var options = new ServiceBusSubscription();
