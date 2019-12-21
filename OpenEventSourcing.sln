@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.RabbitMQ.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenEventSourcing.Testing", "src\OpenEventSourcing.Testing\OpenEventSourcing.Testing.csproj", "{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenEventSourcing.Samples.AzureServiceBus", "samples\OpenEventSourcing.Samples.AzureServiceBus\OpenEventSourcing.Samples.AzureServiceBus.csproj", "{6CE32EFC-B79C-4804-B62B-336884592C99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE32EFC-B79C-4804-B62B-336884592C99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE32EFC-B79C-4804-B62B-336884592C99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE32EFC-B79C-4804-B62B-336884592C99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE32EFC-B79C-4804-B62B-336884592C99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -141,6 +147,7 @@ Global
 		{2D10C2AE-4D1F-4FAF-A8BA-8B34A1FF222B} = {12D75424-1715-46BB-9611-3DA2476689B2}
 		{965EC41C-3B4D-4C87-B778-5B797201F29B} = {3218A606-9764-48A2-95DD-41BC489FF235}
 		{592C3D59-E2C0-4DCB-8DD7-E20BA0C60615} = {3CBD4825-7561-4ADA-95A4-5DF203BBEEAA}
+		{6CE32EFC-B79C-4804-B62B-336884592C99} = {12D75424-1715-46BB-9611-3DA2476689B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0F3B61AD-0A13-4D2D-BD99-E90606951CB2}
