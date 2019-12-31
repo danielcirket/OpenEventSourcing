@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenEventSourcing.Azure.ServiceBus.Management;
 using OpenEventSourcing.Azure.ServiceBus.Messages;
 using OpenEventSourcing.Azure.ServiceBus.Subscriptions;
 using OpenEventSourcing.Azure.ServiceBus.Topics;
@@ -18,14 +20,15 @@ namespace OpenEventSourcing.Azure.ServiceBus.Extensions
 
             builder.Services.Configure(optionsAction);
 
-            builder.Services.AddSingleton<IEventBusPublisher, AzureServiceBus>();
-            builder.Services.AddSingleton<IEventBusConsumer, AzureServiceBus>();
+            builder.Services.AddScoped<IEventBusPublisher, AzureServiceBus>();
+            builder.Services.AddScoped<IEventBusConsumer, AzureServiceBus>();
             builder.Services.AddScoped<IMessageFactory, DefaultMessageFactory>();
             builder.Services.AddScoped<ISubscriptionClientFactory, DefaultSubscriptionClientFactory>();
             builder.Services.AddScoped<ISubscriptionClientManager, DefaultSubscriptionClientManager>();
             builder.Services.AddScoped<ITopicClientFactory, DefaultTopicClientFactory>();
-            builder.Services.AddScoped<ITopicMessageReceiver, DefaultTopicMessageReceiver>();
+            builder.Services.AddSingleton<ITopicMessageReceiver, DefaultTopicMessageReceiver>();
             builder.Services.AddScoped<ITopicMessageSender, DefaultTopicMessageSender>();
+            builder.Services.AddScoped<IServiceBusManagementClient, ServiceBusManagementClient>();
             builder.Services.AddScoped<ServiceBusConnectionStringBuilder>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<ServiceBusOptions>>();
@@ -37,7 +40,16 @@ namespace OpenEventSourcing.Azure.ServiceBus.Extensions
                 if (options.Value.Topic != null)
                     connectionStringBuilder.EntityPath = options.Value.Topic.Name;
 
+                if (!string.IsNullOrEmpty(connectionStringBuilder.EntityPath) && options.Value.Topic == null)
+                    options.Value.UseTopic(t => t.WithName(connectionStringBuilder.EntityPath));
+
                 return connectionStringBuilder;
+            });
+            builder.Services.AddScoped<ManagementClient>(sp =>
+            {
+                var connectionStringBuilder = sp.GetRequiredService<ServiceBusConnectionStringBuilder>();
+
+                return new ManagementClient(connectionStringBuilder);
             });
 
             return builder;

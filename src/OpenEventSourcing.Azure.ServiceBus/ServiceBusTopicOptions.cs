@@ -6,12 +6,14 @@ namespace OpenEventSourcing.Azure.ServiceBus
     {
         internal string Name { get; set; }
 
-        public ServiceBusTopicOptions UseName(string name)
+        public ServiceBusTopicOptions WithName(string topicName)
         {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
+            if (string.IsNullOrEmpty(topicName))
+                throw new ArgumentException($"'{nameof(topicName)}' cannot be null or empty.", nameof(topicName));
+            if (topicName.Length > 50)
+                throw new ArgumentOutOfRangeException(nameof(topicName), $"'{nameof(topicName)}' exceeds the 50 character limit for then entity path name.");
 
-            Name = name;
+            Name = topicName;
 
             return this;
         }

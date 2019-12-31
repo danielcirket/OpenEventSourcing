@@ -11,7 +11,7 @@ namespace OpenEventSourcing.Samples.AzureServiceBus
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();  
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -24,11 +24,11 @@ namespace OpenEventSourcing.Samples.AzureServiceBus
                             .AddAzureServiceBus(options =>
                             {
                                 options.UseConnection("A connection string with or without the entity path.")
-                                       .UseTopic(topic =>
-                                       {
-                                           // If you set this it will take precedence over the entity path in the connection string...
-                                           topic.UseName("sample-topic");
-                                       })
+                                       //.UseTopic(topic =>
+                                       //{
+                                       //    // If you set this it will take precedence over the entity path in the connection string...
+                                       //    topic.WithName("dev-dan");
+                                       //})
                                        .AddSubscription(s =>
                                        {
                                            s.UseName(name: "sample-test")

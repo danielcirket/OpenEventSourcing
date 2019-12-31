@@ -43,9 +43,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
 
             var message = new Message
             {
-                MessageId = Guid.NewGuid().ToString(),
+                MessageId = @event.Id.ToString(),
                 Body = body,
                 Label = eventName,
+                CorrelationId = @event.CorrelationId.ToString()
             };
 
             return message;

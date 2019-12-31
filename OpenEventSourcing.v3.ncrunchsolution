@@ -1,6 +1,10 @@
 ﻿<SolutionConfiguration>
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <MetricsExclusionList>
+      <Value>samples\OpenEventSourcing.Samples.RabbitMq\OpenEventSourcing.Samples.RabbitMq.csproj</Value>
+      <Value>samples\OpenEventSourcing.Samples.AzureServiceBus\OpenEventSourcing.Samples.AzureServiceBus.csproj</Value>
+    </MetricsExclusionList>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>
 </SolutionConfiguration>
