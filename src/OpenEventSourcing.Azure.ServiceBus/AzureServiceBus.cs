@@ -34,13 +34,6 @@ namespace OpenEventSourcing.Azure.ServiceBus
             _subscriptionClientManager = subscriptionClientManager;
         }
 
-        public async Task CancelScheduledMessageAsync(string identifier)
-        {
-            if (string.IsNullOrEmpty(identifier))
-                throw new ArgumentException($"'{nameof(identifier)}' cannot be null or empty.", nameof(identifier));
-
-            await _messageSender.CancelScheduledMessageAsync(identifier);
-        }
         public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
         {
             if (@event == null)
@@ -54,13 +47,6 @@ namespace OpenEventSourcing.Azure.ServiceBus
                 throw new ArgumentNullException(nameof(events));
 
             await _messageSender.SendAsync(events);
-        }
-        public async Task<string> PublishAsync<TEvent>(TEvent @event, DateTimeOffset publishOnUtc) where TEvent : IEvent
-        {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
-
-            return await _messageSender.SendAsync(@event, publishOnUtc);
         }
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {

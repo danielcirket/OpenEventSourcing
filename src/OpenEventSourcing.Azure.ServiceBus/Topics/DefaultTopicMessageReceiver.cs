@@ -13,18 +13,18 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
     internal sealed class DefaultTopicMessageReceiver : ITopicMessageReceiver
     {
         private readonly ILogger<DefaultTopicMessageReceiver> _logger;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public DefaultTopicMessageReceiver(ILogger<DefaultTopicMessageReceiver> logger,
-                                           IServiceProvider serviceProvider)
+                                           IServiceScopeFactory serviceScopeFactory)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            if (serviceScopeFactory == null)
+                throw new ArgumentNullException(nameof(serviceScopeFactory));
 
             _logger = logger;
-            _serviceProvider = serviceProvider;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public Task OnErrorAsync(ExceptionReceivedEventArgs error)
@@ -43,12 +43,12 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
 
             return Task.CompletedTask;
         }
-        public async Task RecieveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default)
+        public async Task ReceiveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default)
         {
             var eventName = message.Label;
             var eventData = Encoding.UTF8.GetString(message.Body);             
 
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var eventTypeCache = scope.ServiceProvider.GetRequiredService<IEventTypeCache>();
                 var eventDispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
