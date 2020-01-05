@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Azure.ServiceBus.Exceptions;
@@ -27,13 +29,21 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
 
         public RuleTests()
         {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddUserSecrets(typeof(RuleTests).Assembly, optional: true)
+                .AddEnvironmentVariables(prefix: "OPENEVENTSOURCING_")
+                .Build();
+
             var services = new ServiceCollection();
 
             services.AddLogging(o => o.AddDebug())
+                    .AddSingleton<IConfiguration>(_ => configuration)
                     .AddOpenEventSourcing()
                     .AddAzureServiceBus(o =>
                     {
-                        o.UseConnection(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING") ?? "Endpoint=sb://openeventsourcing.servicebus.windows.net/;SharedAccessKeyName=DUMMY;SharedAccessKey=DUMMY")
+                        o.UseConnection(configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
                          .UseTopic(e =>
                          {
                              e.WithName(_topicName);
