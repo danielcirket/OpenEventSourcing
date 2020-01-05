@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,23 +11,20 @@ using OpenEventSourcing.Azure.ServiceBus.Extensions;
 using OpenEventSourcing.Azure.ServiceBus.Subscriptions;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Tests.Subscriptions.SubscriptionClientManager
 {
-    public class ConfigureTests : IDisposable
+    public class ConfigureTests : ServiceBusSpecification, IDisposable
     {
-        public IServiceProvider ServiceProvider { get; }
+        public ConfigureTests(ConfigurationFixture fixture) : base(fixture) { }
 
-        public ConfigureTests()
+        protected override void ConfigureServices(IServiceCollection services)
         {
-            var services = new ServiceCollection();
-
             services.AddLogging(o => o.AddDebug())
                     .AddOpenEventSourcing()
                     .AddAzureServiceBus(o =>
                     {
-                        o.UseConnection(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING") ?? "Endpoint=sb://openeventsourcing.servicebus.windows.net/;SharedAccessKeyName=DUMMY;SharedAccessKey=DUMMY")
+                        o.UseConnection(Configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
                          .UseTopic(e =>
                          {
                              e.WithName($"test-topic-{Guid.NewGuid()}");
@@ -37,12 +35,6 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Subscriptions.SubscriptionCli
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0
-            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
         }
 
         [ServiceBusTest]

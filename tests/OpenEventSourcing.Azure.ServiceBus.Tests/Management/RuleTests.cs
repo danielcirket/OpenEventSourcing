@@ -19,43 +19,27 @@ using Xunit;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
 {
-    public class RuleTests : IDisposable
+    public class RuleTests : ServiceBusSpecification, IDisposable
     {
         private readonly string _topicName = $"test-topic-{Guid.NewGuid()}";
         private readonly string _subscriptionName = $"test-sub-{Guid.NewGuid()}";
         private readonly string _ruleName = $"test-rule-{Guid.NewGuid()}";
 
-        public IServiceProvider ServiceProvider { get; }
+        public RuleTests(ConfigurationFixture fixture) : base(fixture) { }
 
-        public RuleTests()
+        protected override void ConfigureServices(IServiceCollection services)
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddUserSecrets(typeof(RuleTests).Assembly, optional: true)
-                .AddEnvironmentVariables(prefix: "OPENEVENTSOURCING_")
-                .Build();
-
-            var services = new ServiceCollection();
-
             services.AddLogging(o => o.AddDebug())
-                    .AddSingleton<IConfiguration>(_ => configuration)
                     .AddOpenEventSourcing()
                     .AddAzureServiceBus(o =>
                     {
-                        o.UseConnection(configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
+                        o.UseConnection(Configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
                          .UseTopic(e =>
                          {
                              e.WithName(_topicName);
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0
-            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
         }
 
         [Fact]
