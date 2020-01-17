@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -105,94 +106,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("logger");
         }
-        [Fact]
-        public void WhenSavingNullAggregateThenShoudThrowArgumentNullException()
-        {
-            var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
-            var eventModelFactory = new Mock<IEventModelFactory>().Object;
-            var eventTypeCache = new Mock<IEventTypeCache>().Object;
-            var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
-            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
-
-            FakeAggregate aggregate = null;
-
-            Func<Task> act = async () => await store.SaveAsync(aggregate, 0);
-
-            act.Should().Throw<ArgumentNullException>().
-                And.ParamName.Should().Be("aggregate");
-        }
-        [Fact]
-        public void WhenSavingAggregateWithNoUncommittedEventsThenShoudSaveNoEvents()
-        {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
-            var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
-            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-
-            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
-
-            Func<Task> act = async () => await store.SaveAsync(aggregate, 0);
-
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
-            count.Should().Be(0);
-        }
-        [Fact]
-        public void WhenSavingAggregateWithDifferentExpectedVersionThenShoudThrowConcurrencyException()
-        {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
-            var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
-            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-            var id = Guid.NewGuid().ToSequentialGuid();
-
-            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
-
-            aggregate.FakeAction();
-
-            Func<Task> act = async () => await store.SaveAsync(aggregate, 1);
-
-            act.Should().Throw<ConcurrencyException>();
-        }
-        [Fact]
-        public async Task WhenSavingAggregateWithSingleUncommittedEventsThenShoudSaveEvent()
-        {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
-            var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
-            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-            var id = Guid.NewGuid().ToSequentialGuid();
-
-            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
-
-            aggregate.FakeAction();
-
-            await store.SaveAsync(aggregate, 0);
-
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
-            count.Should().Be(1);
-        }
-        [Fact]
-        public async Task WhenSavingAggregateWithMultipleUncommittedEventsThenShoudSaveEvents()
-        {
-            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
-            var store = _serviceProvider.GetRequiredService<IEventStore>();
-            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
-            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
-            var id = Guid.NewGuid().ToSequentialGuid();
-
-            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
-
-            aggregate.FakeAction();
-            aggregate.FakeAction();
-            aggregate.FakeAction();
-
-            await store.SaveAsync(aggregate, 0);
-
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
-            count.Should().Be(3);
-        }
-
+        
         [Fact]
         public async Task WhenAggregateHasEventsThenGetAsyncShouldReturnExpectedEvents()
         {
@@ -207,7 +121,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate, 0);
+            await store.SaveAsync(aggregate.GetUncommittedEvents());
 
             var events = await store.GetEventsAsync(aggregate.Id.Value);
 
@@ -227,7 +141,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate, 0);
+            await store.SaveAsync(aggregate.GetUncommittedEvents());
 
             var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
 
@@ -247,7 +161,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate, 0);
+            await store.SaveAsync(aggregate.GetUncommittedEvents());
 
             var total = dbContext.Events.Count();
             var page = await store.GetEventsAsync(0);
@@ -255,6 +169,63 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             page.PreviousOffset.Should().Be(0);
             page.Offset.Should().Be(total);
             page.Events.Count().Should().Be(total);
+        }
+
+
+        [Fact]
+        public void WhenSavingNullEventsThenShouldThrowArgumentNullException()
+        {
+            var dbContextFactory = new Mock<IDbContextFactory>().Object;
+            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventModelFactory = new Mock<IEventModelFactory>().Object;
+            var eventTypeCache = new Mock<IEventTypeCache>().Object;
+            var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
+            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+
+            IEnumerable<IEvent> events = null;
+
+            Func<Task> act = async () => await store.SaveAsync(events);
+
+            act.Should().Throw<ArgumentNullException>().
+                And.ParamName.Should().Be("events");
+        }
+        [Fact]
+        public async Task WhenSavingSingleEventThenShouldStoreEvent()
+        {
+            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
+            var store = _serviceProvider.GetRequiredService<IEventStore>();
+            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
+            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
+            var id = Guid.NewGuid().ToSequentialGuid();
+
+            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
+
+            aggregate.FakeAction();
+
+            await store.SaveAsync(aggregate.GetUncommittedEvents());
+
+            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            count.Should().Be(1);
+        }
+        [Fact]
+        public async Task WhenSavingMulitpleEventsThenShouldStoreExpectedEvents()
+        {
+            var dbContext = _serviceProvider.GetRequiredService<IDbContextFactory>().Create();
+            var store = _serviceProvider.GetRequiredService<IEventStore>();
+            var serializer = _serviceProvider.GetRequiredService<IEventSerializer>();
+            var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
+            var id = Guid.NewGuid().ToSequentialGuid();
+
+            var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(Enumerable.Empty<IEvent>());
+
+            aggregate.FakeAction();
+            aggregate.FakeAction();
+            aggregate.FakeAction();
+
+            await store.SaveAsync(aggregate.GetUncommittedEvents());
+
+            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            count.Should().Be(3);
         }
     }
 }

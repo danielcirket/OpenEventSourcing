@@ -42,7 +42,19 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (aggregate == null)
                 throw new ArgumentNullException(nameof(aggregate));
 
-            await _eventStore.SaveAsync<TState>(aggregate, expectedVersion.GetValueOrDefault());
+            var events = aggregate.GetUncommittedEvents();
+
+            if (!events.Any())
+                return;
+
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+
+            if (expectedVersion.GetValueOrDefault() != currentVersion)
+                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+
+            await _eventStore.SaveAsync(events);
+
+            aggregate.ClearUncommittedEvents();
         }
     }
 }
