@@ -4,10 +4,10 @@ namespace OpenEventSourcing.Domain
 {
     public class ConcurrencyException : Exception
     {
-        public ConcurrencyException(Guid aggregateId, int expectedVersion, int actualVersion)
+        public ConcurrencyException(Guid aggregateId, long expectedVersion, long actualVersion)
             : base(BuildErrorMessage(aggregateId, expectedVersion, actualVersion)) { }
 
-        private static string BuildErrorMessage(Guid aggregateId, int expectedVersion, int actualVersion)
+        private static string BuildErrorMessage(Guid aggregateId, long expectedVersion, long actualVersion)
             => $"Concurrency exception | Aggregate: {aggregateId} | Expected version: {expectedVersion} | Actual version: {actualVersion}";
     }
 }

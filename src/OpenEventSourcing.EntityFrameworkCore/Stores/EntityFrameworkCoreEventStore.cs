@@ -43,6 +43,16 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
+        public async Task<long> CountAsync(Guid aggregateId)
+        {
+            using (var context = _dbContextFactory.Create())
+            {
+                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId);
+
+                return count;
+            }
+        }
+
         public async Task<Page> GetEventsAsync(long offset)
         {
             var results = new List<IEvent>();
@@ -120,30 +130,18 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return results;
             }
         }
-        public async Task SaveAsync<TState>(Aggregate<TState> aggregate, int expectedVersion)
-            where TState : IAggregateState, new()
+
+        public async Task SaveAsync(IEnumerable<IEvent> events)
         {
-            if (aggregate == null)
-                throw new ArgumentNullException(nameof(aggregate));
-
-            var events = aggregate.GetUncommittedEvents();
-
-            if (!events.Any())
-                return;
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
 
             using (var context = _dbContextFactory.Create())
             {
-                var currentVersion = await context.Events.CountAsync(x => x.AggregateId == aggregate.Id);
-
-                if (expectedVersion != currentVersion)
-                    throw new ConcurrencyException(aggregate.Id.Value, expectedVersion, currentVersion);
-
                 foreach (var @event in events)
                     await context.Events.AddAsync(_eventModelFactory.Create(@event));
 
                 await context.SaveChangesAsync();
-
-                aggregate.ClearUncommittedEvents();
             }
         }
     }
