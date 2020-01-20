@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Extensions;
@@ -9,14 +10,15 @@ using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
+using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Management
 {
-    public class QueueTests
+    public class QueueTests : IClassFixture<ConfigurationFixture>
     {
         public IServiceProvider ServiceProvider { get; }
 
-        public QueueTests()
+        public QueueTests(ConfigurationFixture fixture)
         {
             var services = new ServiceCollection();
 
@@ -24,7 +26,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                      .AddOpenEventSourcing()
                      .AddRabbitMq(o =>
                      {
-                         o.UseConnection("amqp://guest:guest@localhost:5672/")
+                         o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                           .UseExchange(e =>
                           {
                               e.WithName("test-exchange");
