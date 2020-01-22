@@ -206,7 +206,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
                         o.UseManagementApi(m => 
                         {
-                            m.WithEndpoint("http://localhost:15672/")
+                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementUri"))
                              .WithCredentials("guest", "guest");
                         });
                     })
@@ -301,7 +301,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
                         o.UseManagementApi(m => 
                         {
-                            m.WithEndpoint("http://localhost:15672/");
+                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementUri"));
                         });
                     })
                     .AddJsonSerializers();
