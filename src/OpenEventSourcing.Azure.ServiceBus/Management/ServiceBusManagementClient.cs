@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
+using Microsoft.Extensions.Options;
 using OpenEventSourcing.Azure.ServiceBus.Exceptions;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Management
@@ -11,13 +12,17 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
     internal sealed class ServiceBusManagementClient : IServiceBusManagementClient
     {
         private readonly ManagementClient _client;
+        private readonly IOptions<ServiceBusOptions> _options;
 
-        public ServiceBusManagementClient(ManagementClient client)
+        public ServiceBusManagementClient(ManagementClient client, IOptions<ServiceBusOptions> options)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
 
             _client = client;
+            _options = options;
         }
 
         public async Task CreateRuleAsync(string ruleName, string subscriptionName, string topicName)
@@ -55,7 +60,19 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             try
             {
-                await _client.CreateSubscriptionAsync(topicName, subscriptionName);
+                var options = _options.Value.Subscriptions.FirstOrDefault(s => s.Name.Equals(subscriptionName, StringComparison.OrdinalIgnoreCase));
+
+                var subscription = new SubscriptionDescription(topicName, subscriptionName)
+                {
+                    AutoDeleteOnIdle = options?.DeleteOnIdleAfter ?? ServiceBusSubscriptionDefaults.DeleteOnIdleAfter,
+                    DefaultMessageTimeToLive = options?.TimeToLive ?? ServiceBusSubscriptionDefaults.TimeToLive,
+                    EnableBatchedOperations = true,
+                    EnableDeadLetteringOnMessageExpiration = options?.UseDeadLetterOnExpiration ?? ServiceBusSubscriptionDefaults.UseDeadLetterOnExpiration,
+                    MaxDeliveryCount = options?.MaxDeliveryCount ?? ServiceBusSubscriptionDefaults.MaxDeliveryCount,
+                    LockDuration = options?.LockDuration ?? ServiceBusSubscriptionDefaults.LockDuration,
+                };
+
+                await _client.CreateSubscriptionAsync(subscription);
             }
             catch (MessagingEntityAlreadyExistsException)
             {
@@ -73,7 +90,18 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             try
             {
-                await _client.CreateTopicAsync(topicName);
+                var options = _options.Value.Topic.Name.Equals(topicName, StringComparison.OrdinalIgnoreCase)
+                    ? _options.Value.Topic
+                    : null;
+
+                var description = new TopicDescription(topicName)
+                {
+                    AutoDeleteOnIdle = options?.DeleteOnIdleAfter ?? ServiceBusTopicDefaults.DeleteOnIdleAfter,
+                    DefaultMessageTimeToLive = options?.TimeToLive ?? ServiceBusTopicDefaults.TimeToLive,
+                    EnableBatchedOperations = true,
+                };
+
+                await _client.CreateTopicAsync(description);
             }
             catch (MessagingEntityAlreadyExistsException)
             {
