@@ -34,7 +34,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1
             ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
 #else
             ServiceProvider = services.BuildServiceProvider(validateScopes: true);
@@ -97,7 +97,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
 #else
             var sp = services.BuildServiceProvider(validateScopes: true);
