@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,11 +15,19 @@ using OpenEventSourcing.RabbitMQ.Subscriptions;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
+using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
 {
-    public class ConfigureTests
+    public class ConfigureTests : IClassFixture<ConfigurationFixture>
     {
+        public IConfiguration Configuration { get; }
+        
+        public ConfigureTests(ConfigurationFixture fixture)
+        {
+            Configuration = fixture.Configuration;
+        }
+
         [IntegrationTest]
         public void WhenConfigureAsyncCalledThenShouldConfigureExchange()
         {
@@ -27,7 +37,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
@@ -70,7 +80,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");

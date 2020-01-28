@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Azure.ServiceBus.Exceptions;
@@ -10,37 +11,29 @@ using OpenEventSourcing.Azure.ServiceBus.Extensions;
 using OpenEventSourcing.Azure.ServiceBus.Management;
 using OpenEventSourcing.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
 {
-    public class SubscriptionTests : IDisposable
+    public class SubscriptionTests : ServiceBusSpecification, IDisposable
     {
         private readonly string _topicName = $"test-topic-{Guid.NewGuid()}";
-        public IServiceProvider ServiceProvider { get; }
 
-        public SubscriptionTests()
+        public SubscriptionTests(ConfigurationFixture fixture) : base(fixture) { }
+
+        protected override void ConfigureServices(IServiceCollection services)
         {
-            var services = new ServiceCollection();
-
             services.AddLogging(o => o.AddDebug())
                     .AddOpenEventSourcing()
                     .AddAzureServiceBus(o =>
                     {
-                        o.UseConnection(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING") ?? "Endpoint=sb://openeventsourcing.servicebus.windows.net/;SharedAccessKeyName=DUMMY;SharedAccessKey=DUMMY")
-                         .UseTopic(e =>
-                         {
-                             e.WithName(_topicName);
-                         });
+                         o.UseConnection(Configuration.GetValue<string>("Azure:ServiceBus:ConnectionString"))
+                          .UseTopic(e =>
+                          {
+                              e.WithName(_topicName);
+                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0
-            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
         }
 
         [Fact]

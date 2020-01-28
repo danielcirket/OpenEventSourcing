@@ -2,7 +2,7 @@
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace OpenEventSourcing.Testing.Discoverers
+namespace OpenEventSourcing.Azure.ServiceBus.Tests
 {
     public class ServiceBusTestTraitDiscoverer : ITraitDiscoverer
     {

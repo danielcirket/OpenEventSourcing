@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Extensions;
@@ -12,14 +13,16 @@ using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
+using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Management
 {
-    public class SubscriptionTests
+    public class SubscriptionTests : IClassFixture<ConfigurationFixture>
     {
         public IServiceProvider ServiceProvider { get; }
+        public IConfiguration Configuration { get; }
 
-        public SubscriptionTests()
+        public SubscriptionTests(ConfigurationFixture fixture)
         {
             var services = new ServiceCollection();
 
@@ -27,7 +30,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName("test-exchange");
@@ -40,6 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 #else
             ServiceProvider = services.BuildServiceProvider(validateScopes: true);
 #endif
+            Configuration = fixture.Configuration;
         }
 
         [IntegrationTest]
@@ -193,7 +197,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName(exchangeName);
@@ -202,7 +206,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
                         o.UseManagementApi(m => 
                         {
-                            m.WithEndpoint("http://localhost:15672/")
+                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementUri"))
                              .WithCredentials("guest", "guest");
                         });
                     })
@@ -243,7 +247,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName("test-exchange");
@@ -276,7 +280,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
             }
         }
         [IntegrationTest]
-        public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldReturnExpectedSubscriptions()
+        public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldThrowHttpRequestExceptionWith401Response()
         {
             var services = new ServiceCollection();
             var exchangeName = $"test-exchange-{Guid.NewGuid()}";
@@ -288,7 +292,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName(exchangeName);
@@ -297,7 +301,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 
                         o.UseManagementApi(m => 
                         {
-                            m.WithEndpoint("http://localhost:15672/");
+                            m.WithEndpoint(Configuration.GetValue<string>("RabbitMQ:ManagementUri"));
                         });
                     })
                     .AddJsonSerializers();

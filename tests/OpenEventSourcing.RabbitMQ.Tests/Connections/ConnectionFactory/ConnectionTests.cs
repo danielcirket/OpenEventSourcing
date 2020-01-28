@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Extensions;
@@ -10,23 +11,24 @@ using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client.Exceptions;
+using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Connections
 {
-    public class ConnectionTests
+    public class ConnectionTests : IClassFixture<ConfigurationFixture>
     {
         public IServiceProvider ServiceProvider { get; }
 
-        public ConnectionTests()
+        public ConnectionTests(ConfigurationFixture fixture)
         {
             var services = new ServiceCollection();
-            // services.AddOpenEventSourcing()
+
             services.AddLogging(o => o.AddDebug());
 
             services.AddOpenEventSourcing()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName("test-exchange");
@@ -57,7 +59,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
         public void WhenRabbitMqNotReachableCreateConnectionAsyncShouldThrowBrokerUnreachableException()
         {
             var services = new ServiceCollection();
-            // services.AddOpenEventSourcing()
+            
             services.AddLogging(o => o.AddDebug());
 
             services.AddOpenEventSourcing()

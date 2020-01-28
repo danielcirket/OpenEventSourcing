@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Events;
@@ -10,14 +12,16 @@ using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.Serialization.Json.Extensions;
 using OpenEventSourcing.Testing.Attributes;
+using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 {
-    public class ReceiverTests
+    public class ReceiverTests : IClassFixture<ConfigurationFixture>
     {
         public IServiceProvider ServiceProvider { get; }
+        public IConfiguration Configuration { get; }
 
-        public ReceiverTests()
+        public ReceiverTests(ConfigurationFixture fixture)
         {
             var services = new ServiceCollection();
 
@@ -26,7 +30,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddEvents()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
@@ -45,6 +49,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 #else
             ServiceProvider = services.BuildServiceProvider(validateScopes: true);
 #endif
+            Configuration = fixture.Configuration;
         }
 
         [IntegrationTest]
@@ -88,7 +93,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddEvents()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
@@ -151,7 +156,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     .AddEvents()
                     .AddRabbitMq(o =>
                     {
-                        o.UseConnection("amqp://guest:guest@localhost:5672/")
+                        o.UseConnection(Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
                          .UseExchange(e =>
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
