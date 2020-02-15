@@ -32,6 +32,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                          {
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();
@@ -95,6 +96,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();

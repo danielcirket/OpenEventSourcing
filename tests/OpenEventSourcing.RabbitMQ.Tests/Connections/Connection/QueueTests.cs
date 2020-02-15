@@ -32,6 +32,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
                           {
                               e.WithName("test-exchange");
                               e.UseExchangeType("topic");
+                              e.AutoDelete();
                           });
                      })
                      .AddJsonSerializers();

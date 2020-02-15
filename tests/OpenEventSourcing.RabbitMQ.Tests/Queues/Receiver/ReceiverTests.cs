@@ -98,16 +98,19 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-queue-{Guid.NewGuid()}");
                              s.ForEvent<MultipleSampleReceiverEventOne>();
+                             s.AutoDelete();
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-queue-{Guid.NewGuid()}");
                              s.ForEvent<MultipleSampleReceiverEventTwo>();
+                             s.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();

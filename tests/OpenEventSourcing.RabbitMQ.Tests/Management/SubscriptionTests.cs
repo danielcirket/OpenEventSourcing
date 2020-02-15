@@ -35,6 +35,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                          {
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     }).AddJsonSerializers();
 
@@ -202,6 +203,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                          {
                              e.WithName(exchangeName);
                              e.UseExchangeType(exchangeType);
+                             e.AutoDelete();
                          });
 
                         o.UseManagementApi(m => 
@@ -252,6 +254,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                          {
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
 
                         o.UseManagementApi(m => {
@@ -297,6 +300,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                          {
                              e.WithName(exchangeName);
                              e.UseExchangeType(exchangeType);
+                             e.AutoDelete();
                          });
 
                         o.UseManagementApi(m => 
