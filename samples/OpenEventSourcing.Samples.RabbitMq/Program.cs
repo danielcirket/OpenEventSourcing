@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Extensions;
+using OpenEventSourcing.RabbitMQ;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
 
@@ -27,7 +28,7 @@ namespace OpenEventSourcing.Samples.RabbitMq
                                        .UseExchange(e =>
                                        {
                                            e.WithName($"sample-exchange");
-                                           e.UseExchangeType("topic");
+                                           e.UseTopicExchangeType();
                                        })
                                        .AddSubscription(s =>
                                        {
