@@ -26,8 +26,8 @@ namespace OpenEventSourcing.EntityFrameworkCore
             return new Entities.Event
             {
                 AggregateId = @event.AggregateId,
-                CorrelationId = @event.CorrelationId.Value,
-                CausationId = @event.CausationId.Value,
+                CorrelationId = @event.CorrelationId,
+                CausationId = @event.CausationId,
                 Data = _eventSerializer.Serialize(@event),
                 Id = @event.Id,
                 Name = type.Name,
