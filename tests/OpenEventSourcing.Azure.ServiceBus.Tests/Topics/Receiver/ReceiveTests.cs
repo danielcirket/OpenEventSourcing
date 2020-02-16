@@ -29,10 +29,12 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
                          .UseTopic(e =>
                          {
                              e.WithName($"test-topic-{Guid.NewGuid()}");
+                             e.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"receiver-{Guid.NewGuid()}");
+                             s.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                              s.ForEvent<SampleReceiverEvent>();
                          });
                     })

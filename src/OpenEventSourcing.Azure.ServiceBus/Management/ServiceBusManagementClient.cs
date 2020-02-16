@@ -51,7 +51,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             await _client.CreateRuleAsync(topicName, subscriptionName, new RuleDescription(filter: new CorrelationFilter { Label = ruleName }, name: ruleName));
         }
-        public async Task CreateSubscriptionAsync(string subscriptionName, string topicName)
+        public async Task CreateSubscriptionAsync(string subscriptionName, string topicName, TimeSpan? deleteOnIdleAfter = null, TimeSpan? timeToLive = null, TimeSpan ? lockDuration = null, int? maxDeliveryCount = null, bool useDeadLetterOnExpiration = false)
         {
             if (string.IsNullOrWhiteSpace(topicName))
                 throw new ArgumentException($"'{nameof(topicName)}' cannot be null or empty.", nameof(topicName));
@@ -60,16 +60,14 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             try
             {
-                var options = _options.Value.Subscriptions.FirstOrDefault(s => s.Name.Equals(subscriptionName, StringComparison.OrdinalIgnoreCase));
-
                 var subscription = new SubscriptionDescription(topicName, subscriptionName)
                 {
-                    AutoDeleteOnIdle = options?.DeleteOnIdleAfter ?? ServiceBusSubscriptionDefaults.DeleteOnIdleAfter,
-                    DefaultMessageTimeToLive = options?.TimeToLive ?? ServiceBusSubscriptionDefaults.TimeToLive,
+                    AutoDeleteOnIdle = deleteOnIdleAfter.GetValueOrDefault(ServiceBusSubscriptionDefaults.DeleteOnIdleAfter),
+                    DefaultMessageTimeToLive = timeToLive.GetValueOrDefault(ServiceBusSubscriptionDefaults.TimeToLive),
                     EnableBatchedOperations = true,
-                    EnableDeadLetteringOnMessageExpiration = options?.UseDeadLetterOnExpiration ?? ServiceBusSubscriptionDefaults.UseDeadLetterOnExpiration,
-                    MaxDeliveryCount = options?.MaxDeliveryCount ?? ServiceBusSubscriptionDefaults.MaxDeliveryCount,
-                    LockDuration = options?.LockDuration ?? ServiceBusSubscriptionDefaults.LockDuration,
+                    EnableDeadLetteringOnMessageExpiration = useDeadLetterOnExpiration,
+                    MaxDeliveryCount = maxDeliveryCount.GetValueOrDefault(ServiceBusSubscriptionDefaults.MaxDeliveryCount),
+                    LockDuration = lockDuration.GetValueOrDefault(ServiceBusSubscriptionDefaults.LockDuration),
                 };
 
                 await _client.CreateSubscriptionAsync(subscription);
@@ -83,21 +81,17 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
                 throw new TopicNotFoundException(topicName);
             }
         }
-        public async Task CreateTopicAsync(string topicName)
+        public async Task CreateTopicAsync(string topicName, TimeSpan? deleteOnIdleAfter = null, TimeSpan? timeToLive = null)
         {
             if (string.IsNullOrWhiteSpace(topicName))
                 throw new ArgumentException($"'{nameof(topicName)}' cannot be null or empty.", nameof(topicName));
 
             try
             {
-                var options = _options.Value.Topic.Name.Equals(topicName, StringComparison.OrdinalIgnoreCase)
-                    ? _options.Value.Topic
-                    : null;
-
                 var description = new TopicDescription(topicName)
                 {
-                    AutoDeleteOnIdle = options?.DeleteOnIdleAfter ?? ServiceBusTopicDefaults.DeleteOnIdleAfter,
-                    DefaultMessageTimeToLive = options?.TimeToLive ?? ServiceBusTopicDefaults.TimeToLive,
+                    AutoDeleteOnIdle = deleteOnIdleAfter.GetValueOrDefault(ServiceBusTopicDefaults.DeleteOnIdleAfter),
+                    DefaultMessageTimeToLive = timeToLive.GetValueOrDefault(ServiceBusTopicDefaults.TimeToLive),
                     EnableBatchedOperations = true,
                 };
 

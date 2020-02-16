@@ -28,10 +28,12 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Subscriptions.SubscriptionCli
                          .UseTopic(e =>
                          {
                              e.WithName($"test-topic-{Guid.NewGuid()}");
+                             e.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"test-sub-{Guid.NewGuid()}");
+                             s.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          });
                     })
                     .AddJsonSerializers();

@@ -29,6 +29,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
                          .UseTopic(e =>
                          {
                              e.WithName($"test-topic-{Guid.NewGuid()}");
+                             e.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          });
                     })
                     .AddJsonSerializers();

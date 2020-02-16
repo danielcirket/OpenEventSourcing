@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Microsoft.Azure.ServiceBus.Management;
 using OpenEventSourcing.Azure.ServiceBus.Management;
 using Xunit;
 
