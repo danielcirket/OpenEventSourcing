@@ -42,10 +42,12 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"test-queue-{Guid.NewGuid()}");
+                             s.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();
@@ -85,10 +87,12 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          })
                          .AddSubscription(s =>
                          {
                              s.UseName($"test-queue-{Guid.NewGuid()}");
+                             s.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();

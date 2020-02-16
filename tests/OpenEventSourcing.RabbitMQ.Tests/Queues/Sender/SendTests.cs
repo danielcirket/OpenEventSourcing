@@ -32,6 +32,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
                          {
                              e.WithName($"test-exchange-{Guid.NewGuid()}");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();

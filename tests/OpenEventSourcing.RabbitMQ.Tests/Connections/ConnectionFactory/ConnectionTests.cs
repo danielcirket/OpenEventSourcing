@@ -33,6 +33,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                          {
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();
@@ -70,6 +71,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                          {
                              e.WithName("test-exchange");
                              e.UseExchangeType("topic");
+                             e.AutoDelete();
                          });
                     })
                     .AddJsonSerializers();

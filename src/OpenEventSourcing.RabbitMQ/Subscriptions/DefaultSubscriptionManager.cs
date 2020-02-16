@@ -26,14 +26,14 @@ namespace OpenEventSourcing.RabbitMQ.Subscriptions
         public async Task ConfigureAsync()
         {
             if (!await _client.ExchangeExistsAsync(name: _options.Value.Exchange.Name))
-                await _client.CreateExchangeAsync(name: _options.Value.Exchange.Name, exchangeType: _options.Value.Exchange.Type);
+                await _client.CreateExchangeAsync(name: _options.Value.Exchange.Name, exchangeType: _options.Value.Exchange.Type, durable: _options.Value.Exchange.Durable, autoDelete: _options.Value.Exchange.ShouldAutoDelete);
 
             var managementApiEnabled = _options.Value.ManagementApi != null;
 
             foreach (var subscription in _options.Value.Subscriptions)
             {
                 if (!await _client.QueueExistsAsync(name: subscription.Name))
-                    await _client.CreateQueueAsync(name: subscription.Name);
+                    await _client.CreateQueueAsync(name: subscription.Name, durable: subscription.Durable, autoDelete: subscription.ShouldAutoDelete);
 
                 if (managementApiEnabled)
                 {
