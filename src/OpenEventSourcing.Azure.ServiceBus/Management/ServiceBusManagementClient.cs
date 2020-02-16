@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
+using Microsoft.Extensions.Options;
 using OpenEventSourcing.Azure.ServiceBus.Exceptions;
 
 namespace OpenEventSourcing.Azure.ServiceBus.Management
@@ -11,13 +12,17 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
     internal sealed class ServiceBusManagementClient : IServiceBusManagementClient
     {
         private readonly ManagementClient _client;
+        private readonly IOptions<ServiceBusOptions> _options;
 
-        public ServiceBusManagementClient(ManagementClient client)
+        public ServiceBusManagementClient(ManagementClient client, IOptions<ServiceBusOptions> options)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
 
             _client = client;
+            _options = options;
         }
 
         public async Task CreateRuleAsync(string ruleName, string subscriptionName, string topicName)
@@ -46,7 +51,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             await _client.CreateRuleAsync(topicName, subscriptionName, new RuleDescription(filter: new CorrelationFilter { Label = ruleName }, name: ruleName));
         }
-        public async Task CreateSubscriptionAsync(string subscriptionName, string topicName)
+        public async Task CreateSubscriptionAsync(string subscriptionName, string topicName, TimeSpan? deleteOnIdleAfter = null, TimeSpan? timeToLive = null, TimeSpan ? lockDuration = null, int? maxDeliveryCount = null, bool useDeadLetterOnExpiration = false)
         {
             if (string.IsNullOrWhiteSpace(topicName))
                 throw new ArgumentException($"'{nameof(topicName)}' cannot be null or empty.", nameof(topicName));
@@ -55,7 +60,17 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
 
             try
             {
-                await _client.CreateSubscriptionAsync(topicName, subscriptionName);
+                var subscription = new SubscriptionDescription(topicName, subscriptionName)
+                {
+                    AutoDeleteOnIdle = deleteOnIdleAfter.GetValueOrDefault(ServiceBusSubscriptionDefaults.DeleteOnIdleAfter),
+                    DefaultMessageTimeToLive = timeToLive.GetValueOrDefault(ServiceBusSubscriptionDefaults.TimeToLive),
+                    EnableBatchedOperations = true,
+                    EnableDeadLetteringOnMessageExpiration = useDeadLetterOnExpiration,
+                    MaxDeliveryCount = maxDeliveryCount.GetValueOrDefault(ServiceBusSubscriptionDefaults.MaxDeliveryCount),
+                    LockDuration = lockDuration.GetValueOrDefault(ServiceBusSubscriptionDefaults.LockDuration),
+                };
+
+                await _client.CreateSubscriptionAsync(subscription);
             }
             catch (MessagingEntityAlreadyExistsException)
             {
@@ -66,14 +81,21 @@ namespace OpenEventSourcing.Azure.ServiceBus.Management
                 throw new TopicNotFoundException(topicName);
             }
         }
-        public async Task CreateTopicAsync(string topicName)
+        public async Task CreateTopicAsync(string topicName, TimeSpan? deleteOnIdleAfter = null, TimeSpan? timeToLive = null)
         {
             if (string.IsNullOrWhiteSpace(topicName))
                 throw new ArgumentException($"'{nameof(topicName)}' cannot be null or empty.", nameof(topicName));
 
             try
             {
-                await _client.CreateTopicAsync(topicName);
+                var description = new TopicDescription(topicName)
+                {
+                    AutoDeleteOnIdle = deleteOnIdleAfter.GetValueOrDefault(ServiceBusTopicDefaults.DeleteOnIdleAfter),
+                    DefaultMessageTimeToLive = timeToLive.GetValueOrDefault(ServiceBusTopicDefaults.TimeToLive),
+                    EnableBatchedOperations = true,
+                };
+
+                await _client.CreateTopicAsync(description);
             }
             catch (MessagingEntityAlreadyExistsException)
             {

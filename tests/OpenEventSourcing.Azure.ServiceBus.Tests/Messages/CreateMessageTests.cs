@@ -28,6 +28,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
                          .UseTopic(t =>
                          {
                              t.WithName("test-exchange");
+                             t.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          });
                     })
                     .AddJsonSerializers();

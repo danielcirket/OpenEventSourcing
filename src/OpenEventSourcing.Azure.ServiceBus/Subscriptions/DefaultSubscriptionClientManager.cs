@@ -49,7 +49,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Subscriptions
             var topicExists = await _managementClient.TopicExistsAsync(_options.Value.Topic.Name);
 
             if (!topicExists)
-                await _managementClient.CreateTopicAsync(_options.Value.Topic.Name);
+                await _managementClient.CreateTopicAsync(_options.Value.Topic.Name, _options.Value.Topic.DeleteOnIdleAfter, _options.Value.Topic.TimeToLive);
             
             foreach (var subscription in _options.Value.Subscriptions)
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Azure.ServiceBus.Extensions;
@@ -24,15 +25,23 @@ namespace OpenEventSourcing.Samples.AzureServiceBus
                             .AddAzureServiceBus(options =>
                             {
                                 options.UseConnection("A connection string with or without the entity path.")
-                                       //.UseTopic(topic =>
-                                       //{
-                                       //    // If you set this it will take precedence over the entity path in the connection string...
-                                       //    topic.WithName("dev-dan");
-                                       //})
-                                       .AddSubscription(s =>
+                                       .UseTopic(topic =>
                                        {
-                                           s.UseName(name: "sample-test")
-                                            .ForEvent<SampleEvent>();
+                                           // If you set this it will take precedence over the entity path in the connection string...
+                                           topic.WithName("sample-topic")
+                                                .UseTimeToLive(TimeSpan.MaxValue)
+                                                .UseLockDuration(TimeSpan.FromMinutes(5))
+                                                .AutoDeleteOnIdleAfter(TimeSpan.MaxValue);
+                                       })
+                                       .AddSubscription(subscription =>
+                                       {
+                                           subscription.UseName(name: "sample-topic-subscription")
+                                                       .UseTimeToLive(TimeSpan.MaxValue)
+                                                       .UseLockDuration(TimeSpan.FromMinutes(1))
+                                                       .WithMaxDeliveryCount(25)
+                                                       .UseDeadLetterOnMessageExpiration(false)
+                                                       .AutoDeleteOnIdleAfter(TimeSpan.MaxValue)
+                                                       .ForEvent<SampleEvent>();
                                        });
                             })
                             .AddEvents()

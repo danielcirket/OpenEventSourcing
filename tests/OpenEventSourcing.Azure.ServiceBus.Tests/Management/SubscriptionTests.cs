@@ -31,6 +31,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                           .UseTopic(e =>
                           {
                               e.WithName(_topicName);
+                              e.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                           });
                     })
                     .AddJsonSerializers();
