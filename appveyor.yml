@@ -29,6 +29,11 @@ for:
     - provider: NuGet
       api_key:
         secure: mD39v6YW1yjOg8vuxTU09TKocbbyR51UA0ghRdO8uqonIhzrIhUarLmQqIUDkoWG
+    - provider: NuGet
+      server: https://f.feedz.io/openeventsourcing/openeventsourcing/nuget/index.json
+      api_key:
+        secure: mGV8PYpl6myGMZKcFCcdIHmVZv2Y+vQPQ2yVizONSCsK2eRmaU7fsyjDgVl2MH4D
+      symbol_server: https://f.feedz.io/openeventsourcing/openeventsourcing/symbols
 -
   branches:
     only:
@@ -38,6 +43,11 @@ for:
       server: https://ci.appveyor.com/nuget/danielcirket/api/v2/package
       api_key:
         secure: FnCP8/DuxKWcBh5XlDZ50fwxZObAi8Cfl26jYMAfdkU=
+    - provider: NuGet
+      server: https://f.feedz.io/openeventsourcing/openeventsourcing/nuget/index.json
+      api_key:
+        secure: mGV8PYpl6myGMZKcFCcdIHmVZv2Y+vQPQ2yVizONSCsK2eRmaU7fsyjDgVl2MH4D
+      symbol_server: https://f.feedz.io/openeventsourcing/openeventsourcing/symbols
 
 artifacts:
 - path: .\.nupkgs\*.nupkg
