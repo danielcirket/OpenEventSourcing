@@ -8,7 +8,8 @@
     <PackageTags>OpenEventSourcing, .net, core, ddd, cqrs, event sourcing</PackageTags>
     <PackageLicense>MIT</PackageLicense>
     <SourcesPackage>true</SourcesPackage>
-    
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Label="ReleaseSettings" Condition="$(Configuration) == 'Release'">
