@@ -2,7 +2,6 @@
 	<Import Project="..\Directory.Build.props" Condition="Exists('..\Directory.Build.props')" />
 
   <PropertyGroup Label="NugetSettings">
-    <Version>0.5.0</Version>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild Condition="$(Configuration) == 'Release'">true</GeneratePackageOnBuild>
     <PackageTags>OpenEventSourcing, .net, core, ddd, cqrs, event sourcing</PackageTags>
@@ -21,5 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50" PrivateAssets="All" />
   </ItemGroup>
 </Project>
