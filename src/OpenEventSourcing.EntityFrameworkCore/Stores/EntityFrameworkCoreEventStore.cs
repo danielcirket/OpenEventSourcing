@@ -43,11 +43,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task<long> CountAsync(Guid aggregateId)
+        public async Task<long> CountAsync(string subject)
         {
             using (var context = _dbContextFactory.Create())
             {
-                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId);
+                var count = await context.Events.LongCountAsync(@event => @event.Subject == subject);
 
                 return count;
             }
@@ -79,7 +79,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return new Page(offset + events.Count, offset, results);
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(string subject)
         {
             var results = new List<IEvent>();
 
@@ -88,7 +88,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 var events = await context.Events
                     .AsNoTracking()
                     .OrderBy(x => x.SequenceNo)
-                    .Where(x => x.AggregateId == aggregateId)
+                    .Where(x => x.Subject == subject)
                     .ToListAsync();
 
                 foreach (var @event in events)
@@ -104,7 +104,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return results;
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(string subject, long offset)
         {
             var results = new List<IEvent>();
 
@@ -112,7 +112,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             {
                 var events = await context.Events
                     .AsNoTracking()
-                    .Where(x => x.AggregateId == aggregateId)
+                    .Where(x => x.Subject == subject)
                     .OrderBy(x => x.SequenceNo)
                     .Skip((int)offset)
                     .ToListAsync();

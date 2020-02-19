@@ -8,9 +8,9 @@ namespace OpenEventSourcing.Events
     public interface IEventStore
     {
         Task<Page> GetEventsAsync(long offset);
-        Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId);
-        Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset);
+        Task<IEnumerable<IEvent>> GetEventsAsync(string subject);
+        Task<IEnumerable<IEvent>> GetEventsAsync(string subject, long offset);
         Task SaveAsync(IEnumerable<IEvent> events);
-        Task<long> CountAsync(Guid aggregateId);
+        Task<long> CountAsync(string subject);
     }
 }

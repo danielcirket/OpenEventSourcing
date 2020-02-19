@@ -24,7 +24,7 @@ namespace OpenEventSourcing.Samples.RabbitMq
 
             while (!stoppingToken.IsCancellationRequested && version <= 10)
             {
-                await _eventBusPublisher.PublishAsync(new SampleEvent(aggregateId: Guid.NewGuid(), version: version++));
+                await _eventBusPublisher.PublishAsync(new SampleEvent(subject: Guid.NewGuid().ToString(), version: version++));
 
                 await Task.Delay(1000);
             }

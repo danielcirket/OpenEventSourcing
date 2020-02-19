@@ -5,8 +5,8 @@ namespace OpenEventSourcing.Samples.RabbitMq
 {
     public class SampleEvent : Event
     {
-        public SampleEvent(Guid aggregateId, int version) 
-            : base(aggregateId, version)
+        public SampleEvent(string subject, int version) 
+            : base(subject, version)
         {
         }
     }

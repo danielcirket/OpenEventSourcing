@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Events
     public interface IEvent
     {
         Guid Id { get; }
-        Guid AggregateId { get; }
+        string Subject { get; }
         Guid? CorrelationId { get; }
         Guid? CausationId { get; }
         DateTimeOffset Timestamp { get; }

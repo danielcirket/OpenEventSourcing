@@ -87,7 +87,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

@@ -43,10 +43,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.EventModelFactory
             var eventModelFactory = serviceProvider.GetRequiredService<IEventModelFactory>();
             var eventSerializer = serviceProvider.GetRequiredService<IEventSerializer>();
 
-            var @event = new FakeEvent(aggregateId: Guid.NewGuid(), version: 1);
+            var @event = new FakeEvent(subject: Guid.NewGuid().ToString(), version: 1);
             var entity = eventModelFactory.Create(@event);
 
-            entity.AggregateId.Should().Be(@event.AggregateId);
+            entity.Subject.Should().Be(@event.Subject);
             entity.CausationId.Should().Be(@event.CausationId);
             entity.CorrelationId.Should().Be(@event.CorrelationId);
             entity.Data.Should().Be(eventSerializer.Serialize(@event));

@@ -408,7 +408,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
 
         private class SampleEvent : Event
         {
-            public SampleEvent() : base(Guid.NewGuid(), 1)
+            public SampleEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

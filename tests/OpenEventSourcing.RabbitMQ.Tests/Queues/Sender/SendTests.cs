@@ -99,7 +99,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
 
         private class SameSenderEvent : Event
         {
-            public SameSenderEvent() : base(Guid.NewGuid(), 1)
+            public SameSenderEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

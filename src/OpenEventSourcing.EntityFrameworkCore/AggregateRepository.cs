@@ -23,11 +23,11 @@ namespace OpenEventSourcing.EntityFrameworkCore
             _aggregateFactory = aggregateFactory;
         }
 
-        public async Task<TAggregate> GetAsync<TAggregate, TState>(Guid id)
+        public async Task<TAggregate> GetAsync<TAggregate, TState>(string subject)
             where TAggregate : Aggregate<TState>
             where TState : IAggregateState, new()
         {
-            var events = await _eventStore.GetEventsAsync(id);
+            var events = await _eventStore.GetEventsAsync(subject);
 
             if (!events.Any())
                 return default;
@@ -47,10 +47,10 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return;
 
-            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
 
             if (expectedVersion.GetValueOrDefault() != currentVersion)
-                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
             await _eventStore.SaveAsync(events);
 

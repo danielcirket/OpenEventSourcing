@@ -123,7 +123,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             await store.SaveAsync(aggregate.GetUncommittedEvents());
 
-            var events = await store.GetEventsAsync(aggregate.Id.Value);
+            var events = await store.GetEventsAsync(aggregate.Id);
 
             events.Count().Should().Be(5);
         }
@@ -143,7 +143,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             await store.SaveAsync(aggregate.GetUncommittedEvents());
 
-            var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
+            var events = await store.GetEventsAsync(aggregate.Id, 3);
 
             events.Count().Should().Be(2);
         }
@@ -204,7 +204,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             await store.SaveAsync(aggregate.GetUncommittedEvents());
 
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            var count = dbContext.Events.Count(e => e.Subject == aggregate.Id);
             count.Should().Be(1);
         }
         [Fact]
@@ -224,7 +224,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             await store.SaveAsync(aggregate.GetUncommittedEvents());
 
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            var count = dbContext.Events.Count(e => e.Subject == aggregate.Id);
             count.Should().Be(3);
         }
     }

@@ -112,11 +112,11 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
             public string Message { get; } = nameof(FakeEvent);
 
             public FakeEvent()
-                : base(Guid.NewGuid(), 1)
+                : base(Guid.NewGuid().ToString(), 1)
             {
             }
             public FakeEvent(Guid correlationId)
-                : base(Guid.NewGuid(), 1)
+                : base(Guid.NewGuid().ToString(), 1)
             {
                 CorrelationId = correlationId;
             }

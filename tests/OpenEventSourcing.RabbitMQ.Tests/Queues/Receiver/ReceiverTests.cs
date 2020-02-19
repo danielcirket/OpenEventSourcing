@@ -206,7 +206,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -229,7 +229,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class SampleNonSubscriptionReceiverEvent : Event
         {
-            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -252,7 +252,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventOne : Event
         {
-            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -275,7 +275,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventTwo : Event
         {
-            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

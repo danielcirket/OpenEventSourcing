@@ -31,7 +31,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
 
             result.Should().NotBeNull();
             result.Id.Should().Be(Guid.Empty);
-            result.AggregateId.Should().Be(Guid.Empty);
+            result.Subject.Should().Be(Guid.Empty.ToString());
             result.CausationId.Should().BeNull();
             result.CorrelationId.Should().BeNull();
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
@@ -47,7 +47,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
 
             result.Should().NotBeNull();
             result.Id.Should().Be(Guid.Empty);
-            result.AggregateId.Should().Be(Guid.Empty);
+            result.Subject.Should().Be(Guid.Empty.ToString());
             result.CausationId.Should().BeNull();
             result.CorrelationId.Should().BeNull();
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);

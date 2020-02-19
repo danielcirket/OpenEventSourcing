@@ -102,7 +102,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
 
         private class SameSenderEvent : Event
         {
-            public SameSenderEvent() : base(Guid.NewGuid(), 1)
+            public SameSenderEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

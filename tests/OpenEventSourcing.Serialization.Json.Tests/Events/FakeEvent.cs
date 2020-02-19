@@ -7,7 +7,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
     internal class FakeEvent : IEvent
     {
         public Guid Id { get; }
-        public Guid AggregateId { get; }
+        public string Subject { get; }
         public Guid? CorrelationId { get; }
         public Guid? CausationId { get; }
         public DateTimeOffset Timestamp { get; }
@@ -22,7 +22,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
         public FakeEvent()
         {
             Id = Guid.Empty;
-            AggregateId = Guid.Empty;
+            Subject = Guid.Empty.ToString();
             Timestamp = DateTimeOffset.MaxValue;
             Version = 2;
         }
