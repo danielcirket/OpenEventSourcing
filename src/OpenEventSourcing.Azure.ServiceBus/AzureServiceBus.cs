@@ -6,6 +6,7 @@ using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Azure.ServiceBus.Subscriptions;
 using OpenEventSourcing.Azure.ServiceBus.Topics;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
 
 namespace OpenEventSourcing.Azure.ServiceBus
@@ -34,14 +35,42 @@ namespace OpenEventSourcing.Azure.ServiceBus
             _subscriptionClientManager = subscriptionClientManager;
         }
 
-        public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(TEvent @event, ICommand causation) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
             await _messageSender.SendAsync(@event);
         }
-        public async Task PublishAsync(IEnumerable<IEvent> events)
+        public async Task PublishAsync<TEvent>(TEvent @event, IIntegrationEvent causation) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            await _messageSender.SendAsync(@event);
+        }
+        public async Task PublishAsync<TEvent>(TEvent @event, Guid? causationId, Guid? correlationId, string userId) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            await _messageSender.SendAsync(@event);
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, ICommand causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            await _messageSender.SendAsync(events);
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, IIntegrationEvent causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            await _messageSender.SendAsync(events);
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, Guid? causationId, Guid? correlationId, string userId)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));

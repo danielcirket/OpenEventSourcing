@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OpenEventSourcing.Domain;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Serialization;
@@ -55,7 +55,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
         public async Task<Page> GetEventsAsync(long offset)
         {
-            var results = new List<IEvent>();
+            var results = new List<IIntegrationEvent>();
 
             using (var context = _dbContextFactory.Create())
             {
@@ -73,15 +73,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                     var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                    results.Add(result);
+                    results.Add(new IntegrationEvent(@event.Id, @event.AggregateId, result, @event.CorrelationId, @event.CausationId, @event.Timestamp, result.Version, @event.UserId));
                 }
 
                 return new Page(offset + events.Count, offset, results);
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId)
+        public async Task<IEnumerable<IIntegrationEvent>> GetEventsAsync(Guid aggregateId)
         {
-            var results = new List<IEvent>();
+            var results = new List<IIntegrationEvent>();
 
             using (var context = _dbContextFactory.Create())
             {
@@ -98,15 +98,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                     var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                    results.Add(result);
+                    results.Add(new IntegrationEvent(@event.Id, @event.AggregateId, result, @event.CorrelationId, @event.CausationId, @event.Timestamp, result.Version, @event.UserId));
                 }
 
                 return results;
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset)
+        public async Task<IEnumerable<IIntegrationEvent>> GetEventsAsync(Guid aggregateId, long offset)
         {
-            var results = new List<IEvent>();
+            var results = new List<IIntegrationEvent>();
 
             using (var context = _dbContextFactory.Create())
             {
@@ -124,14 +124,45 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                     var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                    results.Add(result);
+                    results.Add(new IntegrationEvent(@event.Id, @event.AggregateId, result, @event.CorrelationId, @event.CausationId, @event.Timestamp, result.Version, @event.UserId));
                 }
 
                 return results;
             }
         }
+        public async Task SaveAsync(IEnumerable<IEvent> events, ICommand causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+            if (causation == null)
+                throw new ArgumentNullException(nameof(causation));
 
-        public async Task SaveAsync(IEnumerable<IEvent> events)
+            using (var context = _dbContextFactory.Create())
+            {
+                foreach (var @event in events)
+                    await context.Events.AddAsync(_eventModelFactory.Create(@event, causation));
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SaveAsync(IEnumerable<IEvent> events, IIntegrationEvent causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+            if (causation == null)
+                throw new ArgumentNullException(nameof(causation));
+
+            using (var context = _dbContextFactory.Create())
+            {
+                foreach (var @event in events)
+                    await context.Events.AddAsync(_eventModelFactory.Create(@event, causation));
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task SaveAsync(IEnumerable<IEvent> events, Guid? causationId = null, Guid? correlationId = null, string userId = null)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -139,7 +170,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             using (var context = _dbContextFactory.Create())
             {
                 foreach (var @event in events)
-                    await context.Events.AddAsync(_eventModelFactory.Create(@event));
+                    await context.Events.AddAsync(_eventModelFactory.Create(@event, causationId, correlationId, userId));
 
                 await context.SaveChangesAsync();
             }

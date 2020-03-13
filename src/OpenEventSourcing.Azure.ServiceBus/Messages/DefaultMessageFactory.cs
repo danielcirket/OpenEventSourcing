@@ -19,25 +19,25 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             _eventSerializer = eventSerializer;
         }
 
-        public Message CreateMessage<TEvent>(TEvent @event) where TEvent : IEvent
+        public Message CreateMessage<TEvent>(TEvent @event, Guid? correlationId = null) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
             var eventName = typeof(TEvent).Name;
 
-            return CreateMessage(eventName, @event);
+            return CreateMessage(eventName, @event, correlationId);
         }
-        public Message CreateMessage(IEvent @event)
+        public Message CreateMessage(IEvent @event, Guid? correlationId = null)
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
             var eventName = @event.GetType().Name;
 
-            return CreateMessage(eventName, @event);
+            return CreateMessage(eventName, @event, correlationId);
         }
-        private Message CreateMessage(string eventName, IEvent @event)
+        private Message CreateMessage(string eventName, IEvent @event, Guid? correlationId)
         {
             var body = Encoding.UTF8.GetBytes(_eventSerializer.Serialize(@event));
 
@@ -46,7 +46,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
                 MessageId = @event.Id.ToString(),
                 Body = body,
                 Label = eventName,
-                CorrelationId = @event.CorrelationId.ToString()
+                CorrelationId = correlationId?.ToString()
             };
 
             return message;

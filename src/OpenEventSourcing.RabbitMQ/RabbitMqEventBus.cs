@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.RabbitMQ.Queues;
 
@@ -31,7 +32,7 @@ namespace OpenEventSourcing.RabbitMQ
             _queueMessageReceiver = queueMessageReceiver;
         }
 
-        public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(TEvent @event, ICommand causation) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
@@ -42,8 +43,51 @@ namespace OpenEventSourcing.RabbitMQ
                 await sender.SendAsync(@event);
             }
         }
+        public async Task PublishAsync<TEvent>(TEvent @event, IIntegrationEvent causation) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
 
-        public async Task PublishAsync(IEnumerable<IEvent> events)
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(@event);
+            }
+        }
+        public async Task PublishAsync<TEvent>(TEvent @event, Guid? causationId, Guid? correlationId, string userId) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(@event);
+            }
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, ICommand causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(events);
+            }
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, IIntegrationEvent causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
+                await sender.SendAsync(events);
+            }
+        }
+        public async Task PublishAsync(IEnumerable<IEvent> events, Guid? causationId, Guid? correlationId, string userId)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -70,7 +114,6 @@ namespace OpenEventSourcing.RabbitMQ
 
             _logger.LogInformation($"Successfully started RabbitMQ bus");
         }
-
         public async Task StopAsync(CancellationToken cancellationToken = default)
         {
             //if (!_running)

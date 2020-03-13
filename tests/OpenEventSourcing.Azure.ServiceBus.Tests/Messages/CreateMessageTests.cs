@@ -78,16 +78,16 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
             }
         }
         [Fact]
-        public void WhenCreateMessageCalledWithEventThenShouldPopulateCorrelationIdFromEvent()
+        public void WhenCreateMessageCalledWithCorrelationIdThenShouldPopulateCorrelationId()
         {
             using (var scope = ServiceProvider.CreateScope())
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
-                var @event = new FakeEvent(correlationId: Guid.NewGuid());
+                var correlationId = Guid.NewGuid();
+                var @event = new FakeEvent(correlationId);
+                var result = factory.CreateMessage(@event, correlationId);
 
-                var result = factory.CreateMessage(@event);
-
-                result.CorrelationId.Should().Be(@event.CorrelationId.ToString());
+                result.CorrelationId.Should().Be(correlationId.ToString());
             }
         }
         [Fact]
@@ -118,7 +118,6 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
             public FakeEvent(Guid correlationId)
                 : base(Guid.NewGuid(), 1)
             {
-                CorrelationId = correlationId;
             }
         }
     }

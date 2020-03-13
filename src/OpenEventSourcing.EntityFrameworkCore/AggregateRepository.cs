@@ -32,7 +32,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return default;
 
-            var aggregate = _aggregateFactory.FromHistory<TAggregate, TState>(events);
+            var aggregate = _aggregateFactory.FromHistory<TAggregate, TState>(events.Select(e => e.Payload));
 
             return aggregate;
         }

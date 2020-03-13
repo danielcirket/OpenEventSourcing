@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Messages;
@@ -38,25 +39,72 @@ namespace OpenEventSourcing.RabbitMQ.Queues
             _connectionFactory = connectionFactory;
         }
 
-        public async Task SendAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task SendAsync<TEvent>(TEvent @event, ICommand causation) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var message = _messageFactory.CreateMessage(@event);
+            var message = _messageFactory.CreateMessage(@event, causation?.CorrelationId);
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
             {
                 await connection.PublishAsync(message);
             }
         }
+        public async Task SendAsync<TEvent>(TEvent @event, IIntegrationEvent causation) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
 
-        public async Task SendAsync(IEnumerable<IEvent> events)
+            var message = _messageFactory.CreateMessage(@event, causation?.CorrelationId);
+
+            using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
+            {
+                await connection.PublishAsync(message);
+            }
+        }
+        public async Task SendAsync<TEvent>(TEvent @event, Guid? causationId = null, Guid? correlationId = null, string userId = null) where TEvent : IEvent
+        {
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            var message = _messageFactory.CreateMessage(@event, causationId, correlationId, userId);
+
+            using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
+            {
+                await connection.PublishAsync(message);
+            }
+        }
+        public async Task SendAsync(IEnumerable<IEvent> events, ICommand causation)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
 
-            var messages = events.Select(@event => _messageFactory.CreateMessage(@event));
+            var messages = events.Select(@event => _messageFactory.CreateMessage(@event, causation.Id, causation.CorrelationId, causation.UserId));
+
+            using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
+            {
+                await connection.PublishAsync(messages);
+            }
+        }
+        public async Task SendAsync(IEnumerable<IEvent> events, IIntegrationEvent causation)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            var messages = events.Select(@event => _messageFactory.CreateMessage(@event, causation.Id, causation.CorrelationId, causation.UserId));
+
+            using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
+            {
+                await connection.PublishAsync(messages);
+            }
+        }
+        public async Task SendAsync(IEnumerable<IEvent> events, Guid? causationId = null, Guid? correlationId = null, string userId = null)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            var messages = events.Select(@event => _messageFactory.CreateMessage(@event, causationId, correlationId, userId));
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(CancellationToken.None))
             {
