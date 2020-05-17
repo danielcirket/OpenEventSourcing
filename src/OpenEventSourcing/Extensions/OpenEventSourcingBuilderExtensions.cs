@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.Commands;
 using OpenEventSourcing.Events;
@@ -53,6 +53,8 @@ namespace OpenEventSourcing.Extensions
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
+
+            builder.Services.AddScoped<IQueryStore, NoOpQueryStore>();
 
             builder.Services.Scan(scan =>
             {
