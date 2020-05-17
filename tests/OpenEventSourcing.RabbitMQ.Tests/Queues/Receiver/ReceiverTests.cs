@@ -218,7 +218,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleReceiverEvent @event)
+            public Task HandleAsync(SampleReceiverEvent @event, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -241,7 +241,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleNonSubscriptionReceiverEvent @event)
+            public Task HandleAsync(SampleNonSubscriptionReceiverEvent @event, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -264,7 +264,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(MultipleSampleReceiverEventOne @event)
+            public Task HandleAsync(MultipleSampleReceiverEventOne @event, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -287,7 +287,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(MultipleSampleReceiverEventTwo @event)
+            public Task HandleAsync(MultipleSampleReceiverEventTwo @event, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 

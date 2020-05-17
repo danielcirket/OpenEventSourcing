@@ -24,6 +24,8 @@ namespace OpenEventSourcing.RabbitMQ.Connections
 
         public async Task<IRabbitMqConnection> CreateConnectionAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             await Task.Yield();
 
             var connection = _pool.GetConnection();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -35,8 +36,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
             _messageFactory = messageFactory;
         }
 
-        public async Task SendAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task SendAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var client = await _topicClientFactory.CreateAsync();
             var message = _messageFactory.CreateMessage(@event);
 
@@ -44,10 +47,12 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
 
             await client.SendAsync(message);
         }
-        public async Task SendAsync(IEnumerable<IEvent> events)
+        public async Task SendAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var messages = events.Select(@event => _messageFactory.CreateMessage(@event));
             var batchedMessages = messages.Aggregate(new { Sum = 0L, Current = (List<Message>)null, Result = new List<List<Message>>() }, (agg, message) =>

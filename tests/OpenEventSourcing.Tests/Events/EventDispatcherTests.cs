@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,9 +31,9 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenConstructorLoggerIsNullThenShouldThrowArgumentNullException()
         {
             var serviceProvider = Mock.Of<IServiceProvider>();
-            ILogger<EventDispatcher> logger = null;
+            ILogger<DefaultEventDispatcher> logger = null;
 
-            Action act = () => new EventDispatcher(logger, serviceProvider);
+            Action act = () => new DefaultEventDispatcher(logger, serviceProvider);
 
             act.Should().Throw<ArgumentNullException>()
                .And.ParamName.Should().Be("logger");
@@ -41,9 +42,9 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenConstructorServiceProviderIsNullThenShouldThrowArgumentNullException()
         {
             IServiceProvider serviceProvider = null;
-            var logger = Mock.Of<ILogger<EventDispatcher>>();
+            var logger = Mock.Of<ILogger<DefaultEventDispatcher>>();
 
-            Action act = () => new EventDispatcher(logger, serviceProvider);
+            Action act = () => new DefaultEventDispatcher(logger, serviceProvider);
 
             act.Should().Throw<ArgumentNullException>()
                .And.ParamName.Should().Be("serviceProvider");
@@ -74,7 +75,7 @@ namespace OpenEventSourcing.Tests.Events
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
                 .Services
-                .AddSingleton<IEventDispatcher, EventDispatcher>()
+                .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
                 .AddLogging()
                 .BuildServiceProvider();
 
@@ -93,7 +94,7 @@ namespace OpenEventSourcing.Tests.Events
                 .AddOpenEventSourcing()
                 .AddEvents()
                 .Services
-                .AddSingleton<IEventDispatcher, EventDispatcher>()
+                .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
                 .AddLogging()
                 .BuildServiceProvider();
 
@@ -101,6 +102,56 @@ namespace OpenEventSourcing.Tests.Events
             var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
 
             await dispatcher.DispatchAsync(@event);
+
+            handler.Calls.Should().Be(1);
+        }
+        [Fact]
+        public void WhenCancellationRequestedThenShouldThrowOperationCancelledException()
+        {
+            var @event = new FakeEvent();
+
+            var serviceProvider = new ServiceCollection()
+                .AddOpenEventSourcing()
+                .AddEvents()
+                .Services
+                .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
+                .AddLogging()
+                .BuildServiceProvider();
+
+            var handler = (FakeEventHandler)serviceProvider.GetRequiredService<IEventHandler<FakeEvent>>();
+            var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
+            var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            cancellationTokenSource.Cancel();
+
+            Func<Task> act = async () => await dispatcher.DispatchAsync(@event, cancellationToken);
+
+            act.Should().Throw<OperationCanceledException>();
+
+            handler.Calls.Should().Be(0);
+        }
+        [Fact]
+        public void WhenCancellationTokenRemainsNonCancelledThenShouldNotThrowOperationCancelledException()
+        {
+            var @event = new FakeEvent();
+
+            var serviceProvider = new ServiceCollection()
+                .AddOpenEventSourcing()
+                .AddEvents()
+                .Services
+                .AddSingleton<IEventDispatcher, DefaultEventDispatcher>()
+                .AddLogging()
+                .BuildServiceProvider();
+
+            var handler = (FakeEventHandler)serviceProvider.GetRequiredService<IEventHandler<FakeEvent>>();
+            var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
+            var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            Func<Task> act = async () => await dispatcher.DispatchAsync(@event, cancellationToken);
+
+            act.Should().NotThrow();
 
             handler.Calls.Should().Be(1);
         }

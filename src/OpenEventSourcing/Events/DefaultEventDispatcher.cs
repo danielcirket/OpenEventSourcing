@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Extensions;
 
 namespace OpenEventSourcing.Events
 {
-    internal sealed class EventDispatcher : IEventDispatcher
+    internal sealed class DefaultEventDispatcher : IEventDispatcher
     {
-        private readonly ILogger<EventDispatcher> _logger;
+        private readonly ILogger<DefaultEventDispatcher> _logger;
         private readonly IServiceProvider _serviceProvider;
 
-        public EventDispatcher(ILogger<EventDispatcher> logger,
+        public DefaultEventDispatcher(ILogger<DefaultEventDispatcher> logger,
                                IServiceProvider serviceProvider)
         {
             if (logger == null)
@@ -23,10 +24,12 @@ namespace OpenEventSourcing.Events
             _serviceProvider = serviceProvider;
         }
 
-        public async Task DispatchAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             _logger.LogInformation($"Dispatching event '{typeof(TEvent).FriendlyName()}'.");
 
@@ -34,9 +37,9 @@ namespace OpenEventSourcing.Events
 
             _logger.LogInformation($"Resolved {handlers.Count()} handlers for event '{typeof(TEvent).FriendlyName()}'.");
 
-            await Task.WhenAll(handlers.Select(handler => handler.HandleAsync(@event)));
+            await Task.WhenAll(handlers.Select(handler => handler.HandleAsync(@event, cancellationToken)));
         }
-        public async Task DispatchAsync(IEvent @event)
+        public async Task DispatchAsync(IEvent @event, CancellationToken cancellationToken = default)
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
@@ -46,7 +49,7 @@ namespace OpenEventSourcing.Events
             var match = methodInfos.First(info => info.Name == nameof(DispatchAsync) && info.IsGenericMethod);
             var method = match.MakeGenericMethod(@event.GetType());
 
-            await (Task)method.Invoke(this, new[] { @event });
+            await (Task)method.Invoke(this, new object[] { @event, cancellationToken });
         }
     }
 }
