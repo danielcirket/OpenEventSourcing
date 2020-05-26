@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenEventSourcing.EntityFrameworkCore.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
+using OpenEventSourcing.EntityFrameworkCore.Extensions;
+using OpenEventSourcing.EntityFrameworkCore.SqlServer.Extensions;
 
 namespace OpenEventSourcing.EntityFrameworkCore.SqlServer
 {
@@ -62,15 +63,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer
             {
                 var opts = sp.GetRequiredService<SqlServerOptions>();
                 options.UseSqlServer(opts.StoreConnectionString, opts.SqlServerOptionsBuilder);
+                options.EnableJsonSupport();
             });
 
             builder.Services.AddDbContext<OpenEventSourcingProjectionDbContext>((sp, options) =>
             {
                 var opts = sp.GetRequiredService<SqlServerOptions>();
                 options.UseSqlServer(opts.ProjectionConnectionString, opts.SqlServerOptionsBuilder);
-            });
+                options.EnableJsonSupport();
+            });            
 
             return builder;
-        }
+        }                 
     }
 }
