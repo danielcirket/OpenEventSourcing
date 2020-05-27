@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <Description>Sql server database provider for OpenEventSourcing.</Description>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <Description>Sql server extension for JSON support.</Description>
     <PackageTags>$(PackageTags), ef, entity framework, sql server</PackageTags>
     <PackageLicenseExpression>$(PackageLicense)</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
@@ -18,16 +19,5 @@
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.0' AND '$(TargetFramework)' != 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\OpenEventSourcing.EntityFrameworkCore\OpenEventSourcing.EntityFrameworkCore.csproj" />
-  </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <ProjectReference Include="..\OpenEventSourcing.EntityFrameworkCore.SqlServer.Json\OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <ProjectReference Include="..\OpenEventSourcing.EntityFrameworkCore.SqlServer.Json\OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.csproj" />
-  </ItemGroup>
 </Project>

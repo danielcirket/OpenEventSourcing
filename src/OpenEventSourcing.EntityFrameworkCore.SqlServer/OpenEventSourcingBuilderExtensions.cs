@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
 using OpenEventSourcing.EntityFrameworkCore.Extensions;
-using OpenEventSourcing.EntityFrameworkCore.SqlServer.Extensions;
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+using OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Extensions;
+#endif
 
 namespace OpenEventSourcing.EntityFrameworkCore.SqlServer
 {
@@ -63,14 +65,26 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer
             {
                 var opts = sp.GetRequiredService<SqlServerOptions>();
                 options.UseSqlServer(opts.StoreConnectionString, opts.SqlServerOptionsBuilder);
-                options.EnableJsonSupport();
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+                options.EnableJsonSupport(b =>
+                {
+                    b.UseStrict();
+                    b.UseCamelCase();
+                });
+#endif
             });
 
             builder.Services.AddDbContext<OpenEventSourcingProjectionDbContext>((sp, options) =>
             {
                 var opts = sp.GetRequiredService<SqlServerOptions>();
                 options.UseSqlServer(opts.ProjectionConnectionString, opts.SqlServerOptionsBuilder);
-                options.EnableJsonSupport();
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+                options.EnableJsonSupport(b =>
+                {
+                    b.UseStrict();
+                    b.UseCamelCase();
+                });
+#endif
             });            
 
             return builder;
