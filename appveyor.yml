@@ -3,6 +3,7 @@ image:
 
 services:
  - rabbitmq
+ - mssql
 
 version: '{build}'
 
@@ -17,6 +18,8 @@ environment:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   OPENEVENTSOURCING_AZURE__SERVICEBUS__CONNECTIONSTRING:
     secure: 75AmcLvaIW2fdtqA8f771C+0MBNYFua+l7n+5w991QRmQszIi1DB1+AolYT3R7qEcV+6RQv7BpdGcrbokjOoG6QTt8bhclXN9yeVEnm/nwD9AJm5NaUASY6tY7NWpBL9OYklCDOIjPICehNMpc5iSYyq+xM6IziodGwYNIAfGJhscAjTKE19HszlgZ6djMH29pu4kIhvB5Lc6MPhQkmM67LWX6pOzkzum/QADLRodLc=
+  OPENEVENTSOURCING_SQLSERVER__CONNECTIONSTRING:
+    secure: Us21cCg22sOhPguU/fWnogUrpwszC4SsjivggVu/RhcI92k9lCw7nJSLDQe9dGoOmxh+iOV5HoLic8lqklj+PGMcMEDG8Vvrjm5cBLI2Ws4=
 
 configuration: Release
 

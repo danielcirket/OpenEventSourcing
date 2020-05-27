@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.EntityFrameworkCore.Extensions;
 using OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Extensions;
@@ -175,8 +176,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Tests.Fixtures
         public SqlServerJsonTestStore(string name, bool shared = true)
             : base(name, shared)
         {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddUserSecrets(typeof(JsonQueryFixture).Assembly, optional: true)
+                .AddEnvironmentVariables(prefix: "OPENEVENTSOURCING_")
+                .Build();
+
             Name = name;
-            Connection = new SqlConnection("Server=.\\SQL2017;Database=OpenEventSourcing;Trusted_Connection=True;");
+            Connection = new SqlConnection(configuration.GetValue<string>("SqlServer:ConnectionString"));
             // TODO(Dan): Connection?
             // TODO(Dan): Connection string?
         }
