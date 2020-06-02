@@ -102,17 +102,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Query.Expressions
             Visit(expression.Array);
             Sql.Append("[");
 
-            if (expression.Index is SqlParameterExpression parameter)
+            if (expression.Index is SqlUnaryExpression unary && unary.OperatorType == ExpressionType.Convert)
             {
-                Sql.Append("[");
-                Sql.Append("'+");
-                Visit(parameter);
-                Sql.Append("+'");
+                Sql.Append("' + ");
+                Visit(expression.Index);
+                Sql.Append(" + '");
             }
             else
             {
                 Visit(expression.Index);
             }
+
             Sql.Append("]");
 
             return expression;
@@ -121,7 +121,18 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Query.Expressions
         public virtual Expression VisitJsonArrayIndex(JsonArrayIndexExpression expression)
         {
             Sql.Append("[");
-            Visit(expression.Index);
+
+            if (expression.Index is SqlUnaryExpression unary && unary.OperatorType == ExpressionType.Convert)
+            {
+                Sql.Append("' + ");
+                Visit(expression.Index);
+                Sql.Append(" + '");
+            }
+            else
+            {
+                Visit(expression.Index);
+            }
+
             Sql.Append("]");
 
             return expression;
@@ -137,6 +148,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Query.Expressions
             Sql.Append(")");
 
             return expression;
+        }
+
+        protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+        {
+            return base.VisitSqlBinary(sqlBinaryExpression);
         }
     }
 }

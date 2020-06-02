@@ -113,6 +113,48 @@ WHERE [j].[Customer] = @__expected_0");
         }
 
         [Fact]
+        public void NestedParameter()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = context.JsonEntities.Find(1).Customer;
+                var actual = context.JsonEntities.Single(c => c.Customer.Statistics == expected.Statistics).Customer;
+
+                actual.Name.Should().Be(expected.Name);
+
+#if NETCOREAPP3_0
+                AssertSql(
+                    @"@__p_0='1'
+
+SELECT TOP(1) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE ([j].[Id] = @__p_0) AND @__p_0 IS NOT NULL",
+
+                    @"@__expected_0='{""name"":""Joe"",""age"":25,""id"":""00000000-0000-0000-0000-000000000000"",""isVip"":false,""statistics"":{""text"":null,""visits"":4,""purchases"":3,""nested"":{""someProperty"":10,""someNullableProperty"":20,""intArray"":[3,4]}},""orders"":[{""price"":99.5,""shippingAddress"":""Some address 1"",""shippingDate"":""2019-10-01T00:00:00""},{""price"":23.0,""shippingAddress"":""Some address 2"",""shippingDate"":""2019-10-10T00:00:00""}]}' (Size = 4000)
+
+SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE (([j].[Customer] = @__expected_0) AND ([j].[Customer] IS NOT NULL AND @__expected_0 IS NOT NULL)) OR ([j].[Customer] IS NULL AND @__expected_0 IS NULL)");
+#elif NETCOREAPP3_1
+                AssertSql(
+                    @"@__p_0='1'
+
+SELECT TOP(1) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE [j].[Id] = @__p_0",
+
+                    @"@__expected_0='{""name"":""Joe"",""age"":25,""id"":""00000000-0000-0000-0000-000000000000"",""isVip"":false,""statistics"":{""text"":null,""visits"":4,""purchases"":3,""nested"":{""someProperty"":10,""someNullableProperty"":20,""intArray"":[3,4]}},""orders"":[{""price"":99.5,""shippingAddress"":""Some address 1"",""shippingDate"":""2019-10-01T00:00:00""},{""price"":23.0,""shippingAddress"":""Some address 2"",""shippingDate"":""2019-10-10T00:00:00""}]}' (Size = 4000)
+
+SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE [j].[Customer] = @__expected_0");
+#else
+    Assert.True(false);
+#endif
+            }
+        }
+
+        [Fact]
         public void Text()
         {
             using (var context = CreateContext())
@@ -327,8 +369,6 @@ WHERE [j].[TopLevelObjectArray] = N'[{""price"":99.5,""shippingAddress"":""Some 
             }
         }
 
-
-
         [Fact]
         public void TopLevelArrayObjectComplexValueComparison()
         {
@@ -342,6 +382,39 @@ WHERE [j].[TopLevelObjectArray] = N'[{""price"":99.5,""shippingAddress"":""Some 
                     @"SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
 FROM [JsonEntities] AS [j]
 WHERE JSON_VALUE([j].[TopLevelObjectArray], '$[1]') = N'{""price"":99.5,""shippingAddress"":""Some address 1"",""shippingDate"":""2019-10-01T00:00:00""}'");
+            }
+        }
+
+        [Fact]
+        public void TopLevelArrayIndexParameter()
+        {
+            using (var context = CreateContext())
+            {
+                var index = 1;
+                var entity = context.JsonEntities.Single(c => c.ToplevelArray[index] == 2);
+
+                entity.Customer.Name.Should().Be("Joe");
+
+#if NETCOREAPP3_0
+                AssertSql(
+                    @"@__index_0='1'
+
+SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE CAST(JSON_VALUE([j].[ToplevelArray], '$[' + (CAST(@__index_0 AS nvarchar(max))) + ']') AS int) = 2");
+#elif NETCOREAPP3_1
+                AssertSql(
+                   @"@__index_0='1'
+
+SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE CAST(JSON_VALUE([j].[ToplevelArray], '$[' + CAST(@__index_0 AS nvarchar(max)) + ']') AS int) = 2");
+#else
+    Assert.True(false);
+#endif
+
+                AssertSql(
+                    );
             }
         }
 
@@ -371,7 +444,12 @@ WHERE CAST(JSON_VALUE([j].[Customer], '$.statistics.nested.intArray[1]') AS int)
 
                 entity.Customer.Name.Should().Be("Joe");
 
-                false.Should().BeTrue();
+                AssertSql(
+                    @"@__index_0='1'
+
+SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
+FROM [JsonEntities] AS [j]
+WHERE CAST(JSON_VALUE([j].[Customer], '$.statistics.nested.intArray[' + CAST(@__index_0 AS nvarchar(max)) + ']') AS int) = 4");
             }
         }
 
@@ -430,7 +508,5 @@ WHERE JSON_VALUE([j].[Customer], '$.name') IS NOT NULL AND (JSON_VALUE([j].[Cust
 #endif
             }
         }
-
-
     }
 }

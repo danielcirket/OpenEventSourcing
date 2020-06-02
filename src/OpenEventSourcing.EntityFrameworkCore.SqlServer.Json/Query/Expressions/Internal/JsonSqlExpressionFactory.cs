@@ -51,7 +51,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Query.Expressions
             if (typeMapping == null)
                 typeMapping = FindMapping(elementType) ?? array.TypeMapping;
 
-            return new JsonMemberArrayIndexExpression(array, ApplyDefaultTypeMapping(index), elementType, typeMapping);
+            if (index is SqlParameterExpression param && param.Type != typeof(string))
+                index = Convert(ApplyDefaultTypeMapping(index), index.Type, FindMapping(typeof(string)));
+            else
+                index = ApplyDefaultTypeMapping(index);
+
+            return new JsonMemberArrayIndexExpression(array, index, elementType, typeMapping);
         }
 
         public virtual SqlExpression JsonArrayIndex(SqlExpression array, SqlExpression index, RelationalTypeMapping typeMapping = null)
@@ -67,6 +72,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.SqlServer.Json.Query.Expressions
 
             if (typeMapping == null)
                 typeMapping = FindMapping(elementType) ?? array.TypeMapping;
+
+            if (index is SqlParameterExpression param && param.Type != typeof(string))
+                index = Convert(ApplyDefaultTypeMapping(index), index.Type, FindMapping(typeof(string)));
+            else
+                index = ApplyDefaultTypeMapping(index);
 
             return ConvertFromText(new JsonArrayTraversalExpression(array, new[] { new JsonArrayIndexExpression(ApplyDefaultTypeMapping(index), elementType, typeMapping) }, array.Type, FindMapping(typeof(string))), elementType);
         }
