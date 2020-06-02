@@ -401,7 +401,7 @@ WHERE JSON_VALUE([j].[TopLevelObjectArray], '$[1]') = N'{""price"":99.5,""shippi
 
 SELECT TOP(2) [j].[Id], [j].[Customer], [j].[TopLevelObjectArray], [j].[ToplevelArray]
 FROM [JsonEntities] AS [j]
-WHERE CAST(JSON_VALUE([j].[ToplevelArray], '$[' + (CAST(@__index_0 AS nvarchar(max))) + ']') AS int) = 2");
+WHERE (CAST(JSON_VALUE([j].[ToplevelArray], '$[' + CAST(@__index_0 AS nvarchar(max)) + ']') AS int) = 2) AND CAST(JSON_VALUE([j].[ToplevelArray], '$[' + CAST(@__index_0 AS nvarchar(max)) + ']') AS int) IS NOT NULL");
 #elif NETCOREAPP3_1
                 AssertSql(
                    @"@__index_0='1'
@@ -412,9 +412,6 @@ WHERE CAST(JSON_VALUE([j].[ToplevelArray], '$[' + CAST(@__index_0 AS nvarchar(ma
 #else
     Assert.True(false);
 #endif
-
-                AssertSql(
-                    );
             }
         }
 
