@@ -17,12 +17,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.InMemory
 
             builder.Services.AddDbContext<OpenEventSourcingDbContext>((sp, options) =>
             {
-                options.UseInMemoryDatabase("Store");
+                options.UseInMemoryDatabase($"Store_{Guid.NewGuid().ToString()}");
             });
 
             builder.Services.AddDbContext<OpenEventSourcingProjectionDbContext>((sp, options) =>
             {
-                options.UseInMemoryDatabase("Projection");
+                options.UseInMemoryDatabase($"Projection_{Guid.NewGuid().ToString()}");
             });
 
             return builder;
