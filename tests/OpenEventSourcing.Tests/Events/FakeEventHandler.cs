@@ -10,8 +10,10 @@ namespace OpenEventSourcing.Tests.Events
 
         public int Calls => _calls;
 
-        public Task HandleAsync(FakeEvent @event)
+        public Task HandleAsync(FakeEvent @event, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             Interlocked.Increment(ref _calls);
 
             return Task.CompletedTask;

@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenEventSourcing.Events
 {
     public interface IEventHandler<in TEvent> where TEvent : IEvent
     {
-        Task HandleAsync(TEvent @event);
+        Task HandleAsync(TEvent @event, CancellationToken cancellationToken = default);
     }
 }

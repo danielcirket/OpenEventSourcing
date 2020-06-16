@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using OpenEventSourcing.RabbitMQ.Exceptions;
@@ -40,10 +41,12 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             UnderlyingConnection = connection;
         }
 
-        public async Task PublishAsync(Message message)
+        public async Task PublishAsync(Message message, CancellationToken cancellationToken = default)
         {
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             await Task.Yield();
 
@@ -59,10 +62,12 @@ namespace OpenEventSourcing.RabbitMQ.Connections
 
             ReturnChannel(channel);
         }
-        public async Task PublishAsync(IEnumerable<Message> messages)
+        public async Task PublishAsync(IEnumerable<Message> messages, CancellationToken cancellationToken = default)
         {
             if (messages == null)
                 throw new ArgumentNullException(nameof(messages));
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             await Task.Yield();
 

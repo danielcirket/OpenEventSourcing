@@ -34,19 +34,19 @@ namespace OpenEventSourcing.Azure.ServiceBus
             _subscriptionClientManager = subscriptionClientManager;
         }
 
-        public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));
 
-            await _messageSender.SendAsync(@event);
+            await _messageSender.SendAsync(@event, cancellationToken);
         }
-        public async Task PublishAsync(IEnumerable<IEvent> events)
+        public async Task PublishAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
 
-            await _messageSender.SendAsync(events);
+            await _messageSender.SendAsync(events, cancellationToken);
         }
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {

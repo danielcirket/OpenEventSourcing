@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
@@ -30,7 +31,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task SaveAsync<TQueryResult>(IQuery<TQueryResult> query)
+        public async Task SaveAsync<TQueryResult>(IQuery<TQueryResult> query, CancellationToken cancellationToken = default)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -51,7 +52,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     UserId = query.UserId,
                 });
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
         }
     }

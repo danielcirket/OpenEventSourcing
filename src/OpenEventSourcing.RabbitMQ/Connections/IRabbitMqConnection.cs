@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenEventSourcing.RabbitMQ.Messages;
 using RabbitMQ.Client;
@@ -12,8 +13,8 @@ namespace OpenEventSourcing.RabbitMQ.Connections
         bool IsOpen { get; }
         IConnection UnderlyingConnection { get; }
 
-        Task PublishAsync(Message message);
-        Task PublishAsync(IEnumerable<Message> messages);
+        Task PublishAsync(Message message, CancellationToken cancellationToken = default);
+        Task PublishAsync(IEnumerable<Message> messages, CancellationToken cancellationToken = default);
 
         Task CreateExchangeAsync(string name, string exchangeType, bool durable = true, bool autoDelete = false);
         Task CreateQueueAsync(string name, bool durable = true, bool autoDelete = false);

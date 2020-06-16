@@ -13,6 +13,8 @@ namespace OpenEventSourcing.Extensions
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
+            builder.Services.AddScoped<ICommandStore, NoOpCommandStore>();
+
             builder.Services.Scan(scan =>
             {
                 scan.FromApplicationDependencies()
@@ -51,6 +53,8 @@ namespace OpenEventSourcing.Extensions
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
+
+            builder.Services.AddScoped<IQueryStore, NoOpQueryStore>();
 
             builder.Services.Scan(scan =>
             {

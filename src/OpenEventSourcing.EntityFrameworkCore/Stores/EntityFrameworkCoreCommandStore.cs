@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenEventSourcing.Commands;
@@ -29,7 +30,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task SaveAsync(ICommand command)
+        public async Task SaveAsync(ICommand command, CancellationToken cancellationToken = default)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
@@ -51,7 +52,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     Timestamp = command.Timestamp,
                 });
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
         }
     }

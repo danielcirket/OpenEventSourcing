@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OpenEventSourcing.Domain;
 using OpenEventSourcing.EntityFrameworkCore.DbContexts;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Serialization;
@@ -43,17 +43,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task<long> CountAsync(Guid aggregateId)
+        public async Task<long> CountAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             using (var context = _dbContextFactory.Create())
             {
-                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId);
+                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId, cancellationToken);
 
                 return count;
             }
         }
 
-        public async Task<Page> GetEventsAsync(long offset)
+        public async Task<Page> GetEventsAsync(long offset, CancellationToken cancellationToken = default)
         {
             var results = new List<IEvent>();
 
@@ -64,7 +64,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                         .OrderBy(x => x.SequenceNo)
                         .Skip((int)offset)
                         .Take(250)
-                        .ToListAsync();
+                        .ToListAsync(cancellationToken);
 
                 foreach (var @event in events)
                 {
@@ -79,7 +79,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return new Page(offset + events.Count, offset, results);
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             var results = new List<IEvent>();
 
@@ -89,7 +89,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     .AsNoTracking()
                     .OrderBy(x => x.SequenceNo)
                     .Where(x => x.AggregateId == aggregateId)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 foreach (var @event in events)
                 {
@@ -104,7 +104,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return results;
             }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset)
+        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
         {
             var results = new List<IEvent>();
 
@@ -115,7 +115,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     .Where(x => x.AggregateId == aggregateId)
                     .OrderBy(x => x.SequenceNo)
                     .Skip((int)offset)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 foreach (var @event in events)
                 {
@@ -131,7 +131,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             }
         }
 
-        public async Task SaveAsync(IEnumerable<IEvent> events)
+        public async Task SaveAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -141,7 +141,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 foreach (var @event in events)
                     await context.Events.AddAsync(_eventModelFactory.Create(@event));
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(cancellationToken);
             }
         }
     }

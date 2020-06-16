@@ -420,8 +420,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleEvent @event)
+            public Task HandleAsync(SampleEvent @event, CancellationToken cancellationToken = default)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 Interlocked.Increment(ref _received);
 
                 _receivedTime = DateTimeOffset.UtcNow;

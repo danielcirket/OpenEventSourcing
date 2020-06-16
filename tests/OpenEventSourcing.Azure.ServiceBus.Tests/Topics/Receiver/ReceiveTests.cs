@@ -99,8 +99,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleReceiverEvent @event)
+            public Task HandleAsync(SampleReceiverEvent @event, CancellationToken cancellationToken = default)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 Interlocked.Increment(ref _received);
 
                 _receivedTime = DateTimeOffset.UtcNow;
