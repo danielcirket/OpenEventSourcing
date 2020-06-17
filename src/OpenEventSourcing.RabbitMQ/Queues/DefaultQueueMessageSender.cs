@@ -38,25 +38,25 @@ namespace OpenEventSourcing.RabbitMQ.Queues
             _connectionFactory = connectionFactory;
         }
 
-        public async Task SendAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task SendAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            var message = _messageFactory.CreateMessage(@event);
+            var message = _messageFactory.CreateMessage(context);
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken))
             {
                 await connection.PublishAsync(message, cancellationToken);
             }
         }
-
-        public async Task SendAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
+        
+        public async Task SendAsync(IEnumerable<IEventContext<IEvent>> contexts, CancellationToken cancellationToken = default)
         {
-            if (events == null)
-                throw new ArgumentNullException(nameof(events));
+            if (contexts == null)
+                throw new ArgumentNullException(nameof(contexts));
 
-            var messages = events.Select(@event => _messageFactory.CreateMessage(@event));
+            var messages = contexts.Select(context => _messageFactory.CreateMessage(context));
 
             using (var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken))
             {

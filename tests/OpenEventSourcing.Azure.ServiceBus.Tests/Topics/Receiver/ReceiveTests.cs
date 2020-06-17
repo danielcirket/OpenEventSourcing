@@ -47,6 +47,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             using (var scope = ServiceProvider.CreateScope())
             {
                 var @event = new SampleReceiverEvent();
+                var context = new EventContext<SampleReceiverEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IEventBusPublisher>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IEventBusConsumer>();
                 var sentTime = DateTimeOffset.MinValue;
@@ -60,7 +61,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
                     // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                     await Task.Delay(250);
 
-                    await sender.PublishAsync(@event);
+                    await sender.PublishAsync(context);
                     sentTime = DateTimeOffset.UtcNow;
 
                     // Delay to ensure that we pick up the message.
@@ -99,7 +100,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleReceiverEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleReceiverEvent> context, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

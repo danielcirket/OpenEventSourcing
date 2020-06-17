@@ -3,7 +3,7 @@ using FluentAssertions;
 using OpenEventSourcing.Azure.ServiceBus.Messages;
 using Xunit;
 
-namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
+namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
 {
     public class ConstructorTests
     {

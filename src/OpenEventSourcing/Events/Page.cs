@@ -7,9 +7,9 @@ namespace OpenEventSourcing.Events
     {
         public long Offset { get; }
         public long PreviousOffset { get; }
-        public IEnumerable<IEvent> Events { get; }
+        public IEnumerable<IEventContext<IEvent>> Events { get; }
 
-        public Page(long offset, long previousOffset, IEnumerable<IEvent> events)
+        public Page(long offset, long previousOffset, IEnumerable<IEventContext<IEvent>> events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));

@@ -24,10 +24,10 @@ namespace OpenEventSourcing.Events
             _serviceProvider = serviceProvider;
         }
 
-        public async Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task DispatchAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -37,19 +37,19 @@ namespace OpenEventSourcing.Events
 
             _logger.LogInformation($"Resolved {handlers.Count()} handlers for event '{typeof(TEvent).FriendlyName()}'.");
 
-            await Task.WhenAll(handlers.Select(handler => handler.HandleAsync(@event, cancellationToken)));
+            await Task.WhenAll(handlers.Select(handler => handler.HandleAsync(context, cancellationToken)));
         }
-        public async Task DispatchAsync(IEvent @event, CancellationToken cancellationToken = default)
+        public async Task DispatchAsync(IEventContext<IEvent> context, CancellationToken cancellationToken = default)
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             // TODO(Dan): Cache these generic methods. The Event dispatcher is scoped generally, so that would require consideration.
             var methodInfos = GetType().GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var match = methodInfos.First(info => info.Name == nameof(DispatchAsync) && info.IsGenericMethod);
-            var method = match.MakeGenericMethod(@event.GetType());
+            var method = match.MakeGenericMethod(context.Payload.GetType());
 
-            await (Task)method.Invoke(this, new object[] { @event, cancellationToken });
+            await (Task)method.Invoke(this, new object[] { context, cancellationToken });
         }
     }
 }

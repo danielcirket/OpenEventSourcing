@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -50,10 +51,10 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEvent)null);
+                Func<Task> act = async () => await sender.SendAsync((IEventContext<IEvent>)null);
 
                 act.Should().Throw<ArgumentNullException>()
-                    .And.ParamName.Should().Be("event");
+                    .And.ParamName.Should().Be("context");
             }
         }
         [RabbitMqTest]
@@ -63,10 +64,10 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEvent>)null);
+                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEventContext<IEvent>>)null);
 
                 act.Should().Throw<ArgumentNullException>()
-                    .And.ParamName.Should().Be("events");
+                    .And.ParamName.Should().Be("contexts");
             }
         }
         [RabbitMqTest]
@@ -76,8 +77,9 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var @event = new SameSenderEvent();
+                var context = new EventContext<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
 
-                Func<Task> act = async () => await sender.SendAsync(@event);
+                Func<Task> act = async () => await sender.SendAsync(context);
 
                 act.Should().NotThrow();
             }
@@ -89,8 +91,9 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var events = new[] { new SameSenderEvent(), new SameSenderEvent() };
+                var contexts = events.Select(@event => new EventContext<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
 
-                Func<Task> act = async () => await sender.SendAsync(events);
+                Func<Task> act = async () => await sender.SendAsync(contexts);
 
                 act.Should().NotThrow();
             }

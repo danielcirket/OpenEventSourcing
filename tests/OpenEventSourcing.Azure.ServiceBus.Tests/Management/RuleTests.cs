@@ -420,7 +420,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleEvent> context, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

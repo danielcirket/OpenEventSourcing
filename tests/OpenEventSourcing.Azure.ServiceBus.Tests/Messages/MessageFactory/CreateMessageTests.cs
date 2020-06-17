@@ -1,48 +1,46 @@
 ﻿using System;
-using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OpenEventSourcing.Events;
 using OpenEventSourcing.Extensions;
-using OpenEventSourcing.RabbitMQ.Extensions;
-using OpenEventSourcing.RabbitMQ.Messages;
-using OpenEventSourcing.Serialization;
+using OpenEventSourcing.Azure.ServiceBus.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
+using FluentAssertions;
 using Xunit;
+using OpenEventSourcing.Azure.ServiceBus.Messages;
+using OpenEventSourcing.Events;
+using OpenEventSourcing.Serialization;
 
-namespace OpenEventSourcing.RabbitMQ.Tests.Messages
+namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
 {
-    public class MessageFactoryTests : IClassFixture<ConfigurationFixture>
+    public class CreateMessageTests
     {
         public IServiceProvider ServiceProvider { get; }
 
-        public MessageFactoryTests(ConfigurationFixture fixture)
+        public CreateMessageTests()
         {
             var services = new ServiceCollection();
 
             services.AddLogging(o => o.AddDebug())
                     .AddOpenEventSourcing()
-                    .AddRabbitMq(o =>
+                    .AddAzureServiceBus(o =>
                     {
-                        o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
-                         .UseExchange(e =>
+                        o.UseConnection(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING") ?? "Endpoint=sb://openeventsourcing.servicebus.windows.net/;SharedAccessKeyName=DUMMY;SharedAccessKey=DUMMY")
+                         .UseTopic(t =>
                          {
-                             e.WithName("test-exchange");
-                             e.UseExchangeType("topic");
-                             e.AutoDelete();
+                             t.WithName("test-exchange");
+                             t.AutoDeleteOnIdleAfter(TimeSpan.FromMinutes(5));
                          });
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+#if NETCOREAPP3_0
             ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true }).CreateScope().ServiceProvider;
 #else
             ServiceProvider = services.BuildServiceProvider(validateScopes: true);
 #endif
         }
 
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithNullEventThenShouldThrowArgumentNullException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -52,47 +50,49 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
                 Action act = () => factory.CreateMessage(null);
 
                 act.Should().Throw<ArgumentNullException>()
-                    .And.ParamName.Should().Be("event");
+                    .And.ParamName.Should().Be("context");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateMessageIdFromEventId()
         {
             using (var scope = ServiceProvider.CreateScope())
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var result = factory.CreateMessage(@event);
+                var context = new EventContext<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(context);
 
-                result.MessageId.Should().Be(@event.Id);
+                result.MessageId.Should().Be(@event.Id.ToString());
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateTypeFromEventTypeName()
         {
             using (var scope = ServiceProvider.CreateScope())
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var result = factory.CreateMessage(@event);
+                var context = new EventContext<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(context);
 
-                result.Type.Should().Be(nameof(FakeEvent));
+                result.Label.Should().Be(nameof(FakeEvent));
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateCorrelationIdFromEvent()
         {
             using (var scope = ServiceProvider.CreateScope())
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent(correlationId: Guid.NewGuid());
+                var context = new EventContext<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(context);
 
-                var result = factory.CreateMessage(@event);
-
-                result.CorrelationId.Should().Be(@event.CorrelationId);
+                result.CorrelationId.Should().Be(context.CorrelationId.ToString());
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateBodyFromEvent()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -101,8 +101,9 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
                 var serializer = scope.ServiceProvider.GetRequiredService<IEventSerializer>();
 
                 var @event = new FakeEvent();
+                var context = new EventContext<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
                 var body = serializer.Serialize(@event);
-                var result = factory.CreateMessage(@event);
+                var result = factory.CreateMessage(context);
 
                 result.Body.Should().Equal(body);
                 result.Size.Should().Be(body.Length);
@@ -112,15 +113,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
         private class FakeEvent : Event
         {
             public string Message { get; } = nameof(FakeEvent);
-            
-            public FakeEvent() 
+
+            public FakeEvent()
                 : base(Guid.NewGuid(), 1)
             {
             }
             public FakeEvent(Guid correlationId)
                 : base(Guid.NewGuid(), 1)
             {
-                CorrelationId = correlationId;
             }
         }
     }

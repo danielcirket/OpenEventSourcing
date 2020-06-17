@@ -31,21 +31,21 @@ namespace OpenEventSourcing.RabbitMQ
             _queueMessageReceiver = queueMessageReceiver;
         }
 
-        public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             cancellationToken.ThrowIfCancellationRequested();
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
-                await sender.SendAsync(@event, cancellationToken);
+                await sender.SendAsync(context, cancellationToken);
             }
         }
 
-        public async Task PublishAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
+        public async Task PublishAsync(IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));

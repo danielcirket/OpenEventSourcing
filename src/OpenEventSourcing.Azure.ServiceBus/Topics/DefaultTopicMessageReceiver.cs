@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenEventSourcing.Azure.ServiceBus.Messages;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Serialization;
 
@@ -13,17 +14,22 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
     internal sealed class DefaultTopicMessageReceiver : ITopicMessageReceiver
     {
         private readonly ILogger<DefaultTopicMessageReceiver> _logger;
+        private readonly IEventContextFactory _eventContextFactory;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public DefaultTopicMessageReceiver(ILogger<DefaultTopicMessageReceiver> logger,
+                                           IEventContextFactory eventContextFactory,
                                            IServiceScopeFactory serviceScopeFactory)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (eventContextFactory == null)
+                throw new ArgumentNullException(nameof(eventContextFactory));
             if (serviceScopeFactory == null)
                 throw new ArgumentNullException(nameof(serviceScopeFactory));
 
             _logger = logger;
+            _eventContextFactory = eventContextFactory;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
@@ -45,8 +51,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
         }
         public async Task ReceiveAsync(ISubscriptionClient client, Message message, CancellationToken cancellationToken = default)
         {
-            var eventName = message.Label;
-            var eventData = Encoding.UTF8.GetString(message.Body);             
+            var eventName = message.Label;            
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -60,9 +65,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
                     return;
                 }
 
-                var @event = (IEvent)eventDeserializer.Deserialize(eventData, type);
+                var context = _eventContextFactory.CreateContext(message);
 
-                await eventDispatcher.DispatchAsync(@event);
+                await eventDispatcher.DispatchAsync(context);
             }
 
             await client.CompleteAsync(message.SystemProperties.LockToken);

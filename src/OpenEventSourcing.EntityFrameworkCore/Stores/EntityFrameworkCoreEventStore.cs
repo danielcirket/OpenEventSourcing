@@ -58,7 +58,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
         public async Task<Page> GetEventsAsync(long offset, CancellationToken cancellationToken = default)
         {
-            var results = new List<IEvent>();
+            var results = new List<IEventContext<IEvent>>();
 
             var events = await GetAllEventsForwardsInternalAsync(offset).ConfigureAwait(false);
 
@@ -83,16 +83,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                }
 
                 results.Add(result);
             }
 
             return new Page(offset + events.Count, offset, results);
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
-            var results = new List<IEvent>();
+            var results = new List<IEventContext<IEvent>>();
 
             var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, 0).ConfigureAwait(false);
 
@@ -106,11 +107,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 results.Add(result);
             }
 
-            return results;
+                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                }
+
+                return results;
+            }
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
         {
-            var results = new List<IEvent>();
+            var results = new List<IEventContext<IEvent>>();
 
             var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, offset).ConfigureAwait(false);
 
@@ -124,10 +129,14 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 results.Add(result);
             }
 
-            return results;
+                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                }
+
+                return results;
+            }
         }
 
-        public async Task SaveAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));

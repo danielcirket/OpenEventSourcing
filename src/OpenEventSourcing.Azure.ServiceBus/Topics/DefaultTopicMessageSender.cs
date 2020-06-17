@@ -36,25 +36,25 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
             _messageFactory = messageFactory;
         }
 
-        public async Task SendAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task SendAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var client = await _topicClientFactory.CreateAsync();
-            var message = _messageFactory.CreateMessage(@event);
+            var message = _messageFactory.CreateMessage(context);
 
             _logger.LogInformation($"Sending message 1 of 1. Type: '{message.Label}' | Size: '{message.Size}' bytes");
 
             await client.SendAsync(message);
         }
-        public async Task SendAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
+        public async Task SendAsync(IEnumerable<IEventContext<IEvent>> contexts, CancellationToken cancellationToken = default)
         {
-            if (events == null)
-                throw new ArgumentNullException(nameof(events));
+            if (contexts == null)
+                throw new ArgumentNullException(nameof(contexts));
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var messages = events.Select(@event => _messageFactory.CreateMessage(@event));
+            var messages = contexts.Select(context => _messageFactory.CreateMessage(context));
             var batchedMessages = messages.Aggregate(new { Sum = 0L, Current = (List<Message>)null, Result = new List<List<Message>>() }, (agg, message) =>
             {
                 var size = message.Size;

@@ -5,7 +5,7 @@ namespace OpenEventSourcing.Events
 {
     public interface IEventDispatcher
     {
-        Task DispatchAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default) where TEvent : IEvent;
-        Task DispatchAsync(IEvent @event, CancellationToken cancellationToken = default);
+        Task DispatchAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent;
+        Task DispatchAsync(IEventContext<IEvent> context, CancellationToken cancellationToken = default);
     }
 }

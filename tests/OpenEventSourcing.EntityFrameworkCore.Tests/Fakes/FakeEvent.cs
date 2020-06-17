@@ -8,8 +8,6 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
         public FakeEvent(Guid aggregateId, int version)
             : base(aggregateId, version)
         {
-            CorrelationId = Guid.NewGuid();
-            CausationId = Guid.NewGuid();
         }
     }
 }

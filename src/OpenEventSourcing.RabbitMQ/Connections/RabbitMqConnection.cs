@@ -51,12 +51,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             await Task.Yield();
 
             var channel = CreateChannel();
-            var properties = channel.CreateBasicProperties();
-
-            properties.CorrelationId = message.CorrelationId.ToString();
-            properties.MessageId = message.MessageId.ToString();
-            properties.Persistent = true;
-            properties.Type = message.Type;
+            var properties = CreateBasicProperties(channel, message);
 
             channel.BasicPublish(exchange: _options.Value.Exchange.Name, mandatory: true, routingKey: message.Type, basicProperties: properties, body: message.Body);
 
@@ -75,13 +70,8 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             var batch = channel.CreateBasicPublishBatch();
 
             foreach (var message in messages)
-            { 
-                var properties = channel.CreateBasicProperties();
-
-                properties.CorrelationId = message.CorrelationId.ToString();
-                properties.MessageId = message.MessageId.ToString();
-                properties.Persistent = true;
-                properties.Type = message.Type;
+            {
+                var properties = CreateBasicProperties(channel, message);
 
                 batch.Add(exchange: _options.Value.Exchange.Name, mandatory: true, routingKey: message.Type, properties: properties, body: message.Body);
             }
@@ -298,6 +288,24 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             }
 
             channel.Dispose();
+        }
+        private IBasicProperties CreateBasicProperties(IModel channel, Message message)
+        {
+            var properties = channel.CreateBasicProperties();
+
+            properties.CorrelationId = message.CorrelationId?.ToString();
+            properties.MessageId = message.MessageId.ToString();
+            properties.Persistent = true;
+            properties.Type = message.Type;
+            properties.UserId = message.UserId;
+
+            if (properties.Headers == null)
+                properties.Headers = new Dictionary<string, object>();
+
+            if (message.CorrelationId.HasValue)
+                properties.Headers.Add("correlation-id", message.CorrelationId);
+
+            return properties;
         }
 
         ~RabbitMqConnection()

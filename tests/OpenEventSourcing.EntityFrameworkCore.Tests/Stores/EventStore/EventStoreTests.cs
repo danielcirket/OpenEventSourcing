@@ -121,7 +121,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            
+            await store.SaveAsync(contexts);
 
             var events = await store.GetEventsAsync(aggregate.Id.Value);
 
@@ -141,7 +143,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+
+            await store.SaveAsync(contexts);
 
             var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
 
@@ -161,7 +165,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+
+            await store.SaveAsync(contexts);
 
             var total = dbContext.Events.Count();
             var page = await store.GetEventsAsync(0);
@@ -182,9 +188,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
             var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
-            IEnumerable<IEvent> events = null;
+            IEnumerable<IEventContext<IEvent>> contexts = null;
 
-            Func<Task> act = async () => await store.SaveAsync(events);
+            Func<Task> act = async () => await store.SaveAsync(contexts);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("events");
@@ -202,7 +208,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+
+            await store.SaveAsync(contexts);
 
             var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
             count.Should().Be(1);
@@ -222,7 +230,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+
+            await store.SaveAsync(contexts);
 
             var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
             count.Should().Be(3);
