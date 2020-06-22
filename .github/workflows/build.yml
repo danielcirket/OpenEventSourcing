@@ -12,9 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: .NET Build
       run: dotnet build OpenEventSourcing.sln -c Release
 
     - name: .NET test
-      run: dotnet test OpenEventSourcing.sln --no-build
+      run: dotnet test OpenEventSourcing.sln --no-build -c Release
