@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Queues;
-using OpenEventSourcing.RabbitMQ.Subscriptions;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client

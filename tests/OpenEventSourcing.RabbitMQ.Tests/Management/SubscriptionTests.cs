@@ -11,7 +11,6 @@ using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 using Xunit;
 
@@ -47,7 +46,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
             Configuration = fixture.Configuration;
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNewSubscriptionThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -67,7 +66,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithExistingSubscriptionThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -88,7 +87,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentExhangeThenShouldThrowExchangeNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -107,7 +106,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<ExchangeNotFoundException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -126,7 +125,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<QueueNotFoundException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentExchangeThenShouldThrowExchangeNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -145,7 +144,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<ExchangeNotFoundException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -164,7 +163,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<QueueNotFoundException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotConfiguredThenShouldThrowInvalidOperationException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -185,7 +184,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<InvalidOperationException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiCorrectlyConfiguredThenShouldReturnExpectedSubscriptions()
         {
             var services = new ServiceCollection();
@@ -237,7 +236,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiNotAvailableThenShouldThrow()
         {
             var services = new ServiceCollection();
@@ -282,7 +281,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<Exception>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldThrowHttpRequestExceptionWith401Response()
         {
             var services = new ServiceCollection();

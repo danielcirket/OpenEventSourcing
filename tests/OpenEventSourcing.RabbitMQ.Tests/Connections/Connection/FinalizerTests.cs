@@ -25,7 +25,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             _configuration = fixture.Configuration;
         }
 
-        [Fact]
+        [RabbitMqTest]
         public void WhenConnectionFinalizedThenOpenConnectionShouldBeReturnedToPool()
         {
             void CreateConnection(RabbitMqConnectionPool p)
@@ -66,7 +66,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             pool.AvailableConnections.Should().Be(1);
         }
-        [Fact]
+        [RabbitMqTest]
         public void WhenConnectionFinalizedThenClosedConnectionShouldNotBeReturnedToPool()
         {
             void CreateConnection(RabbitMqConnectionPool p)
@@ -108,7 +108,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             pool.AvailableConnections.Should().Be(0);
         }
-        [Fact]
+        [RabbitMqTest]
         public void WhenConnectionFinalizedThenOpenConnectionShouldBeReturnedToPoolAndBeInUseableState()
         {
             string connectionId = null;

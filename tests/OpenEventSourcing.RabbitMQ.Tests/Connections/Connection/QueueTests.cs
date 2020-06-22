@@ -10,7 +10,6 @@ using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
@@ -44,7 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateQueueAsyncCalledWithNonExistentQueueThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -67,7 +66,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             verify.Should().Throw<QueueAlreadyExistsException>()
                 .And.QueueName.Should().Be(queueName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateQueueAsyncCalledWithExistingQueueThenShouldThrowQueueAlreadyExistsException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -82,7 +81,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().Throw<QueueAlreadyExistsException>();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveQueueAsyncCalledWithExistingQueueThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -106,7 +105,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             verify.Should().Throw<QueueNotFoundException>()
                 .And.QueueName.Should().Be(queueName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveQueueAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -120,7 +119,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().Throw<QueueNotFoundException>();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenQueueExistsAsyncCalledWithNonExistentQueueThenShouldReturnFalse()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -136,7 +135,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             verify.Should().NotThrow();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenQueueExistsAsyncCalledWithExistingQueueThenShouldReturnTrue()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -160,7 +159,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             verify.Should().NotThrow();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateQueueAsyncCalledWithNonExistentQueueThenShouldSucceedAndPersistAfterConnection()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
