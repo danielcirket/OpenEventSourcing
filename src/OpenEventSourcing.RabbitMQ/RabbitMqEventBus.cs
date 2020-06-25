@@ -31,7 +31,7 @@ namespace OpenEventSourcing.RabbitMQ
             _queueMessageReceiver = queueMessageReceiver;
         }
 
-        public async Task PublishAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task PublishAsync<TEvent>(IEventNotification<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -45,7 +45,7 @@ namespace OpenEventSourcing.RabbitMQ
             }
         }
 
-        public async Task PublishAsync(IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
+        public async Task PublishAsync(IEnumerable<IEventNotification<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));

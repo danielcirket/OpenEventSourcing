@@ -62,8 +62,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages.MessageFactory
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var context = new EventContext<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
-                var result = factory.CreateMessage(context);
+                var notification = new EventNotification<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(notification);
 
                 result.MessageId.Should().Be(@event.Id);
             }
@@ -75,8 +75,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages.MessageFactory
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var context = new EventContext<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
-                var result = factory.CreateMessage(context);
+                var notification = new EventNotification<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(notification);
 
                 result.Type.Should().Be(nameof(FakeEvent));
             }
@@ -88,11 +88,11 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages.MessageFactory
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var context = new EventContext<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var notification = new EventNotification<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
 
-                var result = factory.CreateMessage(context);
+                var result = factory.CreateMessage(notification);
 
-                result.CorrelationId.Should().Be(context.CorrelationId);
+                result.CorrelationId.Should().Be(notification.CorrelationId);
             }
         }
         [Fact]
@@ -105,8 +105,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages.MessageFactory
 
                 var @event = new FakeEvent();
                 var body = serializer.Serialize(@event);
-                var context = new EventContext<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
-                var result = factory.CreateMessage(context);
+                var notification = new EventNotification<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var result = factory.CreateMessage(notification);
 
                 result.Body.Should().Equal(body);
                 result.Size.Should().Be(body.Length);

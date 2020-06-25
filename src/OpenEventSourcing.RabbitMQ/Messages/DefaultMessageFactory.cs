@@ -17,16 +17,16 @@ namespace OpenEventSourcing.RabbitMQ.Messages
             _eventSerializer = eventSerializer;
         }
 
-        public Message CreateMessage<TEvent>(IEventContext<TEvent> context) where TEvent : IEvent
+        public Message CreateMessage<TEvent>(IEventNotification<TEvent> context) where TEvent : IEvent
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             var eventName = typeof(TEvent).Name;
 
-            return CreateMessage(eventName, (IEventContext<IEvent>)context);
+            return CreateMessage(eventName, (IEventNotification<IEvent>)context);
         }
-        public Message CreateMessage(IEventContext<IEvent> context)
+        public Message CreateMessage(IEventNotification<IEvent> context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -36,7 +36,7 @@ namespace OpenEventSourcing.RabbitMQ.Messages
             return CreateMessage(eventName, context);
         }
 
-        private Message CreateMessage(string eventName, IEventContext<IEvent> context)
+        private Message CreateMessage(string eventName, IEventNotification<IEvent> context)
         {
             var @event = context.Payload;
             var body = Encoding.UTF8.GetBytes(_eventSerializer.Serialize(context.Payload));

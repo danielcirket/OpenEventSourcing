@@ -43,7 +43,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEventContext<IEvent>)null);
+                Func<Task> act = async () => await sender.SendAsync((IEventNotification<IEvent>)null);
 
                 act.Should().Throw<ArgumentNullException>()
                     .And.ParamName.Should().Be("context");
@@ -56,7 +56,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEventContext<IEvent>>)null);
+                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEventNotification<IEvent>>)null);
 
                 act.Should().Throw<ArgumentNullException>()
                     .And.ParamName.Should().Be("contexts");
@@ -69,9 +69,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             { 
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var @event = new SameSenderEvent();
-                var context = new EventContext<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null); ;
+                var notification = new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null); ;
 
-                Func<Task> act = async () => await sender.SendAsync(context);
+                Func<Task> act = async () => await sender.SendAsync(notification);
 
                 act.Should().NotThrow();
             }
@@ -83,9 +83,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var events = new[] { new SameSenderEvent(), new SameSenderEvent() };
-                var contexts = events.Select(@event => new EventContext<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null));
+                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null));
                 
-                Func<Task> act = async () => await sender.SendAsync(contexts);
+                Func<Task> act = async () => await sender.SendAsync(notifications);
 
                 act.Should().NotThrow();
             }

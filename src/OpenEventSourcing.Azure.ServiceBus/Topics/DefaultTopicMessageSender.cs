@@ -36,7 +36,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
             _messageFactory = messageFactory;
         }
 
-        public async Task SendAsync<TEvent>(IEventContext<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
+        public async Task SendAsync<TEvent>(IEventNotification<TEvent> context, CancellationToken cancellationToken = default) where TEvent : IEvent
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -47,7 +47,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Topics
 
             await client.SendAsync(message);
         }
-        public async Task SendAsync(IEnumerable<IEventContext<IEvent>> contexts, CancellationToken cancellationToken = default)
+        public async Task SendAsync(IEnumerable<IEventNotification<IEvent>> contexts, CancellationToken cancellationToken = default)
         {
             if (contexts == null)
                 throw new ArgumentNullException(nameof(contexts));

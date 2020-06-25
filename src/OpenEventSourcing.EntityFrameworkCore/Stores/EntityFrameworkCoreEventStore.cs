@@ -83,10 +83,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
-                }
+                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(result);
+                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
             }
 
             return new Page(offset + events.Count, offset, results);
@@ -104,14 +103,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                 var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(result);
+                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
             }
 
-                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
-                }
+            return results;
 
-                return results;
-            }
         }
         public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
         {
@@ -126,14 +122,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                 var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(result);
+                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
             }
 
-                    results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
-                }
-
-                return results;
-            }
+            return results;
         }
 
         public async Task SaveAsync(IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)

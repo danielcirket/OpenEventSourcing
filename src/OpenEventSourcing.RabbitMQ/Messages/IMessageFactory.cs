@@ -4,7 +4,7 @@ namespace OpenEventSourcing.RabbitMQ.Messages
 {
     public interface IMessageFactory
     {
-        Message CreateMessage<TEvent>(IEventContext<TEvent> context) where TEvent : IEvent;
-        Message CreateMessage(IEventContext<IEvent> context);
+        Message CreateMessage<TEvent>(IEventNotification<TEvent> context) where TEvent : IEvent;
+        Message CreateMessage(IEventNotification<IEvent> context);
     }
 }
