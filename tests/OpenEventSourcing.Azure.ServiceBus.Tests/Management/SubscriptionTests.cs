@@ -37,7 +37,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .AddJsonSerializers();
         }
 
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateSubscriptionAsyncCalledWithNullTopicNameThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -53,7 +53,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("topicName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateSubscriptionAsyncCalledWithNullSubscriptionNameThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())

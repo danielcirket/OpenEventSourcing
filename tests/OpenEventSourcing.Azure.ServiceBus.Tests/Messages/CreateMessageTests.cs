@@ -40,7 +40,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
 #endif
         }
 
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithNullEventThenShouldThrowArgumentNullException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -53,7 +53,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
                     .And.ParamName.Should().Be("event");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateMessageIdFromEventId()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -65,7 +65,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
                 result.MessageId.Should().Be(@event.Id.ToString());
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateTypeFromEventTypeName()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -77,7 +77,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
                 result.Label.Should().Be(nameof(FakeEvent));
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateCorrelationIdFromEvent()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -90,7 +90,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages
                 result.CorrelationId.Should().Be(@event.CorrelationId.ToString());
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateMessageCalledWithEventThenShouldPopulateBodyFromEvent()
         {
             using (var scope = ServiceProvider.CreateScope())
