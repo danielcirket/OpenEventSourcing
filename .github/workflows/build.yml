@@ -10,6 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -18,5 +25,5 @@ jobs:
     - name: .NET Build
       run: dotnet build OpenEventSourcing.sln -c Release
 
-    - name: .NET test
+    - name: .NET Test
       run: dotnet test OpenEventSourcing.sln --no-build -c Release
