@@ -4,7 +4,7 @@ using Xunit.Sdk;
 
 namespace OpenEventSourcing.RabbitMQ.Tests
 {
-    public class ServiceBusTestTraitDiscoverer : ITraitDiscoverer
+    public class RabbitMqTestTraitDiscoverer : ITraitDiscoverer
     {
         public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {

@@ -184,7 +184,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<InvalidOperationException>();
             }
         }
-        [RabbitMqTest]
+        [RabbitMqWithManagementTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiCorrectlyConfiguredThenShouldReturnExpectedSubscriptions()
         {
             var services = new ServiceCollection();
@@ -281,7 +281,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<Exception>();
             }
         }
-        [RabbitMqTest]
+        [RabbitMqWithManagementTest]
         public void WhenRetrieveSubscriptionsCalledWhenManagementApiConfiguredWithIncorrectCredentialsThenShouldThrowHttpRequestExceptionWith401Response()
         {
             var services = new ServiceCollection();
