@@ -146,7 +146,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             using (var context = _dbContextFactory.Create())
             {
                 var events = await context.Events.OrderBy(e => e.SequenceNo)
-                                                 .Where(e => e.SequenceNo > offset)
+                                                 .Where(e => e.SequenceNo >= offset)
                                                  .Take(DefaultPageSize)
                                                  .AsNoTracking()
                                                  .ToListAsync();
@@ -159,7 +159,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             using (var context = _dbContextFactory.Create())
             {
                 var events = await context.Events.OrderBy(e => e.SequenceNo)
-                                                 .Where(e => e.SequenceNo > offset)
+                                                 .Where(e => e.SequenceNo >= offset)
                                                  .Where(e => e.AggregateId == aggregateId)
                                                  .Take(DefaultPageSize)
                                                  .AsNoTracking()

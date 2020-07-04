@@ -145,7 +145,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
 
-            events.Count().Should().Be(2);
+            events.Count().Should().Be(3);
         }
         [Fact]
         public async Task WhenStoreContainsEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents()
