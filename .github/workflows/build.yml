@@ -2,7 +2,6 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -26,7 +25,7 @@ jobs:
       run: dotnet build OpenEventSourcing.sln -c Release
 
     - name: .NET Test
-      run: dotnet test OpenEventSourcing.sln --no-build -c Release
+      run: dotnet test OpenEventSourcing.sln --no-build -c Release /p:CollectCoverage=true /p:CoverletOutput='../../TestCoverage/' /p:MergeWith='../../TestCoverage/coverage.json' /p:CoverletOutputFormat="opencover" /p:Exclude="[OpenEventSourcing.Samples.*]"
       env: 
         OPENEVENTSOURCING_RABBITMQ__CONNECTIONSTRING: amqp://guest:guest@localhost:5672/
         OPENEVENTSOURCING_RABBITMQ__MANAGEMENTURI: http://localhost:15672/
