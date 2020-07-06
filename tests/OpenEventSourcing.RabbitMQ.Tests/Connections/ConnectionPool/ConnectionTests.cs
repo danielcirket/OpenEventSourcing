@@ -8,7 +8,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client.Exceptions;
 using Xunit;
 
@@ -44,7 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenGetConnectionCalledThenShouldReturnConnection()
         {
             var pool = ServiceProvider.GetRequiredService<RabbitMqConnectionPool>();
@@ -55,7 +54,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
 
             connection.Dispose();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenGetConnectionCalledAndConnectionDisposedThenPoolShouldHaveSingleAvailableConnection()
         {
             var pool = ServiceProvider.GetRequiredService<RabbitMqConnectionPool>();
@@ -66,7 +65,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
 
             pool.AvailableConnections.Should().Be(1);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenGetConnectionCalledMultipleTimesWithoutConnectionsReturnedThenShouldReturnMultipleConnections()
         {
             var numberOfConnections = 5;
@@ -81,7 +80,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.ConnectionPool
 
             pool.AvailableConnections.Should().Be(numberOfConnections);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRabbitMqNotReachableGetConnectionShouldThrowBrokerUnreachableException()
         {
             var services = new ServiceCollection();

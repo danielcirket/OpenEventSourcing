@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: .NET Build
+      run: dotnet build OpenEventSourcing.sln -c Release
+
+    - name: .NET Test
+      run: dotnet test OpenEventSourcing.sln --no-build -c Release /p:CollectCoverage=true /p:CoverletOutput='../../TestCoverage/' /p:MergeWith='../../TestCoverage/coverage.json' /p:CoverletOutputFormat="opencover" /p:Exclude="[OpenEventSourcing.Samples.*]"
+      env: 
+        OPENEVENTSOURCING_RABBITMQ__CONNECTIONSTRING: amqp://guest:guest@localhost:5672/
+        OPENEVENTSOURCING_RABBITMQ__MANAGEMENTURI: http://localhost:15672/
+        OPENEVENTSOURCING_AZURE__SERVICEBUS__CONNECTIONSTRING: ${{ secrets.AZURE_SERVICEBUS_CONNECTIONSTRING }}
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: test-coverage
+        path: TestCoverage/*

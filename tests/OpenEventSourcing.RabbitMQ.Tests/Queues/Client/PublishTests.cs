@@ -12,7 +12,6 @@ using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Messages;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client
@@ -46,7 +45,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenPublishAsyncCalledWithNullMessageThenShouldThrowArgumentNullException()
         {
             var connectionFactory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -61,7 +60,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Client
             act.Should().Throw<ArgumentNullException>()
                .And.ParamName.Should().Be("message");
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenPublishAsyncCalledWithNullMessagesThenShouldThrowArgumentNullException()
         {
             var connectionFactory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();

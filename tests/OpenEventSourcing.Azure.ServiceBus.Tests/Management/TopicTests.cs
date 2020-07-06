@@ -37,7 +37,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .AddJsonSerializers();
         }
 
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateTopicAsyncCalledWithNullTopicThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -117,7 +117,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRemoveTopicAsyncCalledWithNullTopicThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())

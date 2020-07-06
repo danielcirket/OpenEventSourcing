@@ -9,7 +9,6 @@ using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 using Xunit;
 
@@ -44,7 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateExchangeAsyncCalledWithNonExistentExchangeThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -57,7 +56,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateExchangeAsyncCalledWithExistingExchangeThenShouldThrowExchangeAlreadyExistsException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -75,7 +74,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .And.ExchangeName.Should().Be(exchangeName);
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenExchangeExistsAsyncCalledWithNonExistentExchangeThenShouldReturnFalse()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -93,7 +92,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenExchangeExistsAsyncCalledWithExistingExchangeThenShouldReturnTrue()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -118,7 +117,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveExchangeAsyncCalledWithNonExistentExchangeThenShouldThrowExhangeNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -132,7 +131,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                     .And.ExchangeName.Should().Be(exchangeName);
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveExchangeAsyncCalledWithExistingExchangeThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())

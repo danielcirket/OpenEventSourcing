@@ -3,11 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <UserSecretsId>5d7df3bd-c16a-455e-a1c9-9d624b891251</UserSecretsId>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="appsettings.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json">

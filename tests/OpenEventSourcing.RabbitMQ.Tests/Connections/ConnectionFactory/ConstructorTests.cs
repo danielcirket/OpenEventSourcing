@@ -19,32 +19,14 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
 {
     public class ConstructorTests : IClassFixture<ConfigurationFixture>
     {
-        public IServiceProvider ServiceProvider { get; }
+        private readonly ConfigurationFixture _fixture;
 
         public ConstructorTests(ConfigurationFixture fixture)
         {
-            var services = new ServiceCollection();
-            // services.AddOpenEventSourcing()
-            services.AddLogging(o => o.AddDebug());
+            if (fixture == null)
+                throw new ArgumentNullException(nameof(fixture));
 
-            services.AddOpenEventSourcing()
-                    .AddRabbitMq(o =>
-                    {
-                        o.UseConnection(fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
-                         .UseExchange(e =>
-                         {
-                             e.WithName("test-exchange");
-                             e.UseExchangeType("topic");
-                             e.AutoDelete();
-                         });
-                    })
-                    .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
-            ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
+            _fixture = fixture;
         }
 
         [Fact]
@@ -65,22 +47,44 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be("pool");
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public async Task WhenCreateConnectionAsyncCalledThenShouldReturnConnection()
         {
-            var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
+            var services = new ServiceCollection();
+            // services.AddOpenEventSourcing()
+            services.AddLogging(o => o.AddDebug());
 
+            services.AddOpenEventSourcing()
+                    .AddRabbitMq(o =>
+                    {
+                        o.UseConnection(_fixture.Configuration.GetValue<string>("RabbitMQ:ConnectionString"))
+                         .UseExchange(e =>
+                         {
+                             e.WithName($"test-exchange-{Guid.NewGuid()}");
+                             e.UseExchangeType("topic");
+                             e.AutoDelete();
+                         });
+                    })
+                    .AddJsonSerializers();
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+            var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+#else
+            var sp = services.BuildServiceProvider(validateScopes: true);
+#endif
+
+            var factory = sp.GetRequiredService<IRabbitMqConnectionFactory>();
             var connection = await factory.CreateConnectionAsync(cancellationToken: CancellationToken.None);
 
             connection.Should().NotBeNull();
 
             connection.Dispose();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRabbitMqNotReachableCreateConnectionAsyncShouldThrowBrokerUnreachableException()
         {
             var services = new ServiceCollection();
-            // services.AddOpenEventSourcing()
+
             services.AddLogging(o => o.AddDebug());
 
             services.AddOpenEventSourcing()

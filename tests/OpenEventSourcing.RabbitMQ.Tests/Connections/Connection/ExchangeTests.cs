@@ -10,7 +10,6 @@ using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 using Xunit;
 
@@ -45,7 +44,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateExchangeAsyncCalledWithNonExistentExchangeThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -68,7 +67,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             verify.Should().Throw<ExchangeAlreadyExistsException>()
                 .And.ExchangeName.Should().Be(exchangeName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateExchangeAsyncCalledWithExistingExchangeThenShouldThrowExchangeAlreadyExistsException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -84,7 +83,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             act.Should().Throw<ExchangeAlreadyExistsException>()
                 .And.ExchangeName.Should().Be(exchangeName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveExchangeAsyncCalledWithNonExistentExchangeThenShouldThrowExhangeNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -99,7 +98,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             act.Should().Throw<ExchangeNotFoundException>()
                .And.ExchangeName.Should().Be(exchangeName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveExchangeAsyncCalledWithExistingExchangeThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -123,7 +122,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
             verify.Should().Throw<ExchangeNotFoundException>()
                 .And.ExchangeName.Should().Be(exchangeName);
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenExchangeExistsAsyncCalledWithNonExistentExchangeThenShouldReturnFalse()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -139,7 +138,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             verify.Should().NotThrow();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenExchangeExistsAsyncCalledWithExistingExchangeThenShouldReturnTrue()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();

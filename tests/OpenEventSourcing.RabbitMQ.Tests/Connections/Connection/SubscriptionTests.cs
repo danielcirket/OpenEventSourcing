@@ -10,7 +10,6 @@ using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 using Xunit;
 
@@ -45,7 +44,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNewSubscriptionThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -63,7 +62,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().NotThrow();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithExistingSubscriptionThenShouldSucceed()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -82,7 +81,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().NotThrow();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentExhangeThenShouldThrowExchangeNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -99,7 +98,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().Throw<ExchangeNotFoundException>();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -116,7 +115,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().Throw<QueueNotFoundException>();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentExchangeThenShouldThrowExchangeNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -133,7 +132,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections.Connection
 
             act.Should().Throw<ExchangeNotFoundException>();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveSubscriptionAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();

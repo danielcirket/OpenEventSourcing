@@ -9,7 +9,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client.Exceptions;
 using Xunit;
 
@@ -45,7 +44,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public async Task WhenCreateConnectionAsyncCalledThenShouldReturnConnection()
         {
             var factory = ServiceProvider.GetRequiredService<IRabbitMqConnectionFactory>();
@@ -56,7 +55,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
 
             connection.Dispose();
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRabbitMqNotReachableCreateConnectionAsyncShouldThrowBrokerUnreachableException()
         {
             var services = new ServiceCollection();

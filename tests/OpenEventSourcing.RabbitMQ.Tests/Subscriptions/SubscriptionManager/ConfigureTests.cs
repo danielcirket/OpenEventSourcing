@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -13,7 +12,6 @@ using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.RabbitMQ.Subscriptions;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using RabbitMQ.Client;
 using Xunit;
 
@@ -28,7 +26,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
             Configuration = fixture.Configuration;
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenConfigureAsyncCalledThenShouldConfigureExchange()
         {
             var services = new ServiceCollection();
@@ -73,7 +71,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     .And.ExchangeName.Should().Be(options.Value.Exchange.Name);
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenConfigureAsyncCalledThenShouldConfigureSubscriptions()
         {
             var services = new ServiceCollection();

@@ -43,7 +43,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .AddJsonSerializers();
         }
 
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateRuleAsyncCalledWithNullRuleThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -59,7 +59,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("ruleName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateRuleAsyncCalledWithNullSubscriptionThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -75,7 +75,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("subscriptionName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenCreateRuleAsyncCalledWithNullTopicThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -181,7 +181,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.RuleName.Should().Be(_ruleName);
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRemoveRuleAsyncCalledWithNullRuleThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -197,7 +197,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("ruleName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRemoveRuleAsyncCalledWithNullSubscriptionThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -213,7 +213,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("subscriptionName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRemoveRuleAsyncCalledWithNullTopicThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -300,7 +300,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRetrieveRulesAsyncCalledWithNullSubscriptionThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -316,7 +316,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
                     .And.ParamName.Should().Be("subscriptionName");
             }
         }
-        [Fact]
+        [ServiceBusTest]
         public void WhenRetrieveRulesAsyncCalledWithNullTopicThenShouldThrowArgumentException()
         {
             using (var scope = ServiceProvider.CreateScope())

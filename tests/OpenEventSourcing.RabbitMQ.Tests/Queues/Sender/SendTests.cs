@@ -10,7 +10,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
@@ -44,7 +43,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenSendAsyncCalledWithSingleNullEventThenShouldThrowArgumentNullException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -57,7 +56,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
                     .And.ParamName.Should().Be("event");
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenSendAsyncCalledWithNullEventsThenShouldThrowArgumentNullException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -70,7 +69,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
                     .And.ParamName.Should().Be("events");
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenSendAsyncCalledWithSingleEventThenShouldSendEvent()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -83,7 +82,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenSendAsyncCalledWithMultipleEventsThenShouldSendEvents()
         {
             using (var scope = ServiceProvider.CreateScope())

@@ -2,7 +2,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
-using OpenEventSourcing.RabbitMQ.Connections;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.RabbitMQ.Subscriptions;
 using Xunit;

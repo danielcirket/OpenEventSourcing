@@ -9,7 +9,6 @@ using OpenEventSourcing.RabbitMQ.Exceptions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Management;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Management
@@ -43,7 +42,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
 #endif
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateQueueAsyncCalledWithNonExistentQueueThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -56,7 +55,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenCreateQueueAsyncCalledWithExistingQueueThenShouldThrowQueueAlreadyExistsException()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -73,7 +72,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().Throw<QueueAlreadyExistsException>();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenQueueExistsAsyncCalledWithNonExistentQueueThenShouldReturnFalse()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -91,7 +90,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenQueueExistsAsyncCalledWithExistingQueueThenShouldReturnTrue()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -116,7 +115,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 verify.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveQueueAsyncCalledWithExistingQueueThenShouldSucceed()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -133,7 +132,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                 act.Should().NotThrow();
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenRemoveQueueAsyncCalledWithNonExistentQueueThenShouldThrowQueueNotFoundException()
         {
             using (var scope = ServiceProvider.CreateScope())

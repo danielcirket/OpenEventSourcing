@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,7 +10,6 @@ using OpenEventSourcing.Extensions;
 using OpenEventSourcing.RabbitMQ.Extensions;
 using OpenEventSourcing.RabbitMQ.Queues;
 using OpenEventSourcing.Serialization.Json.Extensions;
-using OpenEventSourcing.Testing.Attributes;
 using Xunit;
 
 namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
@@ -52,7 +50,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             Configuration = fixture.Configuration;
         }
 
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenStartCalledThenShouldConsumePublishedEventWithSingleSubscription()
         {
             using (var scope = ServiceProvider.CreateScope())
@@ -83,7 +81,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                 SampleReceiverEventHandler.Received.Should().Be(1);
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenStartCalledThenShouldConsumePublishedEventWithMultipleSubscriptions()
         {
             var services = new ServiceCollection();
@@ -134,13 +132,13 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 
                 Func<Task> verify = async () =>
                 {
-                // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
-                await Task.Delay(500);
+                    // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
+                    await Task.Delay(500);
 
                     await sender.SendAsync(new IEvent[] { event1, event2 });
 
-                // Delay to ensure that we pick up the message.
-                await Task.Delay(250);
+                    // Delay to ensure that we pick up the message.
+                    await Task.Delay(250);
                 };
 
                 verify.Should().NotThrow();
@@ -149,7 +147,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                 MultipleSampleReceiverEventHandlerTwo.Received.Should().Be(1);
             }
         }
-        [IntegrationTest]
+        [RabbitMqTest]
         public void WhenStartCalledThenShouldNotConsumePublishedEventWithoutSubscription()
         {
             var services = new ServiceCollection();
