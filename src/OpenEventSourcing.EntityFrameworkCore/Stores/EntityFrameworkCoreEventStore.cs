@@ -13,6 +13,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 {
     internal sealed class EntityFrameworkCoreEventStore : IEventStore
     {
+        private static readonly int DefaultReloadInterval = 2000;
+        private static readonly int DefaultPageSize = 500;
+
         private readonly IDbContextFactory _dbContextFactory;
         private readonly IEventDeserializer _eventDeserializer;
         private readonly IEventModelFactory _eventModelFactory;
@@ -57,78 +60,71 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
         {
             var results = new List<IEvent>();
 
-            using (var context = _dbContextFactory.Create())
+            var events = await GetAllEventsForwardsInternalAsync(offset).ConfigureAwait(false);
+
+            if (events.Count > 0 && events[0].SequenceNo != offset + 1)
             {
-                var events = await context.Events
-                        .AsNoTracking()
-                        .OrderBy(x => x.SequenceNo)
-                        .Skip((int)offset)
-                        .Take(250)
-                        .ToListAsync(cancellationToken);
-
-                foreach (var @event in events)
-                {
-                    if (!_eventTypeCache.TryGet(@event.Type, out var type))
-                        throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
-
-                    var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
-
-                    results.Add(result);
-                }
-
-                return new Page(offset + events.Count, offset, results);
+                _logger.LogInformation("Gap detected in stream. Expecting sequence no {ExpectedSequenceNo} but found sequence no {ActualSequenceNo}. Reloading events after {DefaultReloadInterval}ms.", offset + 1, events[0].SequenceNo, DefaultReloadInterval);
+                events = await GetAllEventsAfterDelayInternalAsync(offset).ConfigureAwait(false);
             }
+
+            for (var i = 0; i < events.Count - 1; i++)
+            {
+                if (events[i].SequenceNo + 1 != events[i + 1].SequenceNo)
+                {
+                    _logger.LogInformation("Gap detected in stream. Expecting sequence no {ExpectedSequenceNo} but found sequence no {ActualSequenceNo}. Reloading events after {DefaultReloadInterval}ms.", events[i].SequenceNo + 1, events[i + 1].SequenceNo, DefaultReloadInterval);
+                    events = await GetAllEventsAfterDelayInternalAsync(offset).ConfigureAwait(false);
+                    break;
+                }
+            }
+
+            foreach (var @event in events)
+            {
+                if (!_eventTypeCache.TryGet(@event.Type, out var type))
+                    throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
+
+                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+
+                results.Add(result);
+            }
+
+            return new Page(offset + events.Count, offset, results);
         }
         public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
         {
             var results = new List<IEvent>();
 
-            using (var context = _dbContextFactory.Create())
+            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, 0).ConfigureAwait(false);
+
+            foreach (var @event in events)
             {
-                var events = await context.Events
-                    .AsNoTracking()
-                    .OrderBy(x => x.SequenceNo)
-                    .Where(x => x.AggregateId == aggregateId)
-                    .ToListAsync(cancellationToken);
+                if (!_eventTypeCache.TryGet(@event.Type, out var type))
+                    throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                foreach (var @event in events)
-                {
-                    if (!_eventTypeCache.TryGet(@event.Type, out var type))
-                        throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
+                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                    var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
-
-                    results.Add(result);
-                }
-
-                return results;
+                results.Add(result);
             }
+
+            return results;
         }
         public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
         {
             var results = new List<IEvent>();
 
-            using (var context = _dbContextFactory.Create())
+            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, offset).ConfigureAwait(false);
+
+            foreach (var @event in events)
             {
-                var events = await context.Events
-                    .AsNoTracking()
-                    .Where(x => x.AggregateId == aggregateId)
-                    .OrderBy(x => x.SequenceNo)
-                    .Skip((int)offset)
-                    .ToListAsync(cancellationToken);
+                if (!_eventTypeCache.TryGet(@event.Type, out var type))
+                    throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                foreach (var @event in events)
-                {
-                    if (!_eventTypeCache.TryGet(@event.Type, out var type))
-                        throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
+                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                    var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
-
-                    results.Add(result);
-                }
-
-                return results;
+                results.Add(result);
             }
+
+            return results;
         }
 
         public async Task SaveAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
@@ -143,6 +139,41 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
                 await context.SaveChangesAsync(cancellationToken);
             }
+        }
+
+        private async Task<List<Entities.Event>> GetAllEventsForwardsInternalAsync(long offset)
+        {
+            using (var context = _dbContextFactory.Create())
+            {
+                var events = await context.Events.OrderBy(e => e.SequenceNo)
+                                                 .Where(e => e.SequenceNo >= offset)
+                                                 .Take(DefaultPageSize)
+                                                 .AsNoTracking()
+                                                 .ToListAsync();
+
+                return events;
+            }
+        }
+        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(Guid aggregateId, long offset)
+        {
+            using (var context = _dbContextFactory.Create())
+            {
+                var events = await context.Events.OrderBy(e => e.SequenceNo)
+                                                 .Where(e => e.SequenceNo >= offset)
+                                                 .Where(e => e.AggregateId == aggregateId)
+                                                 .Take(DefaultPageSize)
+                                                 .AsNoTracking()
+                                                 .ToListAsync();
+
+                return events;
+            }
+        }
+        private async Task<List<Entities.Event>> GetAllEventsAfterDelayInternalAsync(long offset)
+        {
+            _logger.LogInformation("Reloading events after {DefaultReloadInterval}ms.", DefaultReloadInterval);
+
+            await Task.Delay(DefaultReloadInterval).ConfigureAwait(false);
+            return await GetAllEventsForwardsInternalAsync(offset).ConfigureAwait(false);
         }
     }
 }
