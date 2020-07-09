@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Microsoft.Azure.ServiceBus;
 using OpenEventSourcing.Events;
@@ -77,7 +78,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             {
                 var parameterType = parameters[i].ParameterType;
                 var accessor = Expression.ArrayIndex(args, Expression.Constant(i));
-                var convert = Expression.Convert(accessor, parameterType);
+                var convert = Convert(accessor, parameterType);
                 argsExpressions[i] = convert;
             }
 
@@ -85,6 +86,14 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             var lambda = Expression.Lambda(typeof(Activator<IEventContext<IEvent>>), newExpression, args);
 
             return (Activator<IEventContext<IEvent>>)lambda.Compile();
+        }
+
+        private static Expression Convert(Expression expression, Type type)
+        {
+            if (type.GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
+                return expression;
+
+            return Expression.Convert(expression, type);
         }
 
         private delegate T Activator<T>(params object[] args);
