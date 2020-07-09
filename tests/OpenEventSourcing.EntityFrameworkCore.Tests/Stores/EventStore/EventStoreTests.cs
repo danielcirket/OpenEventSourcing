@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,12 +40,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullDbContextFactoryShouldThrowArgumentNullException()
         {
             IDbContextFactory dbContextFactory = null;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("dbContextFactory");
@@ -54,26 +54,26 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullQuerySerializerShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            IEventDeserializer eventDeserializer = null;
+            IEventContextFactory eventContextFactory = null;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
-                And.ParamName.Should().Be("eventDeserializer");
+                And.ParamName.Should().Be("eventContextFactory");
         }
         [Fact]
         public void WhenConstructedWithNullModelFactoryShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             IEventModelFactory eventModelFactory = null;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("eventModelFactory");
@@ -82,12 +82,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullEventTypeCacheShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             IEventTypeCache eventTypeCache = null;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("eventTypeCache");
@@ -96,12 +96,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullLoggerShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             ILogger<EntityFrameworkCoreEventStore> logger = null;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("logger");
@@ -182,11 +182,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenSavingNullEventsThenShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
-            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             IEnumerable<IEventContext<IEvent>> contexts = null;
 

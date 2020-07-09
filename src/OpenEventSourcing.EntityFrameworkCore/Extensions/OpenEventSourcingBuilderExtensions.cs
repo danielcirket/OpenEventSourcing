@@ -27,6 +27,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Extensions
             builder.Services.AddScoped<IProjectionDbContextFactory, OpenEventSourcingProjectionDbContextFactory>();
             builder.Services.AddScoped<IEventModelFactory, DefaultEventModelFactory>();
             builder.Services.AddScoped(typeof(IProjectionWriter<>), typeof(EntityFrameworkCoreProjectionWriter<>));
+            builder.Services.AddScoped<IEventContextFactory, DefaultEventContextFactory>();
 
             return builder;
         }

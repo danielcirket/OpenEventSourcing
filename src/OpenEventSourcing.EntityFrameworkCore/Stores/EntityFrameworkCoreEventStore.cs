@@ -17,21 +17,21 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
         private static readonly int DefaultPageSize = 500;
 
         private readonly IDbContextFactory _dbContextFactory;
-        private readonly IEventDeserializer _eventDeserializer;
+        private readonly IEventContextFactory _eventContextFactory;
         private readonly IEventModelFactory _eventModelFactory;
         private readonly IEventTypeCache _eventTypeCache;
         private readonly ILogger<EntityFrameworkCoreEventStore> _logger;
 
         public EntityFrameworkCoreEventStore(IDbContextFactory dbContextFactory,
-                                             IEventDeserializer eventDeserializer,
+                                             IEventContextFactory eventContextFactory,
                                              IEventModelFactory eventModelFactory,
                                              IEventTypeCache eventTypeCache,
                                              ILogger<EntityFrameworkCoreEventStore> logger)
         {
             if (dbContextFactory == null)
                 throw new ArgumentNullException(nameof(dbContextFactory));
-            if (eventDeserializer == null)
-                throw new ArgumentNullException(nameof(eventDeserializer));
+            if (eventContextFactory == null)
+                throw new ArgumentNullException(nameof(eventContextFactory));
             if (eventModelFactory == null)
                 throw new ArgumentNullException(nameof(eventModelFactory));
             if (eventTypeCache == null)
@@ -40,7 +40,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 throw new ArgumentNullException(nameof(logger));
 
             _dbContextFactory = dbContextFactory;
-            _eventDeserializer = eventDeserializer;
+            _eventContextFactory = eventContextFactory;
             _eventModelFactory = eventModelFactory;
             _eventTypeCache = eventTypeCache;
             _logger = logger;
@@ -83,9 +83,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                results.Add(result);
             }
 
             return new Page(offset + events.Count, offset, results);
@@ -101,9 +102,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                results.Add(result);
             }
 
             return results;
@@ -120,9 +122,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
-                results.Add(new EventContext<IEvent>(result, @event.CorrelationId, @event.CausationId, @event.Timestamp, @event.UserId));
+                results.Add(result);
             }
 
             return results;

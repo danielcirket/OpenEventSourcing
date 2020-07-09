@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.EntityFrameworkCore.InMemory;
