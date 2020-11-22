@@ -302,7 +302,7 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             if (properties.Headers == null)
                 properties.Headers = new Dictionary<string, object>();
 
-            if (message.CorrelationId.HasValue)
+            if (!string.IsNullOrWhiteSpace(message.CorrelationId))
                 properties.Headers.Add("correlation-id", message.CorrelationId);
 
             return properties;

@@ -44,7 +44,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 {
                     Name = type.Name,
                     Type = type.FullName,
-                    AggregateId = command.AggregateId,
+                    Subject = command.Subject,
                     CorrelationId = command.CorrelationId,
                     Data = data,
                     Id = command.Id,

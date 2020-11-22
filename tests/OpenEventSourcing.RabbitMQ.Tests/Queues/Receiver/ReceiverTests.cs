@@ -56,7 +56,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             using (var scope = ServiceProvider.CreateScope())
             {
                 var @event = new SampleReceiverEvent();
-                var notification = new EventNotification<SampleReceiverEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification = new EventNotification<SampleReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
                 var sentTime = DateTimeOffset.MinValue;
@@ -124,8 +124,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             {
                 var event1 = new MultipleSampleReceiverEventOne();
                 var event2 = new MultipleSampleReceiverEventTwo();
-                var notification1 = new EventNotification<MultipleSampleReceiverEventOne>(event1, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
-                var notification2 = new EventNotification<MultipleSampleReceiverEventTwo>(event2, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification1 = new EventNotification<MultipleSampleReceiverEventOne>(streamId: event1.Subject, @event: event1, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification2 = new EventNotification<MultipleSampleReceiverEventTwo>(streamId: event2.Subject, @event: event2, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
 
@@ -181,7 +181,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             using (var scope = sp.CreateScope())
             {
                 var @event = new SampleNonSubscriptionReceiverEvent();
-                var notification = new EventNotification<SampleNonSubscriptionReceiverEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification = new EventNotification<SampleNonSubscriptionReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
 
@@ -208,7 +208,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -231,7 +231,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class SampleNonSubscriptionReceiverEvent : Event
         {
-            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -254,7 +254,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventOne : Event
         {
-            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -277,7 +277,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventTwo : Event
         {
-            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

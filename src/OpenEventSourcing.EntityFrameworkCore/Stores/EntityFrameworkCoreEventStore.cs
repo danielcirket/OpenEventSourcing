@@ -46,11 +46,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task<long> CountAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<long> CountAsync(string streamId, CancellationToken cancellationToken = default)
         {
             using (var context = _dbContextFactory.Create())
             {
-                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId, cancellationToken);
+                var count = await context.Events.LongCountAsync(@event => @event.StreamId == streamId, cancellationToken);
 
                 return count;
             }
@@ -91,11 +91,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
             return new Page(offset + events.Count, offset, results);
         }
-        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, CancellationToken cancellationToken = default)
         {
             var results = new List<IEventContext<IEvent>>();
 
-            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, 0).ConfigureAwait(false);
+            var events = await GetAllEventsForwardsForStreamInternalAsync(streamId, 0).ConfigureAwait(false);
 
             foreach (var @event in events)
             {
@@ -111,11 +111,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             return results;
 
         }
-        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, long offset, CancellationToken cancellationToken = default)
         {
             var results = new List<IEventContext<IEvent>>();
 
-            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, offset).ConfigureAwait(false);
+            var events = await GetAllEventsForwardsForStreamInternalAsync(streamId, offset).ConfigureAwait(false);
 
             foreach (var @event in events)
             {
@@ -131,7 +131,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             return results;
         }
 
-        public async Task SaveAsync(IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(string streamId, IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -139,7 +139,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             using (var context = _dbContextFactory.Create())
             {
                 foreach (var @event in events)
-                    await context.Events.AddAsync(_eventModelFactory.Create(@event));
+                    await context.Events.AddAsync(_eventModelFactory.Create(streamId, @event));
 
                 await context.SaveChangesAsync(cancellationToken);
             }
@@ -158,13 +158,13 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return events;
             }
         }
-        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(Guid aggregateId, long offset)
+        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(string streamId, long offset)
         {
             using (var context = _dbContextFactory.Create())
             {
                 var events = await context.Events.OrderBy(e => e.SequenceNo)
                                                  .Where(e => e.SequenceNo >= offset)
-                                                 .Where(e => e.AggregateId == aggregateId)
+                                                 .Where(e => e.StreamId == streamId)
                                                  .Take(DefaultPageSize)
                                                  .AsNoTracking()
                                                  .ToListAsync();

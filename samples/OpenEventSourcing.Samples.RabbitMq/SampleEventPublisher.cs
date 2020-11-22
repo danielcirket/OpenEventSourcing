@@ -24,8 +24,8 @@ namespace OpenEventSourcing.Samples.RabbitMq
 
             while (!stoppingToken.IsCancellationRequested && version <= 10)
             {
-                var @event = new SampleEvent(aggregateId: Guid.NewGuid(), version: version++);
-                var context = new EventNotification<SampleEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+                var @event = new SampleEvent(subject: Guid.NewGuid().ToString(), version: version++);
+                var context = new EventNotification<SampleEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
 
                 await _eventBusPublisher.PublishAsync(context);
 

@@ -62,8 +62,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
             var serializer = ServiceProvider.GetRequiredService<IEventSerializer>();
             var factory = ServiceProvider.GetRequiredService<IEventContextFactory>();
             var @event = new CreateTestEvent();
-            var causationId = Guid.NewGuid();
-            var correlationId = Guid.NewGuid();
+            var streamId = Guid.NewGuid().ToString();
+            var causationId = Guid.NewGuid().ToString();
+            var correlationId = Guid.NewGuid().ToString();
             var userId = "test-user";
 
             var message = new Message
@@ -74,6 +75,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
                 CorrelationId = correlationId.ToString(),
                 UserProperties =
                 {
+                    { nameof(IEventContext<IEvent>.StreamId), streamId.ToString() },
                     { nameof(IEventContext<IEvent>.CausationId), causationId.ToString() },
                     { nameof(IEventContext<IEvent>.UserId), userId },
                     { nameof(IEventContext<IEvent>.Timestamp), @event.Timestamp },
@@ -82,6 +84,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
 
             var context = factory.CreateContext(message);
 
+            context.StreamId.Should().Be(streamId);
             context.CausationId.Should().Be(causationId);
             context.CorrelationId.Should().Be(correlationId);
             context.Payload.Should().BeOfType<CreateTestEvent>();
@@ -91,7 +94,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
 
         private class CreateTestEvent : Event
         {
-            public CreateTestEvent() : base(Guid.NewGuid(), 1) { }
+            public CreateTestEvent() : base(Guid.NewGuid().ToString(), 1) { }
         }
     }
 }

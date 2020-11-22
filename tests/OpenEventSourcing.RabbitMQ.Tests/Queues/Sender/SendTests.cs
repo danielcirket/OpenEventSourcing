@@ -77,7 +77,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var @event = new SameSenderEvent();
-                var notification = new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification = new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
 
                 Func<Task> act = async () => await sender.SendAsync(notification);
 
@@ -91,7 +91,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var events = new[] { new SameSenderEvent(), new SameSenderEvent() };
-                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
 
                 Func<Task> act = async () => await sender.SendAsync(notifications);
 
@@ -101,7 +101,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Sender
 
         private class SameSenderEvent : Event
         {
-            public SameSenderEvent() : base(Guid.NewGuid(), 1)
+            public SameSenderEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

@@ -55,7 +55,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
         [Fact]
         public async Task WhenNoEventsForAggregateThenGetAsyncShouldReturnNull()
         {
-            var id = Guid.NewGuid();
+            var id = Guid.NewGuid().ToString();
             var repository = _serviceProvider.GetRequiredService<IAggregateRepository>();
 
             var aggregate = await repository.GetAsync<FakeAggregate, FakeAggregateState>(id);
@@ -71,7 +71,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
 
             aggregate.FakeAction();
 
-            var id = aggregate.Id.Value;
+            var id = aggregate.Id;
 
             await repository.SaveAsync(aggregate);
 
@@ -96,7 +96,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.AggregateRepository
             var store = _serviceProvider.GetRequiredService<IEventStore>();
             var factory = _serviceProvider.GetRequiredService<IAggregateFactory>();
 
-            var id = Guid.NewGuid();
+            var id = Guid.NewGuid().ToString();
 
             var repository = new EntityFrameworkCore.AggregateRepository(store, factory);
             var aggregate = factory.FromHistory<FakeAggregate, FakeAggregateState>(new IEvent[] { new FakeEvent(id, 1) });

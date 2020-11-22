@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
@@ -38,35 +38,40 @@ namespace OpenEventSourcing.RabbitMQ.Messages
 
             var eventData = Encoding.UTF8.GetString(message.Body);
             var @event = (IEvent)_eventDeserializer.Deserialize(eventData, type);
-            Guid? correlationId = null;
-            Guid? causationId = null;
+
+            string streamId = null;
+            string correlationId = null;
+            string causationId = null;
             string userId = null;
 
             if (message.BasicProperties.Headers != null)
             {
-                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.CorrelationId)) && Guid.TryParse(message.BasicProperties.Headers[nameof(IEventContext<IEvent>.CorrelationId)]?.ToString(), out var correlationIdResult))
-                    correlationId = correlationIdResult;
+                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.StreamId)))
+                    streamId = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.StreamId)]?.ToString();
 
-                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.CausationId)) && Guid.TryParse(message.BasicProperties.Headers[nameof(IEventContext<IEvent>.CausationId)]?.ToString(), out var causationIdResult))
-                    causationId = causationIdResult;
+                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.CorrelationId)))
+                    correlationId = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.CorrelationId)]?.ToString();
+
+                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.CausationId)))
+                    causationId = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.CausationId)]?.ToString();
 
                 if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.UserId)))
                     userId = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.UserId)]?.ToString();
             }
 
             if (_cache.TryGetValue(type, out var activator))
-                return activator(@event, correlationId, causationId, @event.Timestamp, userId);
+                return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
 
             activator = BuildActivator(typeof(EventContext<>).MakeGenericType(type));
 
             _cache.TryAdd(type, activator);
 
-            return activator(@event, correlationId, causationId, @event.Timestamp, userId);
+            return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { type.GenericTypeArguments[0], typeof(Guid?), typeof(Guid?), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(string), typeof(string), typeof(DateTimeOffset), typeof(string) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

@@ -26,7 +26,8 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             if (context.Payload == null)
                 throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Payload)}");
 
-            var eventName = typeof(TEvent).Name;
+            var @event = context.Payload;
+            var eventName = @event.GetType().Name;
 
             return CreateMessage(eventName, (IEventNotification<IEvent>)context);
         }
@@ -52,9 +53,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
                 MessageId = @event.Id.ToString(),
                 Body = body,
                 Label = eventName,
-                CorrelationId = context.CorrelationId.ToString(),
+                CorrelationId = context.CorrelationId?.ToString(),
                 UserProperties =
                 {
+                    { nameof(context.StreamId), context.StreamId?.ToString() },
                     { nameof(context.CausationId), context.CausationId?.ToString() },
                     { nameof(context.UserId), context.UserId },
                     { nameof(context.Timestamp), context.Timestamp },

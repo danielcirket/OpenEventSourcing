@@ -60,7 +60,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var notification = new EventNotification<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var notification = new EventNotification<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: Guid.NewGuid().ToString(), causationId: null, timestamp: @event.Timestamp, userId: null);
                 var result = factory.CreateMessage(notification);
 
                 result.MessageId.Should().Be(@event.Id.ToString());
@@ -73,7 +73,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
                 var @event = new FakeEvent();
-                var notification = new EventNotification<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var notification = new EventNotification<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: Guid.NewGuid().ToString(), causationId: null, timestamp: @event.Timestamp, userId: null);
                 var result = factory.CreateMessage(notification);
 
                 result.Label.Should().Be(nameof(FakeEvent));
@@ -85,8 +85,8 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
             using (var scope = ServiceProvider.CreateScope())
             {
                 var factory = scope.ServiceProvider.GetRequiredService<IMessageFactory>();
-                var @event = new FakeEvent(correlationId: Guid.NewGuid());
-                var notification = new EventNotification<FakeEvent>(@event, correlationId: Guid.NewGuid(), causationId: null, timestamp: @event.Timestamp, userId: null);
+                var @event = new FakeEvent();
+                var notification = new EventNotification<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: Guid.NewGuid().ToString(), causationId: null, timestamp: @event.Timestamp, userId: null);
                 var result = factory.CreateMessage(notification);
 
                 result.CorrelationId.Should().Be(notification.CorrelationId.ToString());
@@ -101,7 +101,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
                 var serializer = scope.ServiceProvider.GetRequiredService<IEventSerializer>();
 
                 var @event = new FakeEvent();
-                var notification = new EventNotification<FakeEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+                var notification = new EventNotification<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
                 var body = serializer.Serialize(@event);
                 var result = factory.CreateMessage(notification);
 
@@ -115,11 +115,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.MessageFactory
             public string Message { get; } = nameof(FakeEvent);
 
             public FakeEvent()
-                : base(Guid.NewGuid(), 1)
-            {
-            }
-            public FakeEvent(Guid correlationId)
-                : base(Guid.NewGuid(), 1)
+                : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

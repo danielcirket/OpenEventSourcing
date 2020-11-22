@@ -47,7 +47,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             using (var scope = ServiceProvider.CreateScope())
             {
                 var @event = new SampleReceiverEvent();
-                var notification = new EventNotification<SampleReceiverEvent>(@event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification = new EventNotification<SampleReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IEventBusPublisher>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IEventBusConsumer>();
                 var sentTime = DateTimeOffset.MinValue;
@@ -88,7 +88,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

@@ -30,8 +30,8 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Queries
             var result = serializer.Deserialize<FakeQuery>(_json);
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty);
-            result.CorrelationId.Should().Be(Guid.Empty);
+            result.Id.Should().Be(Guid.Empty.ToString());
+            result.CorrelationId.Should().Be(Guid.Empty.ToString());
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.UserId.Should().BeEquivalentTo("User");
         }
@@ -43,8 +43,8 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Queries
             var result = (FakeQuery)serializer.Deserialize(_json, typeof(FakeQuery));
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty);
-            result.CorrelationId.Should().Be(Guid.Empty);
+            result.Id.Should().Be(Guid.Empty.ToString());
+            result.CorrelationId.Should().Be(Guid.Empty.ToString());
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.UserId.Should().BeEquivalentTo("User");
         }

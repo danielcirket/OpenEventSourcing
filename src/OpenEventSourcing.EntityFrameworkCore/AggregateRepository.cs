@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenEventSourcing.Commands;
@@ -24,7 +24,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             _aggregateFactory = aggregateFactory;
         }
 
-        public async Task<TAggregate> GetAsync<TAggregate, TState>(Guid id)
+        public async Task<TAggregate> GetAsync<TAggregate, TState>(string id)
             where TAggregate : Aggregate<TState>
             where TState : IAggregateState, new()
         {
@@ -48,14 +48,14 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return;
 
-            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
 
             if (expectedVersion.GetValueOrDefault() != currentVersion)
-                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(@event, correlationId: null, causationId: null, @event.Timestamp, userId: "unknown"));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, @event.Timestamp, userId: "unknown"));
 
-            await _eventStore.SaveAsync(contexts);
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
 
             aggregate.ClearUncommittedEvents();
         }
@@ -72,14 +72,14 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return;
 
-            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
 
             if (expectedVersion.GetValueOrDefault() != currentVersion)
-                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(@event, correlationId: causation.CorrelationId, causationId: causation.Id, @event.Timestamp, userId: causation.UserId));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: causation.Id, @event.Timestamp, userId: causation.UserId));
 
-            await _eventStore.SaveAsync(contexts);
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
 
             aggregate.ClearUncommittedEvents();
         }
@@ -96,14 +96,14 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return;
 
-            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
 
             if (expectedVersion.GetValueOrDefault() != currentVersion)
-                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(@event, correlationId: causation.CorrelationId, causationId: causation.Payload.Id, @event.Timestamp, userId: causation.UserId));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: causation.Payload.Id, @event.Timestamp, userId: causation.UserId));
 
-            await _eventStore.SaveAsync(contexts);
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
 
             aggregate.ClearUncommittedEvents();
         }

@@ -16,7 +16,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             _eventSerializer = eventSerializer;
         }
 
-        public Entities.Event Create(IEventContext<IEvent> context)
+        public Entities.Event Create(string streamId, IEventContext<IEvent> context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -28,7 +28,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
 
             return new Entities.Event
             {
-                AggregateId = @event.AggregateId,
+                StreamId = streamId,
                 CorrelationId = context.CorrelationId,
                 CausationId = context.CausationId,
                 Data = _eventSerializer.Serialize(@event),

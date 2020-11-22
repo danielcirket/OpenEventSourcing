@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
 {
     public class JsonEventSerializerTests
     {
-        private readonly string _json = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"aggregateId\":\"00000000-0000-0000-0000-000000000000\",\"correlationId\":null,\"causationId\":null,\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":2,\"userId\":null}";
+        private readonly string _json = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"subject\":\"00000000-0000-0000-0000-000000000000\",\"correlationId\":null,\"causationId\":null,\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":2,\"userId\":null}";
 
         [Fact]
         public void WhenDataIsNullThenShouldThrowArgumentNullException()

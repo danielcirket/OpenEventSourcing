@@ -4,6 +4,6 @@ namespace OpenEventSourcing.EntityFrameworkCore
 {
     public interface IEventModelFactory
     {
-        Entities.Event Create(IEventContext<IEvent> context);
+        Entities.Event Create(string streamId, IEventContext<IEvent> context);
     }
 }

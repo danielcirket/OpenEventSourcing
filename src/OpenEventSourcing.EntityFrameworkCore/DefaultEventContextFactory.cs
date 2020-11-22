@@ -40,18 +40,18 @@ namespace OpenEventSourcing.EntityFrameworkCore
             var @event = (IEvent)_eventDeserializer.Deserialize(dbEvent.Data, type);
 
             if (_cache.TryGetValue(type, out var activator))
-                return activator(@event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
+                return activator(dbEvent.StreamId, @event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
 
             activator = BuildActivator(typeof(EventContext<>).MakeGenericType(type));
 
             _cache.TryAdd(type, activator);
 
-            return activator(@event,dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
+            return activator(dbEvent.StreamId, @event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { type.GenericTypeArguments[0], typeof(Guid?), typeof(Guid?), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(string), typeof(string), typeof(DateTimeOffset), typeof(string) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

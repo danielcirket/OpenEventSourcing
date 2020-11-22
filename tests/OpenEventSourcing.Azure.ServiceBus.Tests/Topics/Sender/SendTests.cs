@@ -69,7 +69,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             { 
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var @event = new SameSenderEvent();
-                var notification = new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null); ;
+                var notification = new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null); ;
 
                 Func<Task> act = async () => await sender.SendAsync(notification);
 
@@ -83,7 +83,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var events = new[] { new SameSenderEvent(), new SameSenderEvent() };
-                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(@event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null));
+                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null));
                 
                 Func<Task> act = async () => await sender.SendAsync(notifications);
 
@@ -105,7 +105,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
 
         private class SameSenderEvent : Event
         {
-            public SameSenderEvent() : base(Guid.NewGuid(), 1)
+            public SameSenderEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

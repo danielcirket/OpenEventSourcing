@@ -5,17 +5,17 @@ namespace OpenEventSourcing.Commands
 {
     public abstract class Command : ICommand
     {
-        public Guid Id { get; }
-        public Guid AggregateId { get; }
-        public Guid CorrelationId { get; }
+        public string Id { get; }
+        public string Subject { get; }
+        public string CorrelationId { get; }
         public int Version { get; }
         public string UserId { get; }
         public DateTimeOffset Timestamp { get; }
 
-        public Command(Guid aggregateId, Guid correlationId, int version, string userId)
+        public Command(string subject, string correlationId, int version, string userId)
         {
-            Id = Guid.NewGuid().ToSequentialGuid();
-            AggregateId = aggregateId;
+            Id = Guid.NewGuid().ToSequentialGuid().ToString();
+            Subject = subject;
             CorrelationId = correlationId;
             Version = version;
             UserId = userId;

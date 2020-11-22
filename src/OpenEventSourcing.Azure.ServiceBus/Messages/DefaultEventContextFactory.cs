@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
@@ -39,32 +39,37 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
 
             var eventData = Encoding.UTF8.GetString(message.Body);
             var @event = (IEvent)_eventDeserializer.Deserialize(eventData, type);
-            Guid? correlationId = null;
-            Guid? causationId = null;
+
+            string streamId = null;
+            string correlationId = null;
+            string causationId = null;
             string userId = null;
 
-            if (!string.IsNullOrWhiteSpace(message.CorrelationId) && Guid.TryParse(message.CorrelationId, out var correlationIdResult))
-                correlationId = correlationIdResult;
+            if (!string.IsNullOrWhiteSpace(message.CorrelationId))
+                correlationId = message.CorrelationId;
 
-            if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.CausationId)) && Guid.TryParse(message.UserProperties[nameof(IEventContext<IEvent>.CausationId)]?.ToString(), out var causationIdResult))
-                causationId = causationIdResult;
+            if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.StreamId)))
+                streamId = message.UserProperties[nameof(IEventContext<IEvent>.StreamId)]?.ToString();
+
+            if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.CausationId)))
+                causationId = message.UserProperties[nameof(IEventContext<IEvent>.CausationId)]?.ToString();
 
             if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.UserId)))
                 userId = message.UserProperties[nameof(IEventContext<IEvent>.UserId)]?.ToString();
 
             if (_cache.TryGetValue(type, out var activator))
-                return activator(@event, correlationId, causationId, @event.Timestamp, userId);
+                return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
 
             activator = BuildActivator(typeof(EventContext<>).MakeGenericType(type));
 
             _cache.TryAdd(type, activator);
 
-            return activator(@event, correlationId, causationId, @event.Timestamp, userId);
+            return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { type.GenericTypeArguments[0], typeof(Guid?), typeof(Guid?), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(string), typeof(string), typeof(DateTimeOffset), typeof(string) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

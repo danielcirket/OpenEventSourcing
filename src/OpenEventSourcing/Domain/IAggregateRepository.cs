@@ -7,7 +7,7 @@ namespace OpenEventSourcing.Domain
 {
     public interface IAggregateRepository
     {
-        Task<TAggregate> GetAsync<TAggregate, TState>(Guid id)
+        Task<TAggregate> GetAsync<TAggregate, TState>(string id)
             where TAggregate : Aggregate<TState>
             where TState : IAggregateState, new();
         Task SaveAsync<TState>(Aggregate<TState> aggregate, int? expectedVersion = null)

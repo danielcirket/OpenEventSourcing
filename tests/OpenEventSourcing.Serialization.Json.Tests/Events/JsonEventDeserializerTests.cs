@@ -30,8 +30,8 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
             var result = serializer.Deserialize<FakeEvent>(_json);
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty);
-            result.AggregateId.Should().Be(Guid.Empty);
+            result.Id.Should().Be(Guid.Empty.ToString());
+            result.Subject.Should().Be(Guid.Empty.ToString());
             result.CausationId.Should().BeNull();
             result.CorrelationId.Should().BeNull();
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
@@ -46,8 +46,8 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
             var result = (FakeEvent)serializer.Deserialize(_json, typeof(FakeEvent));
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty);
-            result.AggregateId.Should().Be(Guid.Empty);
+            result.Id.Should().Be(Guid.Empty.ToString());
+            result.Subject.Should().Be(Guid.Empty.ToString());
             result.CausationId.Should().BeNull();
             result.CorrelationId.Should().BeNull();
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);

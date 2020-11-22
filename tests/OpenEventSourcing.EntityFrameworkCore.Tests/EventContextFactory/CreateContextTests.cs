@@ -44,15 +44,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.EventContextFactory
             var serviceProvider = services.BuildServiceProvider();
             var eventContextFactory = serviceProvider.GetRequiredService<IEventContextFactory>();
             var serializer = serviceProvider.GetRequiredService<IEventSerializer>();
-            var @event = new FakeEvent(Guid.NewGuid(), 1);
+            var @event = new FakeEvent(Guid.NewGuid().ToString(), 1);
 
             var result = eventContextFactory.CreateContext(new Entities.Event
             {
-                AggregateId = @event.AggregateId,
-                CausationId = Guid.NewGuid(),
-                CorrelationId = Guid.NewGuid(),
+                StreamId = @event.Subject,
+                CausationId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
                 Data = serializer.Serialize(@event),
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString(),
                 Name = nameof(FakeEvent),
                 Timestamp = DateTimeOffset.UtcNow,
                 Type = typeof(FakeEvent).FullName,

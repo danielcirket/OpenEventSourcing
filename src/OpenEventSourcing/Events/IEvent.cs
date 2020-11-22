@@ -5,8 +5,8 @@ namespace OpenEventSourcing.Events
 {
     public interface IEvent
     {
-        Guid Id { get; }
-        Guid AggregateId { get; }
+        string Id { get; }
+        string Subject { get; }
         DateTimeOffset Timestamp { get; }
         int Version { get; }
     }
