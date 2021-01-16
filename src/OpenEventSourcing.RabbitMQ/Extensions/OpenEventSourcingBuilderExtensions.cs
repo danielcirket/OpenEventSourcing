@@ -30,6 +30,7 @@ namespace OpenEventSourcing.RabbitMQ.Extensions
             builder.Services.AddScoped<ISubscriptionManager, DefaultSubscriptionManager>();
             builder.Services.AddScoped<IRabbitMqManagementClient, RabbitMqManagementClient>();
             builder.Services.AddHttpClient<IRabbitMqManagementApiClient, RabbitMqManagementApiClient>();
+            builder.Services.AddSingleton<IEventContextFactory, DefaultEventContextFactory>();
 
             return builder;
         }

@@ -17,21 +17,21 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
         private static readonly int DefaultPageSize = 500;
 
         private readonly IDbContextFactory _dbContextFactory;
-        private readonly IEventDeserializer _eventDeserializer;
+        private readonly IEventContextFactory _eventContextFactory;
         private readonly IEventModelFactory _eventModelFactory;
         private readonly IEventTypeCache _eventTypeCache;
         private readonly ILogger<EntityFrameworkCoreEventStore> _logger;
 
         public EntityFrameworkCoreEventStore(IDbContextFactory dbContextFactory,
-                                             IEventDeserializer eventDeserializer,
+                                             IEventContextFactory eventContextFactory,
                                              IEventModelFactory eventModelFactory,
                                              IEventTypeCache eventTypeCache,
                                              ILogger<EntityFrameworkCoreEventStore> logger)
         {
             if (dbContextFactory == null)
                 throw new ArgumentNullException(nameof(dbContextFactory));
-            if (eventDeserializer == null)
-                throw new ArgumentNullException(nameof(eventDeserializer));
+            if (eventContextFactory == null)
+                throw new ArgumentNullException(nameof(eventContextFactory));
             if (eventModelFactory == null)
                 throw new ArgumentNullException(nameof(eventModelFactory));
             if (eventTypeCache == null)
@@ -40,17 +40,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 throw new ArgumentNullException(nameof(logger));
 
             _dbContextFactory = dbContextFactory;
-            _eventDeserializer = eventDeserializer;
+            _eventContextFactory = eventContextFactory;
             _eventModelFactory = eventModelFactory;
             _eventTypeCache = eventTypeCache;
             _logger = logger;
         }
 
-        public async Task<long> CountAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<long> CountAsync(string streamId, CancellationToken cancellationToken = default)
         {
             using (var context = _dbContextFactory.Create())
             {
-                var count = await context.Events.LongCountAsync(@event => @event.AggregateId == aggregateId, cancellationToken);
+                var count = await context.Events.LongCountAsync(@event => @event.StreamId == streamId, cancellationToken);
 
                 return count;
             }
@@ -58,7 +58,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
         public async Task<Page> GetEventsAsync(long offset, CancellationToken cancellationToken = default)
         {
-            var results = new List<IEvent>();
+            var results = new List<IEventContext<IEvent>>();
 
             var events = await GetAllEventsForwardsInternalAsync(offset).ConfigureAwait(false);
 
@@ -83,43 +83,47 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
                 results.Add(result);
             }
 
             return new Page(offset + events.Count, offset, results);
         }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, CancellationToken cancellationToken = default)
         {
-            var results = new List<IEvent>();
+            var results = new List<IEventContext<IEvent>>();
 
-            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, 0).ConfigureAwait(false);
+            var events = await GetAllEventsForwardsForStreamInternalAsync(streamId, 0).ConfigureAwait(false);
 
             foreach (var @event in events)
             {
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
                 results.Add(result);
             }
 
             return results;
-        }
-        public async Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, long offset, CancellationToken cancellationToken = default)
-        {
-            var results = new List<IEvent>();
 
-            var events = await GetAllEventsForwardsForStreamInternalAsync(aggregateId, offset).ConfigureAwait(false);
+        }
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, long offset, CancellationToken cancellationToken = default)
+        {
+            var results = new List<IEventContext<IEvent>>();
+
+            var events = await GetAllEventsForwardsForStreamInternalAsync(streamId, offset).ConfigureAwait(false);
 
             foreach (var @event in events)
             {
                 if (!_eventTypeCache.TryGet(@event.Type, out var type))
                     throw new InvalidOperationException($"Cannot find type for event '{@event.Name}' - '{@event.Type}'.");
 
-                var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
+                var result = _eventContextFactory.CreateContext(@event);
+                //var result = (IEvent)_eventDeserializer.Deserialize(@event.Data, type);
 
                 results.Add(result);
             }
@@ -127,7 +131,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             return results;
         }
 
-        public async Task SaveAsync(IEnumerable<IEvent> events, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(string streamId, IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -135,7 +139,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             using (var context = _dbContextFactory.Create())
             {
                 foreach (var @event in events)
-                    await context.Events.AddAsync(_eventModelFactory.Create(@event));
+                    await context.Events.AddAsync(_eventModelFactory.Create(streamId, @event));
 
                 await context.SaveChangesAsync(cancellationToken);
             }
@@ -154,13 +158,13 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return events;
             }
         }
-        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(Guid aggregateId, long offset)
+        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(string streamId, long offset)
         {
             using (var context = _dbContextFactory.Create())
             {
                 var events = await context.Events.OrderBy(e => e.SequenceNo)
                                                  .Where(e => e.SequenceNo >= offset)
-                                                 .Where(e => e.AggregateId == aggregateId)
+                                                 .Where(e => e.StreamId == streamId)
                                                  .Take(DefaultPageSize)
                                                  .AsNoTracking()
                                                  .ToListAsync();

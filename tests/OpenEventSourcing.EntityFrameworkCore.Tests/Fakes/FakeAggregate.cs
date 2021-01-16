@@ -11,7 +11,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
         public FakeAggregate(FakeAggregateState state)
             : base(state)
         {
-            Id = Guid.NewGuid().ToSequentialGuid();
+            Id = Guid.NewGuid().ToSequentialGuid().ToString();
             Version = 0;
 
             Handles<FakeEvent>(Handle);
@@ -19,12 +19,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
 
         private void Handle(FakeEvent @event)
         {
-            Id = @event.AggregateId;
+            Id = @event.Subject;
         }
 
         internal void FakeAction()
         {
-            Apply(new FakeEvent(Id.Value, Version.GetValueOrDefault() + 1));
+            Apply(new FakeEvent(Id, Version.GetValueOrDefault() + 1));
         }
     }
 

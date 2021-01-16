@@ -6,6 +6,6 @@ namespace OpenEventSourcing.Tests.Fakes
     internal class FakeQuery : Query<bool>
     {
         public FakeQuery() 
-            : base(Guid.NewGuid(), "test") { }
+            : base(Guid.NewGuid().ToString(), "test") { }
     }
 }

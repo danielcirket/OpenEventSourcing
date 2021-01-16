@@ -56,6 +56,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             using (var scope = ServiceProvider.CreateScope())
             {
                 var @event = new SampleReceiverEvent();
+                var notification = new EventNotification<SampleReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
                 var sentTime = DateTimeOffset.MinValue;
@@ -69,7 +70,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                     await Task.Delay(500);
 
-                    await sender.SendAsync(@event);
+                    await sender.SendAsync(notification);
                     sentTime = DateTimeOffset.UtcNow;
 
                     // Delay to ensure that we pick up the message.
@@ -123,6 +124,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             {
                 var event1 = new MultipleSampleReceiverEventOne();
                 var event2 = new MultipleSampleReceiverEventTwo();
+                var notification1 = new EventNotification<MultipleSampleReceiverEventOne>(streamId: event1.Subject, @event: event1, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
+                var notification2 = new EventNotification<MultipleSampleReceiverEventTwo>(streamId: event2.Subject, @event: event2, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
 
@@ -135,7 +138,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                     await Task.Delay(500);
 
-                    await sender.SendAsync(new IEvent[] { event1, event2 });
+                    await sender.SendAsync(new IEventNotification<IEvent>[] { notification1, notification2 });
 
                     // Delay to ensure that we pick up the message.
                     await Task.Delay(250);
@@ -178,6 +181,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             using (var scope = sp.CreateScope())
             {
                 var @event = new SampleNonSubscriptionReceiverEvent();
+                var notification = new EventNotification<SampleNonSubscriptionReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IQueueMessageSender>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IQueueMessageReceiver>();
 
@@ -190,7 +194,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                 // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                 await Task.Delay(500);
 
-                    await sender.SendAsync(@event);
+                    await sender.SendAsync(notification);
 
                 // Delay to ensure that we pick up the message.
                 await Task.Delay(250);
@@ -204,7 +208,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -216,7 +220,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleReceiverEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleReceiverEvent> context, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -227,7 +231,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class SampleNonSubscriptionReceiverEvent : Event
         {
-            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleNonSubscriptionReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -239,7 +243,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleNonSubscriptionReceiverEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleNonSubscriptionReceiverEvent> context, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -250,7 +254,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventOne : Event
         {
-            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventOne() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -262,7 +266,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(MultipleSampleReceiverEventOne @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<MultipleSampleReceiverEventOne> context, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 
@@ -273,7 +277,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
         }
         private class MultipleSampleReceiverEventTwo : Event
         {
-            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid(), 1)
+            public MultipleSampleReceiverEventTwo() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -285,7 +289,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(MultipleSampleReceiverEventTwo @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<MultipleSampleReceiverEventTwo> context, CancellationToken cancellationToken = default)
             {
                 Interlocked.Increment(ref _received);
 

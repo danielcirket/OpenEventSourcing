@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using OpenEventSourcing.Commands;
 using OpenEventSourcing.Domain;
 using OpenEventSourcing.Events;
 
@@ -23,7 +24,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             _aggregateFactory = aggregateFactory;
         }
 
-        public async Task<TAggregate> GetAsync<TAggregate, TState>(Guid id)
+        public async Task<TAggregate> GetAsync<TAggregate, TState>(string id)
             where TAggregate : Aggregate<TState>
             where TState : IAggregateState, new()
         {
@@ -32,7 +33,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return default;
 
-            var aggregate = _aggregateFactory.FromHistory<TAggregate, TState>(events);
+            var aggregate = _aggregateFactory.FromHistory<TAggregate, TState>(events.Select(e => e.Payload));
 
             return aggregate;
         }
@@ -47,12 +48,62 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (!events.Any())
                 return;
 
-            var currentVersion = await _eventStore.CountAsync(aggregate.Id.GetValueOrDefault());
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
 
             if (expectedVersion.GetValueOrDefault() != currentVersion)
-                throw new ConcurrencyException(aggregate.Id.Value, expectedVersion.GetValueOrDefault(), currentVersion);
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            await _eventStore.SaveAsync(events);
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, @event.Timestamp, userId: "unknown"));
+
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
+
+            aggregate.ClearUncommittedEvents();
+        }
+        public async Task SaveAsync<TState>(Aggregate<TState> aggregate, ICommand causation, int? expectedVersion = null)
+            where TState : IAggregateState, new()
+        {
+            if (aggregate == null)
+                throw new ArgumentNullException(nameof(aggregate));
+            if (causation == null)
+                throw new ArgumentNullException(nameof(causation));
+
+            var events = aggregate.GetUncommittedEvents();
+
+            if (!events.Any())
+                return;
+
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
+
+            if (expectedVersion.GetValueOrDefault() != currentVersion)
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
+
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: causation.Id, @event.Timestamp, userId: causation.UserId));
+
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
+
+            aggregate.ClearUncommittedEvents();
+        }
+        public async Task SaveAsync<TState>(Aggregate<TState> aggregate, IEventContext<IEvent> causation, int? expectedVersion = null)
+            where TState : IAggregateState, new()
+        {
+            if (aggregate == null)
+                throw new ArgumentNullException(nameof(aggregate));
+            if (causation == null)
+                throw new ArgumentNullException(nameof(causation));
+
+            var events = aggregate.GetUncommittedEvents();
+
+            if (!events.Any())
+                return;
+
+            var currentVersion = await _eventStore.CountAsync(aggregate.Id);
+
+            if (expectedVersion.GetValueOrDefault() != currentVersion)
+                throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
+
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: causation.Payload.Id, @event.Timestamp, userId: causation.UserId));
+
+            await _eventStore.SaveAsync(aggregate.Id, contexts);
 
             aggregate.ClearUncommittedEvents();
         }

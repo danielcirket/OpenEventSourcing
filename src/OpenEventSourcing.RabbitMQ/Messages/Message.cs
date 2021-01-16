@@ -7,9 +7,9 @@ namespace OpenEventSourcing.RabbitMQ.Messages
         public string Type { get; set; }
         public byte[] Body { get; set; }
         public long Size => (Body != null) ? Body.Length : 0;
-
-        //public IBasicProperties Properties { get; set; }
-        public Guid MessageId { get; internal set; }
-        public Guid? CorrelationId { get; internal set; }
+        public string MessageId { get; set; }
+        public string CorrelationId { get; set; }
+        public string CausationId { get; set; }
+        public string UserId { get; set; }
     }
 }

@@ -11,8 +11,10 @@ namespace OpenEventSourcing.EntityFrameworkCore.EntityConfiguration
             builder.ToTable(name: nameof(Query), schema: "log");
 
             builder.HasKey(c => c.SequenceNo);
+            builder.HasIndex(c => c.Id);
             builder.HasIndex(c => c.CorrelationId);
             builder.HasIndex(c => c.Name);
+            builder.HasIndex(c => c.UserId);
         }
     }
 }

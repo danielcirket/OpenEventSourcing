@@ -5,6 +5,6 @@ namespace OpenEventSourcing.Projections
 {
     public interface IProjection
     {
-        Task HandleAsync(IEvent @event);
+        Task HandleAsync(IEventContext<IEvent> context);
     }
 }

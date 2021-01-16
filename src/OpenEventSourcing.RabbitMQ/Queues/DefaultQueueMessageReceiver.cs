@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +23,13 @@ namespace OpenEventSourcing.RabbitMQ.Queues
         private readonly ILogger<DefaultQueueMessageReceiver> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
+        private readonly IEventContextFactory _eventContextFactory;
         private CancellationTokenSource _stoppingCts;
         private List<Task> _executingTasks;
 
         public DefaultQueueMessageReceiver(IOptions<RabbitMqOptions> options,
                                            IRabbitMqConnectionFactory connectionFactory,
+                                           IEventContextFactory eventContextFactory,
                                            ILogger<DefaultQueueMessageReceiver> logger,
                                            IServiceScopeFactory serviceScopeFactory)
         {
@@ -34,6 +37,8 @@ namespace OpenEventSourcing.RabbitMQ.Queues
                 throw new ArgumentNullException(nameof(options));
             if (connectionFactory == null)
                 throw new ArgumentNullException(nameof(connectionFactory));
+            if (eventContextFactory == null)
+                throw new ArgumentNullException(nameof(eventContextFactory));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (serviceScopeFactory == null)
@@ -41,6 +46,7 @@ namespace OpenEventSourcing.RabbitMQ.Queues
 
             _options = options;
             _connectionFactory = connectionFactory;
+            _eventContextFactory = eventContextFactory;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _stoppingCts = new CancellationTokenSource();
@@ -49,7 +55,6 @@ namespace OpenEventSourcing.RabbitMQ.Queues
         public async Task OnReceiveAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             var eventName = message.RoutingKey;
-            var eventData = Encoding.UTF8.GetString(message.Body);
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -63,9 +68,9 @@ namespace OpenEventSourcing.RabbitMQ.Queues
                     return;
                 }
 
-                var @event = (IEvent)eventDeserializer.Deserialize(eventData, type);
+                var context = _eventContextFactory.CreateContext(message);
 
-                await eventDispatcher.DispatchAsync(@event).ConfigureAwait(false);
+                await eventDispatcher.DispatchAsync(context).ConfigureAwait(false);
             }
         }
         public Task OnErrorAsync(ReceivedMessage message, Exception ex)

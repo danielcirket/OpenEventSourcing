@@ -5,17 +5,17 @@ namespace OpenEventSourcing.Tests.Fakes
 {
     internal class FakeCommand : ICommand
     {
-        public Guid Id { get; }
-        public Guid AggregateId { get; }
-        public Guid CorrelationId { get; }
+        public string Id { get; }
+        public string Subject { get; }
+        public string CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
         public int Version { get; }
         public string UserId { get; }
 
         public FakeCommand()
         {
-            Id = Guid.Empty;
-            AggregateId = Guid.NewGuid();
+            Id = Guid.Empty.ToString();
+            Subject = Guid.NewGuid().ToString();
             Timestamp = DateTimeOffset.MaxValue;
             Version = 1;
         }

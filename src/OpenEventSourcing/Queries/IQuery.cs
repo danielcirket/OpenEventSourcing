@@ -4,9 +4,9 @@ namespace OpenEventSourcing.Queries
 {
     public interface IQuery<out TQueryResult>
     {
-        Guid Id { get; }
+        string Id { get; }
         DateTimeOffset Timestamp { get; }
-        Guid CorrelationId { get; }
+        string CorrelationId { get; }
         string UserId { get; }
     }
 }

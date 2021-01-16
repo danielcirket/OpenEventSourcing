@@ -19,26 +19,33 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             _eventSerializer = eventSerializer;
         }
 
-        public Message CreateMessage<TEvent>(TEvent @event) where TEvent : IEvent
+        public Message CreateMessage<TEvent>(IEventNotification<TEvent> context) where TEvent : IEvent
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (context.Payload == null)
+                throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Payload)}");
 
-            var eventName = typeof(TEvent).Name;
-
-            return CreateMessage(eventName, @event);
-        }
-        public Message CreateMessage(IEvent @event)
-        {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
-
+            var @event = context.Payload;
             var eventName = @event.GetType().Name;
 
-            return CreateMessage(eventName, @event);
+            return CreateMessage(eventName, (IEventNotification<IEvent>)context);
         }
-        private Message CreateMessage(string eventName, IEvent @event)
+        public Message CreateMessage(IEventNotification<IEvent> context)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (context.Payload == null)
+                throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Payload)}");
+
+            var @event = context.Payload;
+            var eventName = @event.GetType().Name;
+
+            return CreateMessage(eventName, context);
+        }
+        private Message CreateMessage(string eventName, IEventNotification<IEvent> context)
+        {
+            var @event = context.Payload;
             var body = Encoding.UTF8.GetBytes(_eventSerializer.Serialize(@event));
 
             var message = new Message
@@ -46,7 +53,14 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
                 MessageId = @event.Id.ToString(),
                 Body = body,
                 Label = eventName,
-                CorrelationId = @event.CorrelationId.ToString()
+                CorrelationId = context.CorrelationId?.ToString(),
+                UserProperties =
+                {
+                    { nameof(context.StreamId), context.StreamId?.ToString() },
+                    { nameof(context.CausationId), context.CausationId?.ToString() },
+                    { nameof(context.UserId), context.UserId },
+                    { nameof(context.Timestamp), context.Timestamp },
+                },
             };
 
             return message;

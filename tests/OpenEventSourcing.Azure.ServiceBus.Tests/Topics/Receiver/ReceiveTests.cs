@@ -47,6 +47,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             using (var scope = ServiceProvider.CreateScope())
             {
                 var @event = new SampleReceiverEvent();
+                var notification = new EventNotification<SampleReceiverEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null);
                 var sender = scope.ServiceProvider.GetRequiredService<IEventBusPublisher>();
                 var receiver = scope.ServiceProvider.GetRequiredService<IEventBusConsumer>();
                 var sentTime = DateTimeOffset.MinValue;
@@ -60,7 +61,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
                     // Let the consumer actually startup, needs to open a connection which may take a short amount of time.
                     await Task.Delay(250);
 
-                    await sender.PublishAsync(@event);
+                    await sender.PublishAsync(notification);
                     sentTime = DateTimeOffset.UtcNow;
 
                     // Delay to ensure that we pick up the message.
@@ -87,7 +88,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
 
         private class SampleReceiverEvent : Event
         {
-            public SampleReceiverEvent() : base(Guid.NewGuid(), 1)
+            public SampleReceiverEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -99,7 +100,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Receiver
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleReceiverEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleReceiverEvent> context, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

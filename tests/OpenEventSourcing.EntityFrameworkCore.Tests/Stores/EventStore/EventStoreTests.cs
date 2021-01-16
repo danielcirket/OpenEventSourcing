@@ -40,12 +40,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullDbContextFactoryShouldThrowArgumentNullException()
         {
             IDbContextFactory dbContextFactory = null;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("dbContextFactory");
@@ -54,26 +54,26 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullQuerySerializerShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            IEventDeserializer eventDeserializer = null;
+            IEventContextFactory eventContextFactory = null;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
-                And.ParamName.Should().Be("eventDeserializer");
+                And.ParamName.Should().Be("eventContextFactory");
         }
         [Fact]
         public void WhenConstructedWithNullModelFactoryShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             IEventModelFactory eventModelFactory = null;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("eventModelFactory");
@@ -82,12 +82,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullEventTypeCacheShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             IEventTypeCache eventTypeCache = null;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("eventTypeCache");
@@ -96,12 +96,12 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenConstructedWithNullLoggerShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             ILogger<EntityFrameworkCoreEventStore> logger = null;
 
-            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            Action act = () => new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("logger");
@@ -121,9 +121,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            
+            await store.SaveAsync(aggregate.Id, contexts);
 
-            var events = await store.GetEventsAsync(aggregate.Id.Value);
+            var events = await store.GetEventsAsync(aggregate.Id);
 
             events.Count().Should().Be(5);
         }
@@ -141,9 +143,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
 
-            var events = await store.GetEventsAsync(aggregate.Id.Value, 3);
+            await store.SaveAsync(aggregate.Id, contexts);
+
+            var events = await store.GetEventsAsync(aggregate.Id, 3);
 
             events.Count().Should().Be(3);
         }
@@ -161,7 +165,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+
+            await store.SaveAsync(aggregate.Id, contexts);
 
             var total = dbContext.Events.Count();
             var page = await store.GetEventsAsync(0);
@@ -176,15 +182,15 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
         public void WhenSavingNullEventsThenShouldThrowArgumentNullException()
         {
             var dbContextFactory = new Mock<IDbContextFactory>().Object;
-            var eventDeserializer = new Mock<IEventDeserializer>().Object;
+            var eventContextFactory = new Mock<IEventContextFactory>().Object;
             var eventModelFactory = new Mock<IEventModelFactory>().Object;
             var eventTypeCache = new Mock<IEventTypeCache>().Object;
             var logger = new Mock<ILogger<EntityFrameworkCoreEventStore>>().Object;
-            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventDeserializer: eventDeserializer, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
+            var store = new EntityFrameworkCoreEventStore(dbContextFactory: dbContextFactory, eventContextFactory: eventContextFactory, eventModelFactory: eventModelFactory, eventTypeCache: eventTypeCache, logger: logger);
 
-            IEnumerable<IEvent> events = null;
+            IEnumerable<IEventContext<IEvent>> contexts = null;
 
-            Func<Task> act = async () => await store.SaveAsync(events);
+            Func<Task> act = async () => await store.SaveAsync("fake-stream", contexts);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("events");
@@ -202,9 +208,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
 
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            await store.SaveAsync(aggregate.Id, contexts);
+
+            var count = dbContext.Events.Count(e => e.StreamId == aggregate.Id);
             count.Should().Be(1);
         }
         [Fact]
@@ -222,9 +230,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            await store.SaveAsync(aggregate.GetUncommittedEvents());
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
 
-            var count = dbContext.Events.Count(e => e.AggregateId == aggregate.Id);
+            await store.SaveAsync(aggregate.Id, contexts);
+
+            var count = dbContext.Events.Count(e => e.StreamId == aggregate.Id);
             count.Should().Be(3);
         }
     }

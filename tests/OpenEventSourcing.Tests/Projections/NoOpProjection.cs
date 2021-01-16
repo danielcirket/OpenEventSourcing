@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Tests.Projections
 {
     internal class NoOpProjection : IProjection
     {
-        public Task HandleAsync(IEvent @event)
+        public Task HandleAsync(IEventContext<IEvent> @event)
         {
             return Task.CompletedTask;
         }

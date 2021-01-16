@@ -17,34 +17,37 @@ namespace OpenEventSourcing.RabbitMQ.Messages
             _eventSerializer = eventSerializer;
         }
 
-        public Message CreateMessage<TEvent>(TEvent @event) where TEvent : IEvent
+        public Message CreateMessage<TEvent>(IEventNotification<TEvent> context) where TEvent : IEvent
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             var eventName = typeof(TEvent).Name;
 
-            return CreateMessage(eventName, @event);
+            return CreateMessage(eventName, (IEventNotification<IEvent>)context);
         }
-        public Message CreateMessage(IEvent @event)
+        public Message CreateMessage(IEventNotification<IEvent> context)
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            var eventName = @event.GetType().Name;
+            var eventName = context.Payload.GetType().Name;
 
-            return CreateMessage(eventName, @event);
+            return CreateMessage(eventName, context);
         }
 
-        private Message CreateMessage(string eventName, IEvent @event)
-        { 
-            var body = Encoding.UTF8.GetBytes(_eventSerializer.Serialize(@event));
+        private Message CreateMessage(string eventName, IEventNotification<IEvent> context)
+        {
+            var @event = context.Payload;
+            var body = Encoding.UTF8.GetBytes(_eventSerializer.Serialize(context.Payload));
 
             return new Message
             {
                 MessageId = @event.Id,
                 Type = eventName,
-                CorrelationId = @event.CorrelationId,
+                CorrelationId = context.CorrelationId,
+                CausationId = context.CausationId,
+                UserId = context.UserId,
                 Body = body,
             };
         }

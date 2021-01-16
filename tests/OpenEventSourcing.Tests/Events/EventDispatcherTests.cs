@@ -57,7 +57,7 @@ namespace OpenEventSourcing.Tests.Events
             Func<Task> act = async () => await dispatcher.DispatchAsync(null);
 
             act.Should().Throw<ArgumentNullException>()
-               .And.ParamName.Should().Be("event");
+               .And.ParamName.Should().Be("context");
         }
         [Fact]
         public void WhenDispatchingGenericNullEventThenShouldThrowArgumentNullException()
@@ -67,7 +67,7 @@ namespace OpenEventSourcing.Tests.Events
             Func<Task> act = async () => await dispatcher.DispatchAsync<FakeEvent>(null);
 
             act.Should().Throw<ArgumentNullException>()
-               .And.ParamName.Should().Be("event");
+               .And.ParamName.Should().Be("context");
         }
         [Fact]
         public void WhenNoHandlersRegisteredForEventThenShouldThrowInvalidOperationException()
@@ -80,8 +80,10 @@ namespace OpenEventSourcing.Tests.Events
                 .BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
-
-            Func<Task> act = async () => await dispatcher.DispatchAsync(new FakeEvent());
+            var @event = new FakeEvent();
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+            
+            Func<Task> act = async () => await dispatcher.DispatchAsync(context);
 
             act.Should().Throw<InvalidOperationException>();
         }
@@ -89,6 +91,7 @@ namespace OpenEventSourcing.Tests.Events
         public async Task WhenSingleHandlersRegisteredForEventThenShouldDispatchToHandler()
         {
             var @event = new FakeEvent();
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
@@ -101,7 +104,7 @@ namespace OpenEventSourcing.Tests.Events
             var handler = (FakeEventHandler)serviceProvider.GetRequiredService<IEventHandler<FakeEvent>>();
             var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
 
-            await dispatcher.DispatchAsync(@event);
+            await dispatcher.DispatchAsync(context);
 
             handler.Calls.Should().Be(1);
         }
@@ -109,6 +112,7 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenCancellationRequestedThenShouldThrowOperationCancelledException()
         {
             var @event = new FakeEvent();
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
@@ -125,7 +129,7 @@ namespace OpenEventSourcing.Tests.Events
 
             cancellationTokenSource.Cancel();
 
-            Func<Task> act = async () => await dispatcher.DispatchAsync(@event, cancellationToken);
+            Func<Task> act = async () => await dispatcher.DispatchAsync(context, cancellationToken);
 
             act.Should().Throw<OperationCanceledException>();
 
@@ -135,6 +139,7 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenCancellationTokenRemainsNonCancelledThenShouldNotThrowOperationCancelledException()
         {
             var @event = new FakeEvent();
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
@@ -149,7 +154,7 @@ namespace OpenEventSourcing.Tests.Events
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            Func<Task> act = async () => await dispatcher.DispatchAsync(@event, cancellationToken);
+            Func<Task> act = async () => await dispatcher.DispatchAsync(context, cancellationToken);
 
             act.Should().NotThrow();
 

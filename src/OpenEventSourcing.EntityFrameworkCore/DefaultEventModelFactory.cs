@@ -16,24 +16,27 @@ namespace OpenEventSourcing.EntityFrameworkCore
             _eventSerializer = eventSerializer;
         }
 
-        public Entities.Event Create(IEvent @event)
+        public Entities.Event Create(string streamId, IEventContext<IEvent> context)
         {
-            if (@event == null)
-                throw new ArgumentNullException(nameof(@event));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (context.Payload == null)
+                throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Payload)}");
 
+            var @event = context.Payload;
             var type = @event.GetType();
 
             return new Entities.Event
             {
-                AggregateId = @event.AggregateId,
-                CorrelationId = @event.CorrelationId,
-                CausationId = @event.CausationId,
+                StreamId = streamId,
+                CorrelationId = context.CorrelationId,
+                CausationId = context.CausationId,
                 Data = _eventSerializer.Serialize(@event),
                 Id = @event.Id,
                 Name = type.Name,
                 Type = type.FullName,
                 Timestamp = @event.Timestamp,
-                UserId = @event.UserId,
+                UserId = context.UserId,
             };
         }
     }

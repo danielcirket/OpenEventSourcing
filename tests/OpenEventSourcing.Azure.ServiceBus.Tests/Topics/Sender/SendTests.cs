@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.ServiceBus;
@@ -42,10 +43,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEvent)null);
+                Func<Task> act = async () => await sender.SendAsync((IEventNotification<IEvent>)null);
 
                 act.Should().Throw<ArgumentNullException>()
-                    .And.ParamName.Should().Be("event");
+                    .And.ParamName.Should().Be("context");
             }
         }
         [ServiceBusTest]
@@ -55,10 +56,10 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
 
-                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEvent>)null);
+                Func<Task> act = async () => await sender.SendAsync((IEnumerable<IEventNotification<IEvent>>)null);
 
                 act.Should().Throw<ArgumentNullException>()
-                    .And.ParamName.Should().Be("events");
+                    .And.ParamName.Should().Be("contexts");
             }
         }
         [ServiceBusTest]
@@ -68,8 +69,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             { 
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var @event = new SameSenderEvent();
+                var notification = new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null); ;
 
-                Func<Task> act = async () => await sender.SendAsync(@event);
+                Func<Task> act = async () => await sender.SendAsync(notification);
 
                 act.Should().NotThrow();
             }
@@ -81,8 +83,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
             {
                 var sender = scope.ServiceProvider.GetRequiredService<ITopicMessageSender>();
                 var events = new[] { new SameSenderEvent(), new SameSenderEvent() };
-
-                Func<Task> act = async () => await sender.SendAsync(events);
+                var notifications = events.Select(@event => new EventNotification<SameSenderEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null));
+                
+                Func<Task> act = async () => await sender.SendAsync(notifications);
 
                 act.Should().NotThrow();
             }
@@ -102,7 +105,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Topics.Sender
 
         private class SameSenderEvent : Event
         {
-            public SameSenderEvent() : base(Guid.NewGuid(), 1)
+            public SameSenderEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }

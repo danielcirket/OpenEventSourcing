@@ -408,7 +408,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
 
         private class SampleEvent : Event
         {
-            public SampleEvent() : base(Guid.NewGuid(), 1)
+            public SampleEvent() : base(Guid.NewGuid().ToString(), 1)
             {
             }
         }
@@ -420,7 +420,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Management
             public static int Received => _received;
             public static DateTimeOffset? ReceivedAt => _receivedTime;
 
-            public Task HandleAsync(SampleEvent @event, CancellationToken cancellationToken = default)
+            public Task HandleAsync(IEventContext<SampleEvent> context, CancellationToken cancellationToken = default)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

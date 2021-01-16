@@ -7,11 +7,11 @@ namespace OpenEventSourcing.Projections
 {
     public abstract class Projection : IProjection
     {
-        private readonly Dictionary<Type, Func<IEvent, Task>> _handlers;
+        private readonly Dictionary<Type, Func<IEventContext<IEvent>, Task>> _handlers;
 
         protected Projection()
         {
-            _handlers = new Dictionary<Type, Func<IEvent, Task>>();
+            _handlers = new Dictionary<Type, Func<IEventContext<IEvent>, Task>>();
         }
 
         protected void Handles<TEvent>(Func<TEvent, Task> handler)
@@ -20,10 +20,10 @@ namespace OpenEventSourcing.Projections
             _handlers.Add(typeof(TEvent), e => handler((TEvent)e));
         }
 
-        public async Task HandleAsync(IEvent @event)
+        public async Task HandleAsync(IEventContext<IEvent> context)
         {
-            if (_handlers.TryGetValue(@event.GetType(), out var handler))
-                await handler(@event);
+            if (_handlers.TryGetValue(context.GetType(), out var handler))
+                await handler(context);
         }
     }
 }
