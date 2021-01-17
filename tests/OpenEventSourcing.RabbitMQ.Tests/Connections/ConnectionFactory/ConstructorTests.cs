@@ -66,12 +66,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+            
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
 
             var factory = sp.GetRequiredService<IRabbitMqConnectionFactory>();
             var connection = await factory.CreateConnectionAsync(cancellationToken: CancellationToken.None);
@@ -99,12 +95,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Connections
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+            
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
 
             var factory = sp.GetRequiredService<IRabbitMqConnectionFactory>();
 
