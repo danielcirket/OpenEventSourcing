@@ -45,7 +45,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.EventModelFactory
             var eventSerializer = serviceProvider.GetRequiredService<IEventSerializer>();
 
             var @event = new FakeEvent(subject: Guid.NewGuid().ToString(), version: 1);
-            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: Guid.NewGuid().ToString(), causationId: Guid.NewGuid().ToString(), timestamp: DateTimeOffset.UtcNow, userId: "test-user");
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: CorrelationId.New(), causationId: CausationId.From(Guid.NewGuid().ToString()), timestamp: DateTimeOffset.UtcNow, userId: "test-user");
             var entity = eventModelFactory.Create(streamId: @event.Subject, context);
 
             entity.StreamId.Should().Be(@event.Subject);

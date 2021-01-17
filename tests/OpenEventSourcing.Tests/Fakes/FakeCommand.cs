@@ -7,7 +7,7 @@ namespace OpenEventSourcing.Tests.Fakes
     {
         public string Id { get; }
         public string Subject { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
         public int Version { get; }
         public string UserId { get; }

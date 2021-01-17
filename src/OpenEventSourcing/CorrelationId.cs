@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Buffers;
-using System.Buffers.Text;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
-namespace OpenEventSourcing.RabbitMQ.Connections
+namespace OpenEventSourcing
 {
-    public class ConnectionId
+    public readonly struct CorrelationId : IEquatable<CorrelationId>
     {
-        public string Value { get; }
+        internal string Value { get; }
 
-        internal ConnectionId()
+        internal CorrelationId(string value)
         {
-            Span<byte> buffer = stackalloc byte[16];
-            // Generate the id with RNGCrypto because we want a cryptographically random id, which GUID is not
-            RandomNumberGenerator.Fill(buffer);
-
-            Value = Base64UrlEncode(buffer);
+            Value = value;
         }
 
         private static string Base64UrlEncode(ReadOnlySpan<byte> input)
@@ -77,11 +72,31 @@ namespace OpenEventSourcing.RabbitMQ.Connections
             return checked(numWholeOrPartialInputBlocks * 4);
         }
 
-        public static ConnectionId New()
+        public static CorrelationId New()
         {
-            return new ConnectionId();
-        }
+            Span<byte> buffer = stackalloc byte[16];
+            // Generate the id with RNGCrypto because we want a cryptographically random id, which GUID is not
+            RandomNumberGenerator.Fill(buffer);
 
-        public static implicit operator string(ConnectionId id) => id.Value;
+            var value = Base64UrlEncode(buffer);
+            
+            return new CorrelationId(value);
+        }
+        public static CorrelationId From(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException($"'{nameof(value)}' cannot be null or empty.", nameof(value));
+
+            return new CorrelationId(value);
+        }
+        
+        public bool Equals(CorrelationId other) => Value == other.Value;
+        public override bool Equals(object obj) => obj is CorrelationId other && Equals(other);
+        public override int GetHashCode() => Value.GetHashCode();
+        public override string ToString() => Value;
+
+        public static bool operator ==(CorrelationId left, CorrelationId right) => left.Equals(right);
+        public static bool operator !=(CorrelationId left, CorrelationId right) => !left.Equals(right);
+        public static implicit operator string(CorrelationId id) => id.Value;
     }
 }

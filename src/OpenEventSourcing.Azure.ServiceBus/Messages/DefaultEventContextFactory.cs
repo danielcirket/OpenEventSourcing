@@ -41,18 +41,21 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
             var @event = (IEvent)_eventDeserializer.Deserialize(eventData, type);
 
             string streamId = null;
-            string correlationId = null;
-            string causationId = null;
+            CorrelationId? correlationId = null;
+            CausationId? causationId = null;
             string userId = null;
 
             if (!string.IsNullOrWhiteSpace(message.CorrelationId))
-                correlationId = message.CorrelationId;
+                correlationId = CorrelationId.From(message.CorrelationId);
 
             if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.StreamId)))
                 streamId = message.UserProperties[nameof(IEventContext<IEvent>.StreamId)]?.ToString();
 
             if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.CausationId)))
-                causationId = message.UserProperties[nameof(IEventContext<IEvent>.CausationId)]?.ToString();
+            {
+                var value = message.UserProperties[nameof(IEventContext<IEvent>.CausationId)]?.ToString();
+                causationId = value != null ? CausationId.From(value) : (CausationId?)null;
+            }
 
             if (message.UserProperties.ContainsKey(nameof(IEventContext<IEvent>.UserId)))
                 userId = message.UserProperties[nameof(IEventContext<IEvent>.UserId)]?.ToString();
@@ -69,7 +72,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Messages
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(string), typeof(string), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(string) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

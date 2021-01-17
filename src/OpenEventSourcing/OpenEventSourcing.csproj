@@ -4,6 +4,7 @@
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <PackageTags>$(PackageTags)</PackageTags>
     <PackageLicenseExpression>$(PackageLicense)</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

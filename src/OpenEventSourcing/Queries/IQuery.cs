@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Queries
     {
         string Id { get; }
         DateTimeOffset Timestamp { get; }
-        string CorrelationId { get; }
+        CorrelationId? CorrelationId { get; }
         string UserId { get; }
     }
 }

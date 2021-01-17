@@ -46,12 +46,15 @@ namespace OpenEventSourcing.EntityFrameworkCore
 
             _cache.TryAdd(type, activator);
 
-            return activator(dbEvent.StreamId, @event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
+            var correlationId = dbEvent.CorrelationId != null ? CorrelationId.From(dbEvent.CorrelationId) : (CorrelationId?)null;
+            var causationId = dbEvent.CausationId != null ? CausationId.From(dbEvent.CorrelationId) : (CausationId?)null;
+
+            return activator(dbEvent.StreamId, @event, correlationId, causationId, @event.Timestamp, dbEvent.UserId);
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(string), typeof(string), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(string) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

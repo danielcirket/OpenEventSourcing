@@ -32,7 +32,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             result.Should().NotBeNull();
             result.Id.Should().Be(Guid.Empty.ToString());
             result.Subject.Should().Be(Guid.Empty.ToString());
-            result.CorrelationId.Should().Be(Guid.Empty.ToString());
+            result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
             result.UserId.Should().BeEquivalentTo("User");
@@ -47,7 +47,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             result.Should().NotBeNull();
             result.Id.Should().Be(Guid.Empty.ToString());
             result.Subject.Should().Be(Guid.Empty.ToString());
-            result.CorrelationId.Should().Be(Guid.Empty.ToString());
+            result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
             result.UserId.Should().BeEquivalentTo("User");

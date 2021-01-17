@@ -6,6 +6,6 @@ namespace OpenEventSourcing.Tests.Fakes
     internal class FakeDispatchableQuery : Query<bool>
     {
         public FakeDispatchableQuery() 
-            : base(Guid.NewGuid().ToString(), "test") { }
+            : base(OpenEventSourcing.CorrelationId.From(Guid.NewGuid().ToString()), "test") { }
     }
 }

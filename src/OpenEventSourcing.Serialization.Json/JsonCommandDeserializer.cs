@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using OpenEventSourcing.Serialization.Json.Converters;
 using OpenEventSourcing.Serialization.Json.Resolvers;
 
 namespace OpenEventSourcing.Serialization.Json
@@ -16,6 +18,13 @@ namespace OpenEventSourcing.Serialization.Json
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 ContractResolver = new ImmutablePropertyCamelCasePropertyNamesContactResolver(),
                 ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                Converters = new List<JsonConverter>
+                {
+                    new CausationIdJsonConverter(),
+                    new NullableCausationIdJsonConverter(),
+                    new CorrelationIdJsonConverter(),
+                    new NullableCorrelationIdJsonConverter(),
+                }
             };
         }
 

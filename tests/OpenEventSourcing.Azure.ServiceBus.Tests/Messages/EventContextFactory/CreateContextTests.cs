@@ -59,8 +59,8 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
             var factory = ServiceProvider.GetRequiredService<IEventContextFactory>();
             var @event = new CreateTestEvent();
             var streamId = Guid.NewGuid().ToString();
-            var causationId = Guid.NewGuid().ToString();
-            var correlationId = Guid.NewGuid().ToString();
+            var causationId = CausationId.From(Guid.NewGuid().ToString());
+            var correlationId = CorrelationId.New();
             var userId = "test-user";
 
             var message = new Message

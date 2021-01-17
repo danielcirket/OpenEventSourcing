@@ -62,8 +62,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
             var factory = ServiceProvider.GetRequiredService<IEventContextFactory>();
             var properties = Mock.Of<MQ.Impl.BasicProperties>();
             var @event = new CreateTestEvent();
-            var causationId = Guid.NewGuid().ToString();
-            var correlationId = Guid.NewGuid().ToString();
+            var causationId = CausationId.From(Guid.NewGuid().ToString());
+            var correlationId = CorrelationId.New();
             var userId = "test-user";
 
             properties.Headers = new Dictionary<string, object>

@@ -6,7 +6,7 @@ namespace OpenEventSourcing.Commands
     {
         string Id { get; }
         string Subject { get; }
-        string CorrelationId { get; }
+        CorrelationId? CorrelationId { get; }
         DateTimeOffset Timestamp { get; }
         int Version { get; }
         string UserId { get; }

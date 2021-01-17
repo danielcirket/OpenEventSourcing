@@ -6,13 +6,13 @@ namespace OpenEventSourcing.Events
         where TEvent : IEvent
     {
         public string StreamId { get; }
-        public string CorrelationId { get; }
-        public string CausationId { get; }
+        public CorrelationId? CorrelationId { get; }
+        public CausationId? CausationId { get; }
         public TEvent Payload { get; }
         public DateTimeOffset Timestamp { get; }
         public string UserId { get; }
 
-        public EventContext(string streamId, TEvent @event, string correlationId, string causationId, DateTimeOffset timestamp, string userId)
+        public EventContext(string streamId, TEvent @event, CorrelationId? correlationId, CausationId? causationId, DateTimeOffset timestamp, string userId)
         {
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event));

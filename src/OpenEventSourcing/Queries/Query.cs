@@ -7,10 +7,10 @@ namespace OpenEventSourcing.Queries
     {
         public string Id { get; }
         public DateTimeOffset Timestamp { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public string UserId { get; }
 
-        public Query(string correlationId, string userId)
+        public Query(CorrelationId? correlationId, string userId)
         {
             Id = Guid.NewGuid().ToSequentialGuid().ToString();
             Timestamp = DateTimeOffset.UtcNow;

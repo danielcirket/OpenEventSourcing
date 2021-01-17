@@ -8,14 +8,14 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
     {
         public string Id { get; }
         public DateTimeOffset Timestamp { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public string UserId { get; }
 
         public FakeQuery()
         {
             Id = Guid.NewGuid().ToSequentialGuid().ToString();
             Timestamp = DateTimeOffset.UtcNow;
-            CorrelationId = Guid.NewGuid().ToSequentialGuid().ToString();
+            CorrelationId = OpenEventSourcing.CorrelationId.From(Guid.NewGuid().ToString());
             UserId = null;
         }
     }

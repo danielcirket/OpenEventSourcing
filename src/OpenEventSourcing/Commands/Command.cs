@@ -7,12 +7,12 @@ namespace OpenEventSourcing.Commands
     {
         public string Id { get; }
         public string Subject { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public int Version { get; }
         public string UserId { get; }
         public DateTimeOffset Timestamp { get; }
 
-        public Command(string subject, string correlationId, int version, string userId)
+        public Command(string subject, CorrelationId? correlationId, int version, string userId)
         {
             Id = Guid.NewGuid().ToSequentialGuid().ToString();
             Subject = subject;
