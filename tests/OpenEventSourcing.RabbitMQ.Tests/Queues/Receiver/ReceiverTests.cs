@@ -42,11 +42,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1
             ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
+
             Configuration = fixture.Configuration;
         }
 
@@ -114,11 +111,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
 
             using (var scope = sp.CreateScope())
             {
@@ -172,12 +165,9 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Queues.Receiver
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+            
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
+
             using (var scope = sp.CreateScope())
             {
                 var @event = new SampleNonSubscriptionReceiverEvent();

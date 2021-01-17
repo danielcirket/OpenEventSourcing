@@ -49,12 +49,9 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+            
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
+
             using (var scope = sp.CreateScope())
             {
                 var manager = scope.ServiceProvider.GetRequiredService<ISubscriptionManager>();
@@ -95,11 +92,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Subscriptions.SubscriptionManager
                     })
                     .AddJsonSerializers();
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1
             var sp = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            var sp = services.BuildServiceProvider(validateScopes: true);
-#endif
+            
             using (var scope = sp.CreateScope())
             {
                 var manager = scope.ServiceProvider.GetRequiredService<ISubscriptionManager>();

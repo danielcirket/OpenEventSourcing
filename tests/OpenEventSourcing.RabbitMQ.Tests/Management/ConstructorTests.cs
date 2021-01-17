@@ -35,12 +35,8 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Management
                          });
                     })
                     .AddJsonSerializers();
-
-#if NETCOREAPP3_0 || NETCOREAPP3_1
+            
             ServiceProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-#else
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
-#endif
         }
 
         [Fact]
