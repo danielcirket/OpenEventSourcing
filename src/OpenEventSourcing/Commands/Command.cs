@@ -5,7 +5,7 @@ namespace OpenEventSourcing.Commands
 {
     public abstract class Command : ICommand
     {
-        public string Id { get; }
+        public CommandId Id { get; }
         public string Subject { get; }
         public CorrelationId? CorrelationId { get; }
         public int Version { get; }
@@ -14,7 +14,7 @@ namespace OpenEventSourcing.Commands
 
         public Command(string subject, CorrelationId? correlationId, int version, string userId)
         {
-            Id = Guid.NewGuid().ToSequentialGuid().ToString();
+            Id = CommandId.New();
             Subject = subject;
             CorrelationId = correlationId;
             Version = version;

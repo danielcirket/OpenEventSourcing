@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using OpenEventSourcing.Commands;
 using Xunit;
 
 namespace OpenEventSourcing.Serialization.Json.Tests.Commands
@@ -30,7 +31,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             var result = serializer.Deserialize<FakeCommand>(_json);
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty.ToString());
+            result.Id.Should().Be(CommandId.From(Guid.Empty.ToString()));
             result.Subject.Should().Be(Guid.Empty.ToString());
             result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
@@ -45,7 +46,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             var result = (FakeCommand)serializer.Deserialize(_json, typeof(FakeCommand));
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(Guid.Empty.ToString());
+            result.Id.Should().Be(CommandId.From(Guid.Empty.ToString()));
             result.Subject.Should().Be(Guid.Empty.ToString());
             result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);

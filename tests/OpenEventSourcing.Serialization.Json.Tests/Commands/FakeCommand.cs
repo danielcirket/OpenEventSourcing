@@ -5,7 +5,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
 {
     internal class FakeCommand : ICommand
     {
-        public string Id { get; }
+        public CommandId Id { get; }
         public string Subject { get; }
         public CorrelationId? CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
@@ -14,7 +14,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
 
         public FakeCommand()
         {
-            Id = Guid.Empty.ToString();
+            Id = CommandId.From(Guid.Empty.ToString());
             Subject = Guid.Empty.ToString();
             CorrelationId = OpenEventSourcing.CorrelationId.From(Guid.Empty.ToString());
             Timestamp = DateTimeOffset.MaxValue;
