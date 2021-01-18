@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace OpenEventSourcing.Serialization.Json.Converters
 {
-    internal sealed class NullableCausationIdJsonConverter : JsonConverter<CausationId?>
+    public sealed class NullableCausationIdJsonConverter : JsonConverter<CausationId?>
     {
         public override void WriteJson(JsonWriter writer, CausationId? value, JsonSerializer serializer)
         {

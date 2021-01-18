@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace OpenEventSourcing.Serialization.Json.Converters
 {
-    internal sealed class CorrelationIdJsonConverter : JsonConverter<CorrelationId>
+    public sealed class CorrelationIdJsonConverter : JsonConverter<CorrelationId>
     {
         public override void WriteJson(JsonWriter writer, CorrelationId value, JsonSerializer serializer)
         {

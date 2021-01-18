@@ -24,6 +24,8 @@ namespace OpenEventSourcing.Serialization.Json
                     new NullableCausationIdJsonConverter(),
                     new CorrelationIdJsonConverter(),
                     new NullableCorrelationIdJsonConverter(),
+                    new QueryIdJsonConverter(),
+                    new NullableQueryIdJsonConverter(),
                 }
             };
         }
