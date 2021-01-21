@@ -48,7 +48,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     CorrelationId = command.CorrelationId,
                     Data = data,
                     Id = command.Id,
-                    UserId = command.UserId,
+                    UserId = command.Actor,
                     Timestamp = command.Timestamp,
                 });
 

@@ -9,6 +9,6 @@ namespace OpenEventSourcing.Commands
         CorrelationId? CorrelationId { get; }
         DateTimeOffset Timestamp { get; }
         int Version { get; }
-        string UserId { get; }
+        Actor Actor { get; }
     }
 }

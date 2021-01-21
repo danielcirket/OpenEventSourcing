@@ -9,16 +9,16 @@ namespace OpenEventSourcing.Commands
         public string Subject { get; }
         public CorrelationId? CorrelationId { get; }
         public int Version { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
         public DateTimeOffset Timestamp { get; }
 
-        public Command(string subject, CorrelationId? correlationId, int version, string userId)
+        public Command(string subject, CorrelationId? correlationId, int version, Actor actor)
         {
             Id = CommandId.New();
             Subject = subject;
             CorrelationId = correlationId;
             Version = version;
-            UserId = userId;
+            Actor = actor;
             Timestamp = DateTimeOffset.UtcNow;
         }
     }

@@ -30,6 +30,8 @@ namespace OpenEventSourcing.Serialization.Json
                     new NullableEventIdJsonConverter(),
                     new CommandIdJsonConverter(),
                     new NullableCommandIdJsonConverter(),
+                    new ActorJsonConverter(),
+                    new NullableActorJsonConverter(),
                 }
             };
         }

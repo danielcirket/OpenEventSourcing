@@ -81,7 +81,7 @@ namespace OpenEventSourcing.Tests.Events
 
             var dispatcher = serviceProvider.GetRequiredService<IEventDispatcher>();
             var @event = new FakeEvent();
-            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, actor: Actor.From(nameof(WhenNoHandlersRegisteredForEventThenShouldThrowInvalidOperationException)));
             
             Func<Task> act = async () => await dispatcher.DispatchAsync(context);
 
@@ -91,7 +91,7 @@ namespace OpenEventSourcing.Tests.Events
         public async Task WhenSingleHandlersRegisteredForEventThenShouldDispatchToHandler()
         {
             var @event = new FakeEvent();
-            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, actor: Actor.From(nameof(WhenSingleHandlersRegisteredForEventThenShouldDispatchToHandler)));
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
@@ -112,7 +112,7 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenCancellationRequestedThenShouldThrowOperationCancelledException()
         {
             var @event = new FakeEvent();
-            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, actor: Actor.From(nameof(WhenCancellationRequestedThenShouldThrowOperationCancelledException)));
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()
@@ -139,7 +139,7 @@ namespace OpenEventSourcing.Tests.Events
         public void WhenCancellationTokenRemainsNonCancelledThenShouldNotThrowOperationCancelledException()
         {
             var @event = new FakeEvent();
-            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, userId: null);
+            var context = new EventContext<FakeEvent>(streamId: @event.Subject, @event: @event, correlationId: null, causationId: null, timestamp: @event.Timestamp, actor: Actor.From(nameof(WhenCancellationTokenRemainsNonCancelledThenShouldNotThrowOperationCancelledException)));
 
             var serviceProvider = new ServiceCollection()
                 .AddOpenEventSourcing()

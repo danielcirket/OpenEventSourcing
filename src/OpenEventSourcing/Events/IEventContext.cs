@@ -9,6 +9,6 @@ namespace OpenEventSourcing.Events
         CausationId? CausationId { get; }
         TEvent Payload { get; }
         DateTimeOffset Timestamp { get; }
-        string UserId { get; }
+        Actor Actor { get; }
     }
 }

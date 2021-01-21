@@ -7,6 +7,6 @@ namespace OpenEventSourcing.Queries
         QueryId Id { get; }
         DateTimeOffset Timestamp { get; }
         CorrelationId? CorrelationId { get; }
-        string UserId { get; }
+        Actor Actor { get; }
     }
 }

@@ -8,14 +8,14 @@ namespace OpenEventSourcing.Queries
         public QueryId Id { get; }
         public DateTimeOffset Timestamp { get; }
         public CorrelationId? CorrelationId { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
 
-        public Query(CorrelationId? correlationId, string userId)
+        public Query(CorrelationId? correlationId, Actor actor)
         {
             Id = QueryId.New();
             Timestamp = DateTimeOffset.UtcNow;
             CorrelationId = correlationId;
-            UserId = userId;
+            Actor = actor;
         }
     }
 }

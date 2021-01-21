@@ -98,7 +98,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.QueryStore
             result.Id.Should().Be(query.Id);
             result.Timestamp.Should().Be(query.Timestamp);
             result.CorrelationId.Should().Be(query.CorrelationId);
-            result.UserId.Should().Be(query.UserId);
+            result.UserId.Should().Be(query.Actor);
             result.Data.Should().Be(serializer.Serialize(query));
         }
     }

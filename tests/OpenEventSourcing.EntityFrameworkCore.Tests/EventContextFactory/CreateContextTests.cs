@@ -56,7 +56,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.EventContextFactory
                 Name = nameof(FakeEvent),
                 Timestamp = DateTimeOffset.UtcNow,
                 Type = typeof(FakeEvent).FullName,
-                UserId = "user-1",
+                Actor = "user-1",
             });
 
             result.Should().BeAssignableTo(typeof(IEventContext<FakeEvent>));

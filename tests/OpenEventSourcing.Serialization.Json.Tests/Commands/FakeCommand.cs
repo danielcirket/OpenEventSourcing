@@ -10,7 +10,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
         public CorrelationId? CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
         public int Version { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
 
         public FakeCommand()
         {

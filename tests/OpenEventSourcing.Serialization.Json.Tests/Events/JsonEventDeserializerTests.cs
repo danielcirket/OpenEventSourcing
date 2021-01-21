@@ -7,7 +7,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
 {
     public class JsonEventDeserializerTests
     {
-        private readonly string _json = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"aggregateId\":\"00000000-0000-0000-0000-000000000000\",\"correlationId\":null,\"causationId\":null,\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":3,\"userId\":\"User\"}";
+        private readonly string _json = "{\"id\":\"5eb0ea02-7dde-4730-bd61-09fcf1065e11\",\"subject\":\"fdfbd5b3-cafb-4376-a3fa-7f74c20a0188\",\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":3}";
 
         [Fact]
         public void WhenDataIsNullThenShouldThrowArgumentNullException()
@@ -31,13 +31,10 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
             var result = serializer.Deserialize<FakeEvent>(_json);
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(EventId.From(Guid.Empty.ToString()));
-            result.Subject.Should().Be(Guid.Empty.ToString());
-            result.CausationId.Should().BeNull();
-            result.CorrelationId.Should().BeNull();
+            result.Id.Should().Be(EventId.From(Guid.Parse("5eb0ea02-7dde-4730-bd61-09fcf1065e11").ToString()));
+            result.Subject.Should().Be(Guid.Parse("fdfbd5b3-cafb-4376-a3fa-7f74c20a0188").ToString());
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
-            result.UserId.Should().BeEquivalentTo("User");
         }
         [Fact]
         public void WhenDataIsNotNullThenShouldSerializeWithExpectedValueNonGeneric()
@@ -47,13 +44,10 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Events
             var result = (FakeEvent)serializer.Deserialize(_json, typeof(FakeEvent));
 
             result.Should().NotBeNull();
-            result.Id.Should().Be(EventId.From(Guid.Empty.ToString()));
-            result.Subject.Should().Be(Guid.Empty.ToString());
-            result.CausationId.Should().BeNull();
-            result.CorrelationId.Should().BeNull();
+            result.Id.Should().Be(EventId.From(Guid.Parse("5eb0ea02-7dde-4730-bd61-09fcf1065e11").ToString()));
+            result.Subject.Should().Be(Guid.Parse("fdfbd5b3-cafb-4376-a3fa-7f74c20a0188").ToString());
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
-            result.UserId.Should().BeEquivalentTo("User");
         }
     }
 }

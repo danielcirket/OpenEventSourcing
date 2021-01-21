@@ -121,7 +121,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenAggregateHasEventsThenGetAsyncShouldReturnExpectedEvents))));
             
             await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -143,7 +143,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenAggregateHasEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents))));
 
             await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -165,7 +165,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: StreamId.From(aggregate.Id), @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: StreamId.From(aggregate.Id), @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenStoreContainsEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents))));
 
             await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -208,7 +208,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenSavingSingleEventThenShouldStoreEvent))));
 
             await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -230,7 +230,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenSavingMulitpleEventsThenShouldStoreExpectedEvents))));
 
             await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 

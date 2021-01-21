@@ -53,7 +53,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (expectedVersion.GetValueOrDefault() != currentVersion)
                 throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, @event.Timestamp, userId: "unknown"));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, @event.Timestamp, actor: Actor.From("unknown")));
 
             await _eventStore.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -77,7 +77,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (expectedVersion.GetValueOrDefault() != currentVersion)
                 throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: CausationId.From(causation.Id), @event.Timestamp, userId: causation.UserId));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: CausationId.From(causation.Id), @event.Timestamp, actor: causation.Actor));
 
             await _eventStore.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
@@ -101,7 +101,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             if (expectedVersion.GetValueOrDefault() != currentVersion)
                 throw new ConcurrencyException(aggregate.Id, expectedVersion.GetValueOrDefault(), currentVersion);
 
-            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: CausationId.From(causation.Payload.Id), @event.Timestamp, userId: causation.UserId));
+            var contexts = events.Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: causation.CorrelationId, causationId: CausationId.From(causation.Payload.Id), @event.Timestamp, actor: causation.Actor));
 
             await _eventStore.SaveAsync(StreamId.From(aggregate.Id), contexts);
 

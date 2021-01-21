@@ -64,13 +64,13 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
             var @event = new CreateTestEvent();
             var causationId = CausationId.From(Guid.NewGuid().ToString());
             var correlationId = CorrelationId.New();
-            var userId = "test-user";
+            var actor = "test-user";
 
             properties.Headers = new Dictionary<string, object>
             {
                 { nameof(IEventContext<IEvent>.CausationId), causationId },
                 { nameof(IEventContext<IEvent>.CorrelationId), correlationId },
-                { nameof(IEventContext<IEvent>.UserId), userId },
+                { nameof(IEventContext<IEvent>.Actor), actor },
             };
 
             var message = new ReceivedMessage(new BasicDeliverEventArgs
@@ -85,7 +85,7 @@ namespace OpenEventSourcing.RabbitMQ.Tests.Messages
             context.CorrelationId.Should().Be(correlationId);
             context.Payload.Should().BeOfType<CreateTestEvent>();
             context.Timestamp.Should().Be(@event.Timestamp);
-            context.UserId.Should().Be(userId);
+            context.Actor.Should().Be(Actor.From(actor));
         }
 
         private class CreateTestEvent : Event

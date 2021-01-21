@@ -12,7 +12,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Entities
         public string Name { get; set; }
         public string Type { get; set; }
         public string Data { get; set; }
-        public string UserId { get; set; }
+        public string Actor { get; set; }
         public DateTimeOffset Timestamp { get; set; }
     }
 }

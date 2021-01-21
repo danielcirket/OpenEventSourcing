@@ -40,7 +40,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
             var @event = (IEvent)_eventDeserializer.Deserialize(dbEvent.Data, type);
 
             if (_cache.TryGetValue(type, out var activator))
-                return activator(dbEvent.StreamId, @event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, dbEvent.UserId);
+                return activator(dbEvent.StreamId, @event, dbEvent.CorrelationId, dbEvent.CausationId, @event.Timestamp, Actor.From(dbEvent.Actor));
 
             activator = BuildActivator(typeof(EventContext<>).MakeGenericType(type));
 
@@ -49,12 +49,12 @@ namespace OpenEventSourcing.EntityFrameworkCore
             var correlationId = dbEvent.CorrelationId != null ? CorrelationId.From(dbEvent.CorrelationId) : (CorrelationId?)null;
             var causationId = dbEvent.CausationId != null ? CausationId.From(dbEvent.CorrelationId) : (CausationId?)null;
 
-            return activator(dbEvent.StreamId, @event, correlationId, causationId, @event.Timestamp, dbEvent.UserId);
+            return activator(dbEvent.StreamId, @event, correlationId, causationId, @event.Timestamp, Actor.From(dbEvent.Actor));
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(Actor) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)

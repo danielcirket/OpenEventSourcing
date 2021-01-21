@@ -3,12 +3,12 @@ using OpenEventSourcing.Queries;
 
 namespace OpenEventSourcing.Serialization.Json.Tests.Queries
 {
-    internal class FakeQuery : IQuery<FakeQueryResult>
+    internal class FakeQuery : IQuery<bool>
     {
         public QueryId Id { get; }
         public DateTimeOffset Timestamp { get; }
         public CorrelationId? CorrelationId { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
 
         public FakeQuery()
         {

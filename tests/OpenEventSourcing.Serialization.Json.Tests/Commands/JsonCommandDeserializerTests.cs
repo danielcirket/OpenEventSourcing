@@ -7,7 +7,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
 {
     public class JsonCommandDeserializerTests
     {
-        private readonly string _json = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"subject\":\"00000000-0000-0000-0000-000000000000\",\"correlationId\":\"00000000-0000-0000-0000-000000000000\",\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":3,\"userId\":\"User\"}";
+        private readonly string _json = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"subject\":\"00000000-0000-0000-0000-000000000000\",\"correlationId\":\"00000000-0000-0000-0000-000000000000\",\"timestamp\":\"9999-12-31T23:59:59.9999999+00:00\",\"version\":3,\"actor\":\"User\"}";
 
         [Fact]
         public void WhenDataIsNullThenShouldThrowArgumentNullException()
@@ -36,7 +36,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
-            result.UserId.Should().BeEquivalentTo("User");
+            result.Actor.Should().BeEquivalentTo(Actor.From("User"));
         }
         [Fact]
         public void WhenDataIsNotNullThenShouldSerializeWithExpectedValueNonGeneric()
@@ -51,7 +51,7 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
             result.CorrelationId.Should().Be(CorrelationId.From(Guid.Empty.ToString()));
             result.Timestamp.Should().Be(DateTimeOffset.MaxValue);
             result.Version.Should().Be(3);
-            result.UserId.Should().BeEquivalentTo("User");
+            result.Actor.Should().BeEquivalentTo(Actor.From("User"));
         }
     }
 }

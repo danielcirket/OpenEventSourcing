@@ -42,7 +42,7 @@ namespace OpenEventSourcing.RabbitMQ.Messages
             string streamId = null;
             CorrelationId? correlationId = null;
             CausationId? causationId = null;
-            string userId = null;
+            string actor = null;
 
             if (message.BasicProperties.Headers != null)
             {
@@ -61,23 +61,23 @@ namespace OpenEventSourcing.RabbitMQ.Messages
                     causationId = value != null ? CausationId.From(value) : (CausationId?)null;
                 }
 
-                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.UserId)))
-                    userId = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.UserId)]?.ToString();
+                if (message.BasicProperties.Headers.ContainsKey(nameof(IEventContext<IEvent>.Actor)))
+                    actor = message.BasicProperties.Headers[nameof(IEventContext<IEvent>.Actor)]?.ToString();
             }
 
             if (_cache.TryGetValue(type, out var activator))
-                return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
+                return activator(streamId, @event, correlationId, causationId, @event.Timestamp, Actor.From(actor ?? "<Unknown>"));
 
             activator = BuildActivator(typeof(EventContext<>).MakeGenericType(type));
 
             _cache.TryAdd(type, activator);
 
-            return activator(streamId, @event, correlationId, causationId, @event.Timestamp, userId);
+            return activator(streamId, @event, correlationId, causationId, @event.Timestamp, Actor.From(actor ?? "<Unknown>"));
         }
 
         private Activator<IEventContext<IEvent>> BuildActivator(Type type)
         {
-            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(string) };
+            var expectedParameterTypes = new Type[] { typeof(string), type.GenericTypeArguments[0], typeof(CorrelationId?), typeof(CausationId?), typeof(DateTimeOffset), typeof(Actor) };
             var constructor = type.GetConstructor(expectedParameterTypes);
 
             if (constructor == null)
