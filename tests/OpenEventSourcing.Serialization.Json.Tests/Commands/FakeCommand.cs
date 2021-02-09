@@ -5,18 +5,18 @@ namespace OpenEventSourcing.Serialization.Json.Tests.Commands
 {
     internal class FakeCommand : ICommand
     {
-        public string Id { get; }
+        public CommandId Id { get; }
         public string Subject { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
         public int Version { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
 
         public FakeCommand()
         {
-            Id = Guid.Empty.ToString();
+            Id = CommandId.From(Guid.Empty.ToString());
             Subject = Guid.Empty.ToString();
-            CorrelationId = Guid.Empty.ToString();
+            CorrelationId = OpenEventSourcing.CorrelationId.From(Guid.Empty.ToString());
             Timestamp = DateTimeOffset.MaxValue;
             Version = 3;
         }

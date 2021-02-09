@@ -4,11 +4,11 @@ namespace OpenEventSourcing.Commands
 {
     public interface ICommand
     {
-        string Id { get; }
+        CommandId Id { get; }
         string Subject { get; }
-        string CorrelationId { get; }
+        CorrelationId? CorrelationId { get; }
         DateTimeOffset Timestamp { get; }
         int Version { get; }
-        string UserId { get; }
+        Actor Actor { get; }
     }
 }

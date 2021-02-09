@@ -6,18 +6,18 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
 {
     public class FakeCommand : ICommand
     {
-        public string Id { get; }
+        public CommandId Id { get; }
         public string Subject { get; }
-        public string CorrelationId { get; }
+        public CorrelationId? CorrelationId { get; }
         public DateTimeOffset Timestamp { get; }
         public int Version { get; }
-        public string UserId { get; }
+        public Actor Actor { get; }
 
         public FakeCommand()
         {
-            Id = Guid.NewGuid().ToSequentialGuid().ToString();
+            Id = CommandId.New();
             Subject = Guid.NewGuid().ToSequentialGuid().ToString();
-            CorrelationId = Guid.NewGuid().ToSequentialGuid().ToString();
+            CorrelationId = OpenEventSourcing.CorrelationId.New();
             Timestamp = DateTimeOffset.UtcNow;
         }
     }

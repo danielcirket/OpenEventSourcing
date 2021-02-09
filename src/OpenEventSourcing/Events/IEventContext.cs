@@ -5,10 +5,10 @@ namespace OpenEventSourcing.Events
     public interface IEventContext<out TEvent> where TEvent : IEvent
     {
         string StreamId { get; }
-        string CorrelationId { get; }
-        string CausationId { get; }
+        CorrelationId? CorrelationId { get; }
+        CausationId? CausationId { get; }
         TEvent Payload { get; }
         DateTimeOffset Timestamp { get; }
-        string UserId { get; }
+        Actor Actor { get; }
     }
 }

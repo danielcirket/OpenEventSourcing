@@ -46,7 +46,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             _logger = logger;
         }
 
-        public async Task<long> CountAsync(string streamId, CancellationToken cancellationToken = default)
+        public async Task<long> CountAsync(StreamId streamId, CancellationToken cancellationToken = default)
         {
             using (var context = _dbContextFactory.Create())
             {
@@ -91,7 +91,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
 
             return new Page(offset + events.Count, offset, results);
         }
-        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(StreamId streamId, CancellationToken cancellationToken = default)
         {
             var results = new List<IEventContext<IEvent>>();
 
@@ -111,7 +111,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             return results;
 
         }
-        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(string streamId, long offset, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IEventContext<IEvent>>> GetEventsAsync(StreamId streamId, long offset, CancellationToken cancellationToken = default)
         {
             var results = new List<IEventContext<IEvent>>();
 
@@ -131,7 +131,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
             return results;
         }
 
-        public async Task SaveAsync(string streamId, IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
+        public async Task SaveAsync(StreamId streamId, IEnumerable<IEventContext<IEvent>> events, CancellationToken cancellationToken = default)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -158,7 +158,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                 return events;
             }
         }
-        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(string streamId, long offset)
+        private async Task<List<Entities.Event>> GetAllEventsForwardsForStreamInternalAsync(StreamId streamId, long offset)
         {
             using (var context = _dbContextFactory.Create())
             {

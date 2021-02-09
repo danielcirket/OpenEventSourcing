@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OpenEventSourcing.Serialization.Json.Converters;
 
 namespace OpenEventSourcing.Serialization.Json
 {
@@ -16,6 +18,21 @@ namespace OpenEventSourcing.Serialization.Json
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Formatting = Formatting.None,
+                Converters = new List<JsonConverter>
+                {
+                    new CausationIdJsonConverter(),
+                    new NullableCausationIdJsonConverter(),
+                    new CorrelationIdJsonConverter(),
+                    new NullableCorrelationIdJsonConverter(),
+                    new QueryIdJsonConverter(),
+                    new NullableQueryIdJsonConverter(),
+                    new EventIdJsonConverter(),
+                    new NullableEventIdJsonConverter(),
+                    new CommandIdJsonConverter(),
+                    new NullableCommandIdJsonConverter(),
+                    new ActorJsonConverter(),
+                    new NullableActorJsonConverter(),
+                }
             };
         }
 

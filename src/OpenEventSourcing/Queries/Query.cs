@@ -5,17 +5,17 @@ namespace OpenEventSourcing.Queries
 {
     public abstract class Query<TQueryResult> : IQuery<TQueryResult>
     {
-        public string Id { get; }
+        public QueryId Id { get; }
         public DateTimeOffset Timestamp { get; }
-        public string CorrelationId { get; }
-        public string UserId { get; }
+        public CorrelationId? CorrelationId { get; }
+        public Actor Actor { get; }
 
-        public Query(string correlationId, string userId)
+        public Query(CorrelationId? correlationId, Actor actor)
         {
-            Id = Guid.NewGuid().ToSequentialGuid().ToString();
+            Id = QueryId.New();
             Timestamp = DateTimeOffset.UtcNow;
             CorrelationId = correlationId;
-            UserId = userId;
+            Actor = actor;
         }
     }
 }

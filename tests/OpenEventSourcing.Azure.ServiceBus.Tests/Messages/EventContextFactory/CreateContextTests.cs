@@ -59,9 +59,9 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
             var factory = ServiceProvider.GetRequiredService<IEventContextFactory>();
             var @event = new CreateTestEvent();
             var streamId = Guid.NewGuid().ToString();
-            var causationId = Guid.NewGuid().ToString();
-            var correlationId = Guid.NewGuid().ToString();
-            var userId = "test-user";
+            var causationId = CausationId.From(Guid.NewGuid().ToString());
+            var correlationId = CorrelationId.New();
+            var actor = "test-user";
 
             var message = new Message
             {
@@ -73,7 +73,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
                 {
                     { nameof(IEventContext<IEvent>.StreamId), streamId.ToString() },
                     { nameof(IEventContext<IEvent>.CausationId), causationId.ToString() },
-                    { nameof(IEventContext<IEvent>.UserId), userId },
+                    { nameof(IEventContext<IEvent>.Actor), actor },
                     { nameof(IEventContext<IEvent>.Timestamp), @event.Timestamp },
                 },
             };
@@ -85,7 +85,7 @@ namespace OpenEventSourcing.Azure.ServiceBus.Tests.Messages.EventContextFactory
             context.CorrelationId.Should().Be(correlationId);
             context.Payload.Should().BeOfType<CreateTestEvent>();
             context.Timestamp.Should().Be(@event.Timestamp);
-            context.UserId.Should().Be(userId);
+            context.Actor.Should().Be(Actor.From(actor));
         }
 
         private class CreateTestEvent : Event

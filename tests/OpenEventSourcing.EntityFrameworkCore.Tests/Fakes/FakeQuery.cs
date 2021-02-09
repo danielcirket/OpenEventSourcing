@@ -6,17 +6,17 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Fakes
 {
     public class FakeQuery : IQuery<FakeQueryResult>
     {
-        public string Id { get; }
+        public QueryId Id { get; }
         public DateTimeOffset Timestamp { get; }
-        public string CorrelationId { get; }
-        public string UserId { get; }
+        public CorrelationId? CorrelationId { get; }
+        public Actor Actor { get; }
 
         public FakeQuery()
         {
-            Id = Guid.NewGuid().ToSequentialGuid().ToString();
+            Id = QueryId.New();
             Timestamp = DateTimeOffset.UtcNow;
-            CorrelationId = Guid.NewGuid().ToSequentialGuid().ToString();
-            UserId = null;
+            CorrelationId = OpenEventSourcing.CorrelationId.From(Guid.NewGuid().ToString());
+            Actor = Actor.From(nameof(FakeQuery));
         }
     }
 }

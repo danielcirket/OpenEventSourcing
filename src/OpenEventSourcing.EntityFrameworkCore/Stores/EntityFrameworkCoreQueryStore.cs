@@ -49,7 +49,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Stores
                     Id = query.Id,
                     CorrelationId = query.CorrelationId,
                     Timestamp = query.Timestamp,
-                    UserId = query.UserId,
+                    UserId = query.Actor,
                 });
 
                 await context.SaveChangesAsync(cancellationToken);

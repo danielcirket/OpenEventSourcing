@@ -16,7 +16,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.EntityConfiguration
             builder.HasIndex(c => c.CorrelationId);
             builder.HasIndex(c => c.CausationId);
             builder.HasIndex(c => c.Name);
-            builder.HasIndex(c => c.UserId);
+            builder.HasIndex(c => c.Actor);
         }
     }
 }

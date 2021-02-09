@@ -98,7 +98,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.CommandStore
             result.Id.Should().Be(command.Id);
             result.Timestamp.Should().Be(command.Timestamp);
             result.CorrelationId.Should().Be(command.CorrelationId);
-            result.UserId.Should().Be(command.UserId);
+            result.UserId.Should().Be(command.Actor);
             result.Name.Should().Be(command.GetType().Name);
             result.Type.Should().Be(command.GetType().FullName);
             result.Data.Should().Be(serializer.Serialize(command));

@@ -121,11 +121,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenAggregateHasEventsThenGetAsyncShouldReturnExpectedEvents))));
             
-            await store.SaveAsync(aggregate.Id, contexts);
+            await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
-            var events = await store.GetEventsAsync(aggregate.Id);
+            var events = await store.GetEventsAsync(StreamId.From(aggregate.Id));
 
             events.Count().Should().Be(5);
         }
@@ -143,11 +143,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenAggregateHasEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents))));
 
-            await store.SaveAsync(aggregate.Id, contexts);
+            await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
-            var events = await store.GetEventsAsync(aggregate.Id, 3);
+            var events = await store.GetEventsAsync(StreamId.From(aggregate.Id), 3);
 
             events.Count().Should().Be(3);
         }
@@ -165,9 +165,9 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: StreamId.From(aggregate.Id), @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenStoreContainsEventsThenGetAsyncWithOffsetShouldReturnExpectedEvents))));
 
-            await store.SaveAsync(aggregate.Id, contexts);
+            await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
             var total = dbContext.Events.Count();
             var page = await store.GetEventsAsync(0);
@@ -190,7 +190,7 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             IEnumerable<IEventContext<IEvent>> contexts = null;
 
-            Func<Task> act = async () => await store.SaveAsync("fake-stream", contexts);
+            Func<Task> act = async () => await store.SaveAsync(StreamId.From("fake-stream"), contexts);
 
             act.Should().Throw<ArgumentNullException>().
                 And.ParamName.Should().Be("events");
@@ -208,11 +208,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
 
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenSavingSingleEventThenShouldStoreEvent))));
 
-            await store.SaveAsync(aggregate.Id, contexts);
+            await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
-            var count = dbContext.Events.Count(e => e.StreamId == aggregate.Id);
+            var count = dbContext.Events.Count(e => e.StreamId == StreamId.From(aggregate.Id));
             count.Should().Be(1);
         }
         [Fact]
@@ -230,11 +230,11 @@ namespace OpenEventSourcing.EntityFrameworkCore.Tests.Stores.EventStore
             aggregate.FakeAction();
             aggregate.FakeAction();
 
-            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, userId: null));
+            var contexts = aggregate.GetUncommittedEvents().Select(@event => new EventContext<IEvent>(streamId: aggregate.Id, @event: @event, correlationId: null, causationId: null, timestamp: DateTimeOffset.UtcNow, actor: Actor.From(nameof(WhenSavingMulitpleEventsThenShouldStoreExpectedEvents))));
 
-            await store.SaveAsync(aggregate.Id, contexts);
+            await store.SaveAsync(StreamId.From(aggregate.Id), contexts);
 
-            var count = dbContext.Events.Count(e => e.StreamId == aggregate.Id);
+            var count = dbContext.Events.Count(e => e.StreamId == StreamId.From(aggregate.Id));
             count.Should().Be(3);
         }
     }

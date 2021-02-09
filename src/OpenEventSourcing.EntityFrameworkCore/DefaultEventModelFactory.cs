@@ -36,7 +36,7 @@ namespace OpenEventSourcing.EntityFrameworkCore
                 Name = type.Name,
                 Type = type.FullName,
                 Timestamp = @event.Timestamp,
-                UserId = context.UserId,
+                Actor = context.Actor,
             };
         }
     }
