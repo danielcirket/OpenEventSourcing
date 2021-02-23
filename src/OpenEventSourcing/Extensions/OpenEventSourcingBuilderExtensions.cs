@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using OpenEventSourcing.Commands;
+using OpenEventSourcing.Commands.Pipeline;
 using OpenEventSourcing.Events;
 using OpenEventSourcing.Queries;
 
@@ -26,6 +28,25 @@ namespace OpenEventSourcing.Extensions
                     .AsImplementedInterfaces()
                     .WithScopedLifetime();
             });
+
+            return builder;
+        }
+
+        public static IOpenEventSourcingBuilder AddCommands(this IOpenEventSourcingBuilder builder, Action<CommandOptionsBuilder> setupAction)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            builder.Services.AddScoped<ICommandStore, NoOpCommandStore>();
+            builder.Services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
+            builder.Services.AddScoped<CommandContext>();
+            builder.Services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
+            
+            var optionsBuilder = new CommandOptionsBuilder(builder.Services);
+
+            setupAction?.Invoke(optionsBuilder);
+            
+            optionsBuilder.Build();
 
             return builder;
         }

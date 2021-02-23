@@ -10,14 +10,14 @@ namespace OpenEventSourcing.Tests.Fakes
         private int _handled = 0;
         public int Handled => _handled;
 
-        public Task ExecuteAsync(FakeDispatchableCommand command, CancellationToken cancellationToken = default)
+        public Task ExecuteAsync(Func<Task> next, FakeDispatchableCommand command, CancellationToken cancellationToken = default)
         {
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
             Interlocked.Increment(ref _handled);
 
-            return Task.CompletedTask;
+            return next();
         }
     }
 }
