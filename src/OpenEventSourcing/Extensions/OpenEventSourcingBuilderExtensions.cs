@@ -10,28 +10,6 @@ namespace OpenEventSourcing.Extensions
 {
     public static class OpenEventSourcingBuilderExtensions
     {
-        public static IOpenEventSourcingBuilder AddCommands(this IOpenEventSourcingBuilder builder)
-        {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-
-            builder.Services.AddScoped<ICommandStore, NoOpCommandStore>();
-
-            builder.Services.Scan(scan =>
-            {
-                scan.FromApplicationDependencies()
-                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
-                    .AsImplementedInterfaces()
-                    .WithScopedLifetime()
-
-                    .AddClasses(classes => classes.AssignableTo<ICommandDispatcher>())
-                    .AsImplementedInterfaces()
-                    .WithScopedLifetime();
-            });
-
-            return builder;
-        }
-
         public static IOpenEventSourcingBuilder AddCommands(this IOpenEventSourcingBuilder builder, Action<CommandOptionsBuilder> setupAction)
         {
             if (builder == null)

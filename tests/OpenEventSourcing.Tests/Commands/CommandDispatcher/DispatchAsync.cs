@@ -20,7 +20,10 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
-                    .AddCommands()
+                    .AddCommands(options =>
+                    {
+                        options.For<FakeCommand>();
+                    })
                     .Services
                     .AddLogging();
 
@@ -34,12 +37,12 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
                 .And.ParamName.Should().Be(nameof(command));
         }
         [Fact]
-        public void WhenNoHandlerRegisteredForCommandThenShouldThrowInvalidOperationException()
+        public void WhenNoPipelineRegisteredForCommandThenShouldThrowInvalidOperationException()
         {
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
-                    .AddCommands()
+                    .AddCommands(options => {})
                     .Services
                     .AddLogging();
 
@@ -50,7 +53,7 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
             Func<Task> act = () => dispatcher.DispatchAsync(command);
 
             act.Should().Throw<InvalidOperationException>()
-                .And.Message.Should().Be($"No command handler for type '{typeof(FakeCommand).FriendlyName()}' has been registered.");
+                .And.Message.Should().Be($"No command pipeline for type '{typeof(FakeCommand).FriendlyName()}' has been registered.");
         }
         [Fact]
         public void WhenHandlerRegisteredForCommandThenShouldDispatchCommandToHandler()
@@ -58,20 +61,24 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
-                    .AddCommands()
+                    .AddCommands(options =>
+                    {
+                        options.For<FakeDispatchableCommand>()
+                               .Use<FakeDispatchableCommandHandler>();
+                    })
                     .Services
                     .AddLogging();
 
             var serviceProvider = services.BuildServiceProvider();
             var dispatcher = serviceProvider.GetRequiredService<ICommandDispatcher>();
-            var handler = serviceProvider.GetRequiredService<ICommandHandler<FakeDispatchableCommand>>();
+            var handler = serviceProvider.GetRequiredService<FakeDispatchableCommandHandler>();
             var command = new FakeDispatchableCommand();
 
             Func<Task> act = () => dispatcher.DispatchAsync(command);
 
             act.Should().NotThrow();
 
-            ((FakeDispatchableCommandHandler)handler).Handled.Should().Be(1);
+            handler.Handled.Should().Be(1);
         }
         [Fact]
         public void WhenCancellationRequestedThenShouldThrowOperationCancelledException()
@@ -79,13 +86,17 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
-                    .AddCommands()
+                    .AddCommands(options =>
+                    {
+                        options.For<FakeDispatchableCommand>()
+                               .Use<FakeDispatchableCommandHandler>();
+                    })
                     .Services
                     .AddLogging();
 
             var serviceProvider = services.BuildServiceProvider();
             var dispatcher = serviceProvider.GetRequiredService<ICommandDispatcher>();
-            var handler = serviceProvider.GetRequiredService<ICommandHandler<FakeDispatchableCommand>>();
+            var handler = serviceProvider.GetRequiredService<FakeDispatchableCommandHandler>();
             var command = new FakeDispatchableCommand();
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -96,7 +107,7 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
 
             act.Should().Throw<OperationCanceledException>();
 
-            ((FakeDispatchableCommandHandler)handler).Handled.Should().Be(0);
+            handler.Handled.Should().Be(0);
         }
         [Fact]
         public void WhenCancellationTokenRemainsNonCancelledThenShouldNotThrowOperationCancelledException()
@@ -104,13 +115,17 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
             var services = new ServiceCollection();
 
             services.AddOpenEventSourcing()
-                    .AddCommands()
+                    .AddCommands(options =>
+                    {
+                        options.For<FakeDispatchableCommand>()
+                               .Use<FakeDispatchableCommandHandler>();
+                    })
                     .Services
                     .AddLogging();
 
             var serviceProvider = services.BuildServiceProvider();
             var dispatcher = serviceProvider.GetRequiredService<ICommandDispatcher>();
-            var handler = serviceProvider.GetRequiredService<ICommandHandler<FakeDispatchableCommand>>();
+            var handler = serviceProvider.GetRequiredService<FakeDispatchableCommandHandler>();
             var command = new FakeDispatchableCommand();
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -119,7 +134,7 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
 
             act.Should().NotThrow();
 
-            ((FakeDispatchableCommandHandler)handler).Handled.Should().Be(1);
+            handler.Handled.Should().Be(1);
         }
     }
 }

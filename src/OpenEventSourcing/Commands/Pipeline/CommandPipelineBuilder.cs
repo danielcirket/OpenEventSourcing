@@ -22,6 +22,7 @@ namespace OpenEventSourcing.Commands.Pipeline
         public CommandPipelineBuilder<TCommand> Use<TCommandHandler>() where TCommandHandler : class, ICommandHandler<TCommand>
         {
             _services.AddScoped<TCommandHandler>();
+            _services.AddScoped<ICommandHandler<TCommand>>(sp => sp.GetRequiredService<TCommandHandler>());
 
             return Use(next =>
             {
