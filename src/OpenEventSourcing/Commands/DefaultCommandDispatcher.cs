@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenEventSourcing.Commands.Pipeline;
 using OpenEventSourcing.Extensions;
 
 namespace OpenEventSourcing.Commands
@@ -11,22 +12,22 @@ namespace OpenEventSourcing.Commands
     {
         private readonly ILogger<DefaultCommandDispatcher> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ICommandStore _commandStore;
+        private readonly CommandContext _context;
 
         public DefaultCommandDispatcher(ILogger<DefaultCommandDispatcher> logger,
                                  IServiceProvider serviceProvider,
-                                 ICommandStore commandStore)
+                                 CommandContext context)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
-            if (commandStore == null)
-                throw new ArgumentNullException(nameof(commandStore));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _commandStore = commandStore;
+            _context = context;
         }
 
         public async Task DispatchAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default) where TCommand : ICommand
@@ -38,13 +39,12 @@ namespace OpenEventSourcing.Commands
 
             _logger.LogInformation($"Dispatching command '{typeof(TCommand).FriendlyName()}'.");
 
-            var handler = _serviceProvider.GetService<ICommandHandler<TCommand>>();
+            var pipeline = _serviceProvider.GetService<CommandPipeline<TCommand>>();
 
-            if (handler == null)
-                throw new InvalidOperationException($"No command handler for type '{typeof(TCommand).FriendlyName()}' has been registered.");
+            if (pipeline == null)
+                throw new InvalidOperationException($"No command pipeline for type '{typeof(TCommand).FriendlyName()}' has been registered.");
 
-            await handler.ExecuteAsync(command, cancellationToken);
-            await _commandStore.SaveAsync(command, cancellationToken);
+            await pipeline.ExecuteAsync(_context, command, cancellationToken);
         }
     }
 }

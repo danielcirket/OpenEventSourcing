@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OpenEventSourcing.Commands;
+using OpenEventSourcing.Commands.Pipeline;
 using Xunit;
 
 namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
@@ -17,9 +18,9 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
         {
             ILogger<DefaultCommandDispatcher> logger = null;
             IServiceProvider serviceProvider = null;
-            ICommandStore commandStore = null;
+            CommandContext context = null;
 
-            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, commandStore);
+            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, context);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be(nameof(logger));
@@ -29,9 +30,9 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
         {
             ILogger<DefaultCommandDispatcher> logger = Mock.Of<ILogger<DefaultCommandDispatcher>>();
             IServiceProvider serviceProvider = null;
-            ICommandStore commandStore = null;
+            CommandContext context = null;
 
-            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, commandStore);
+            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, context);
 
             act.Should().Throw<ArgumentNullException>()
                 .And.ParamName.Should().Be(nameof(serviceProvider));
@@ -41,12 +42,12 @@ namespace OpenEventSourcing.Tests.Commands.CommandDispatcher
         {
             ILogger<DefaultCommandDispatcher> logger = Mock.Of<ILogger<DefaultCommandDispatcher>>();
             IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
-            ICommandStore commandStore = null;
+            CommandContext context = null;
 
-            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, commandStore);
+            Action act = () => new DefaultCommandDispatcher(logger, serviceProvider, context);
 
             act.Should().Throw<ArgumentNullException>()
-                .And.ParamName.Should().Be(nameof(commandStore));
+                .And.ParamName.Should().Be(nameof(context));
         }
     }
 }
