@@ -37,6 +37,15 @@ namespace OpenEventSourcing.Commands.Pipeline
             return (CommandPipelineBuilder<TCommand>)builder;
         }
 
+        public CommandOptionsBuilder UseDispatcher<TCommandDispatcher>()
+            where TCommandDispatcher : class, ICommandDispatcher
+        {
+            _services.AddScoped<ICommandDispatcher, TCommandDispatcher>();
+
+            return this;
+        }
+
+        // TODO(Dan): What should this signature actually be?
         public void Build()
         {
             // TODO(Dan): Each builder is a "CommandPipelineBuilder<TCommand>", so we can't store them in _builders strongly typed
